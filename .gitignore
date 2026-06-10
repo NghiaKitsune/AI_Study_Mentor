@@ -55,3 +55,12 @@ lint/tmp/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code — local/runtime artifacts (not for version control)
+.claude/screenshots/
+.claude/status/
+.claude/settings.local.json
+.claude/metrics.md
+.claude/change_log.md
+.claude/error_log.md
+PHASE_3A_NOTES.md
