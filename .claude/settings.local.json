@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($sdk = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; & \"$sdk\\\\platform-tools\\\\adb.exe\" devices 2>&1)",
+      "PowerShell($sdk = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; & \"$sdk\\\\platform-tools\\\\adb.exe\" -s emulator-5554 install -r \"D:\\\\College BTEC\\\\Application Development\\\\ASM-20260430T042155Z-3-001\\\\Update Version\\\\android-starter\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\" 2>&1)"
+    ]
+  }
+}

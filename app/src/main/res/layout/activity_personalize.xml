@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    PersonalizeActivity — UC1
+    Level picker (chips) · subjects (chip group multi-select) · style picker (radio cards)
+-->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:fillViewport="true"
+    tools:context=".ui.PersonalizeActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_5"
+        android:paddingTop="@dimen/space_5"
+        android:paddingBottom="@dimen/space_8">
+
+        <!-- Header: back + progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/icon_button_lg"
+                android:layout_height="@dimen/icon_button_lg"
+                app:icon="@drawable/ic_back"
+                app:iconTint="@color/text_primary" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progress"
+                android:layout_width="0dp"
+                android:layout_height="6dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="@dimen/space_3"
+                app:trackCornerRadius="3dp"
+                app:trackColor="@color/border"
+                app:indicatorColor="@color/brand_primary"
+                android:progress="66" />
+
+            <TextView
+                android:id="@+id/btn_skip"
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/space_2"
+                android:textColor="@color/brand_primary_deep"
+                android:text="Skip" />
+        </LinearLayout>
+
+        <!-- Title -->
+        <TextView
+            style="@style/Text.H1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:text="@string/personalize_title" />
+
+        <TextView
+            style="@style/Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:textColor="@color/text_secondary"
+            android:text="@string/personalize_subtitle" />
+
+        <!-- Level -->
+        <TextView
+            style="@style/Text.H3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:text="@string/label_level" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chips_level"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            app:singleSelection="true"
+            app:chipSpacing="@dimen/space_2">
+
+            <com.google.android.material.chip.Chip
+                style="@style/Chip.Filter"
+                android:id="@+id/chip_level_middle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/level_middle" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Chip.Filter"
+                android:id="@+id/chip_level_high"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/level_high" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Chip.Filter"
+                android:id="@+id/chip_level_college"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/level_college" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Chip.Filter"
+                android:id="@+id/chip_level_self"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/level_self" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Subjects (multi-select) -->
+        <TextView
+            style="@style/Text.H3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:text="@string/label_subjects" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chips_subjects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            app:chipSpacing="@dimen/space_2">
+
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_math" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_science" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_code" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_history" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_language" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_geo" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Continue -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_continue"
+            style="@style/Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_lg"
+            android:layout_marginTop="@dimen/space_8"
+            android:text="@string/btn_continue" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

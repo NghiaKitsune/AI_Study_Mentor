@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studymentor.example.com/schema/chat-request.json",
+  "title": "ChatRequest",
+  "type": "object",
+  "required": ["request_id", "message"],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Client-generated id, idempotency key."
+    },
+    "conversation_id": {
+      "type": ["integer", "null"],
+      "description": "Server-issued conversation id for multi-turn threads. Null for the first turn."
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "description": "User's prompt. Plain text or markdown."
+    },
+    "context": {
+      "type": "object",
+      "description": "Optional client-supplied hints used to bias the response.",
+      "properties": {
+        "user_level": {
+          "type": "string",
+          "enum": ["middle-school", "high-school", "college", "self-taught"]
+        },
+        "subject": {
+          "type": "string",
+          "enum": ["math", "science", "code", "history", "language", "geography", "general"]
+        },
+        "locale": {
+          "type": "string",
+          "default": "vi-VN",
+          "examples": ["vi-VN", "en-US"]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon: amber background with mascot foreground (Android 8.0+ adaptive) -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/brand_primary" />
+    <foreground android:drawable="@drawable/ic_mascot_milo" />
+</adaptive-icon>

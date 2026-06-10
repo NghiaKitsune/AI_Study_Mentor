@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    QuizResultActivity — UC6 result
+    TopBar: X · Quiz complete · Share | Hero gradient | Rewards | Q breakdown | CTA
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.QuizResultActivity">
+
+    <!-- TopBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_close" />
+
+        <TextView
+            style="@style/Text.H3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Quiz complete" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_share"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_share"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_share" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_5"
+            android:paddingBottom="@dimen/space_5">
+
+            <!-- Hero gradient card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_5"
+                app:cardBackgroundColor="@color/brand_primary"
+                app:cardCornerRadius="@dimen/radius_xl"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/space_6"
+                    android:paddingHorizontal="@dimen/space_5">
+
+                    <ImageView
+                        android:layout_width="@dimen/mascot_md"
+                        android:layout_height="@dimen/mascot_md"
+                        android:src="@drawable/ic_mascot_milo"
+                        android:contentDescription="@string/cd_mascot" />
+
+                    <TextView
+                        style="@style/Text.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:textColor="#CC1A1610"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.12"
+                        android:text="GREAT JOB!" />
+
+                    <TextView
+                        android:id="@+id/text_score"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:textColor="@color/text_primary"
+                        android:textSize="48sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.03"
+                        tools:text="4 / 5" />
+
+                    <TextView
+                        android:id="@+id/text_accuracy"
+                        style="@style/Text.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CC1A1610"
+                        android:textStyle="bold"
+                        tools:text="80% accuracy · Physics quiz" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Reward row: XP / streak / badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_5">
+
+                <!-- XP -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card.Default"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_2">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:gravity="center" android:padding="@dimen/space_4">
+                        <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                            android:src="@drawable/ic_zap" app:tint="@color/brand_primary"
+                            android:layout_marginBottom="4dp" android:contentDescription="@null" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold"
+                            android:text="+45" />
+                        <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="3dp" android:text="XP earned" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Streak -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card.Default"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="@dimen/space_1">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:gravity="center" android:padding="@dimen/space_4">
+                        <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                            android:src="@drawable/ic_flame" app:tint="@color/brand_accent"
+                            android:layout_marginBottom="4dp" android:contentDescription="@null" />
+                        <TextView android:id="@+id/text_streak" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_primary"
+                            android:textSize="22sp" android:textStyle="bold" android:text="8" />
+                        <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="3dp" android:text="Day streak" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Badge -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card.Default"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_2">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:gravity="center" android:padding="@dimen/space_4">
+                        <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                            android:src="@drawable/ic_star" app:tint="#7C5CE6"
+                            android:layout_marginBottom="4dp" android:contentDescription="@null" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold"
+                            android:text="+1" />
+                        <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                            android:layout_marginTop="3dp" android:text="Badge" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Per-question breakdown -->
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true"
+                android:layout_marginBottom="@dimen/space_3"
+                android:text="Your answers" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_answers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="@dimen/space_5" />
+
+            <!-- Recommendation card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/info_soft"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_target" app:tint="@color/info"
+                        android:layout_marginEnd="@dimen/space_3" android:layout_marginTop="2dp"
+                        android:contentDescription="@null" />
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical">
+                        <TextView style="@style/Text.Body" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textStyle="bold"
+                            android:layout_marginBottom="3dp"
+                            android:text="Practice &quot;units &amp; measurements&quot;?" />
+                        <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_secondary"
+                            android:text="You missed Q4. A 3-question targeted quiz will lock it in." />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:colorBackground"
+        android:elevation="4dp"
+        android:padding="@dimen/space_4"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_done"
+            style="@style/Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_height_md"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/space_2"
+            android:text="Done" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_next_quiz"
+            style="@style/Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_height_md"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_2"
+            app:icon="@drawable/ic_arrow_right"
+            app:iconGravity="end"
+            android:text="Next quiz" />
+    </LinearLayout>
+
+</LinearLayout>

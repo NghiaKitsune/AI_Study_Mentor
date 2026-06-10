@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    HistoryActivity — UC5
+    Title + search · stats strip · filter chips · RecyclerView
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.HistoryActivity">
+
+    <!-- Top -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_5">
+
+        <TextView
+            style="@style/Text.H1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/title_history" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_search"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_search"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_search" />
+    </LinearLayout>
+
+    <!-- Stats strip -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_5"
+        android:paddingTop="@dimen/space_3">
+
+        <include layout="@layout/item_stat_pill" android:id="@+id/stat_questions" />
+        <Space android:layout_width="@dimen/space_2" android:layout_height="0dp" />
+        <include layout="@layout/item_stat_pill" android:id="@+id/stat_bookmarks" />
+        <Space android:layout_width="@dimen/space_2" android:layout_height="0dp" />
+        <include layout="@layout/item_stat_pill" android:id="@+id/stat_accuracy" />
+    </LinearLayout>
+
+    <!-- Filters -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
+        android:paddingHorizontal="@dimen/space_5"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chips_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacing="@dimen/space_2"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:id="@+id/chip_all" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/filter_all" android:checked="true" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:id="@+id/chip_bookmarks" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/filter_bookmarks" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:id="@+id/chip_subj_math" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_math" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:id="@+id/chip_subj_science" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_science" />
+            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:id="@+id/chip_subj_code" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subject_code" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- List + empty state stacked -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/space_5"
+                android:paddingVertical="@dimen/space_3">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_history_row" />
+
+                <!-- Milo noticed card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_milo_noticed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/brand_primary_tint"
+                    app:cardCornerRadius="@dimen/radius_md"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/brand_primary_soft"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/space_4">
+
+                        <ImageView
+                            android:layout_width="@dimen/mascot_sm"
+                            android:layout_height="@dimen/mascot_sm"
+                            android:layout_marginEnd="@dimen/space_3"
+                            android:src="@drawable/ic_mascot_milo"
+                            android:contentDescription="@string/cd_mascot" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/Text.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.06"
+                                android:textColor="@color/brand_primary_darker"
+                                android:textStyle="bold"
+                                android:text="MILO NOTICED" />
+
+                            <TextView
+                                android:id="@+id/text_milo_noticed"
+                                style="@style/Text.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_1"
+                                android:text="You\'ve been asking lots of questions. Want a quick review quiz?" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_milo_review"
+                                style="@style/Button.Primary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/button_height_sm"
+                                android:layout_marginTop="@dimen/space_3"
+                                android:text="Start review"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <include layout="@layout/view_empty_state" />
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottomnav_height"
+        app:menu="@menu/bottom_nav"
+        app:itemIconTint="@color/text_primary"
+        app:itemTextColor="@color/text_primary"
+        app:itemActiveIndicatorStyle="@style/BottomNav.ActiveIndicator"
+        app:itemIconSize="24dp"
+        app:labelVisibilityMode="labeled"
+        android:background="@color/surface"
+        android:elevation="8dp" />
+</LinearLayout>

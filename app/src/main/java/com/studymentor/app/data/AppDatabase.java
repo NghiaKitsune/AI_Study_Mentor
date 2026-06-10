@@ -1,0 +1,16 @@
+package com.studymentor.app.data;
+
+import androidx.room.Database;
+import androidx.room.RoomDatabase;
+
+@Database(
+        entities = {Question.class, Message.class},
+        version = 1,
+        exportSchema = false
+)
+public abstract class AppDatabase extends RoomDatabase {
+
+    public abstract QuestionDao questionDao();
+
+    public abstract MessageDao messageDao();
+}

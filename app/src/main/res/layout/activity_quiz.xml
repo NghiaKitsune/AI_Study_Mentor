@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    QuizActivity — UC6 active quiz
+    TopBar: X · progress+question label · timer | Question | 4 options | explanation | CTA
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.QuizActivity">
+
+    <!-- TopBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_close" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progress_quiz"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="140dp"
+                android:layout_height="6dp"
+                android:max="5"
+                android:progress="3"
+                android:progressTint="@color/brand_primary"
+                android:progressBackgroundTint="@color/surface_3" />
+
+            <TextView
+                android:id="@+id/text_question_label"
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_tertiary"
+                android:letterSpacing="0.05"
+                tools:text="QUESTION 3 / 5" />
+        </LinearLayout>
+
+        <!-- Timer pill -->
+        <LinearLayout
+            android:id="@+id/timer_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_mistake_warning"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_1">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_flame"
+                app:tint="@color/brand_accent"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/text_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/brand_accent"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="0:24" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Scrollable body -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_5"
+            android:paddingTop="@dimen/space_2"
+            android:paddingBottom="@dimen/space_4">
+
+            <!-- Subject tag row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_3">
+
+                <ImageView
+                    android:id="@+id/img_subject"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/bg_blob_primary_tint"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_sparkles"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/text_subject_tag"
+                    style="@style/Text.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_2"
+                    android:textColor="@color/text_tertiary"
+                    android:letterSpacing="0.06"
+                    android:textStyle="bold"
+                    tools:text="PHYSICS · MECHANICS · MULTIPLE CHOICE" />
+            </LinearLayout>
+
+            <!-- Question -->
+            <TextView
+                android:id="@+id/text_question"
+                style="@style/Text.H2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_2"
+                tools:text="What is a force in physics?" />
+
+            <TextView
+                android:id="@+id/text_question_hint"
+                style="@style/Text.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="@dimen/space_6"
+                android:text="Pick the best definition." />
+
+            <!-- Option A -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/option_a"
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_3">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <TextView android:id="@+id/circle_a" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:text="A" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                    <TextView android:id="@+id/text_option_a" style="@style/Text.Body" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
+                        tools:text="A force that pulls objects toward Earth" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Option B -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/option_b"
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_3">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <TextView android:id="@+id/circle_b" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:text="B" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                    <TextView android:id="@+id/text_option_b" style="@style/Text.Body" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
+                        tools:text="The total energy of motion of an object" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Option C -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/option_c"
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_3">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <TextView android:id="@+id/circle_c" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:text="C" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                    <TextView android:id="@+id/text_option_c" style="@style/Text.Body" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
+                        tools:text="Any push or pull that changes motion" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Option D -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/option_d"
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_5">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <TextView android:id="@+id/circle_d" android:layout_width="28dp" android:layout_height="28dp"
+                        android:gravity="center" android:text="D" android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                    <TextView android:id="@+id/text_option_d" style="@style/Text.Body" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
+                        tools:text="A measure of how heavy an object is" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Explanation card (shown after submit) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_explanation"
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+                    <ImageView
+                        android:layout_width="@dimen/mascot_sm"
+                        android:layout_height="@dimen/mascot_sm"
+                        android:src="@drawable/ic_mascot_milo"
+                        android:layout_marginEnd="@dimen/space_3"
+                        android:contentDescription="@string/cd_mascot" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/text_result_label"
+                            style="@style/Text.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.06"
+                            android:textStyle="bold"
+                            android:textColor="@color/success"
+                            android:layout_marginBottom="4dp"
+                            android:text="CORRECT" />
+                        <TextView
+                            android:id="@+id/text_explanation"
+                            style="@style/Text.Body"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_secondary"
+                            tools:text="A force is any interaction that, when unopposed, changes the motion of an object." />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom CTA -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:colorBackground"
+        android:elevation="4dp"
+        android:padding="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_check"
+            style="@style/Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_lg"
+            android:text="Check answer" />
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottomnav_height"
+        app:menu="@menu/bottom_nav"
+        app:itemIconTint="@color/text_primary"
+        app:itemTextColor="@color/text_primary"
+        app:itemActiveIndicatorStyle="@style/BottomNav.ActiveIndicator"
+        app:itemIconSize="24dp"
+        app:labelVisibilityMode="labeled"
+        android:background="@color/surface"
+        android:elevation="8dp" />
+
+</LinearLayout>

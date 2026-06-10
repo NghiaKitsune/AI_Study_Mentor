@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark theme overrides. Picked when system is in dark mode (Android 13+ honors per-app theme). -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Dark surfaces -->
+    <color name="bg">#1A1610</color>
+    <color name="surface">#252017</color>
+    <color name="surface_2">#2F2A1F</color>
+    <color name="surface_3">#3A3326</color>
+
+    <!-- Dark text -->
+    <color name="text_primary">#F5EFE0</color>
+    <color name="text_secondary">#C7BEA8</color>
+    <color name="text_tertiary">#8C8472</color>
+
+    <color name="border">#3A3326</color>
+    <color name="border_strong">#4F4634</color>
+
+    <!-- Subject softs need darker container variants -->
+    <color name="brand_primary_soft">#3D2F0E</color>
+    <color name="brand_primary_tint">#2A2210</color>
+
+    <style name="Theme.StudyMentor" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">#2A2418</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_soft</item>
+        <item name="colorOnPrimaryContainer">#FCEDC0</item>
+
+        <item name="colorSecondary">@color/brand_accent</item>
+        <item name="colorOnSecondary">@color/text_on_primary</item>
+
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_2</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/border</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/text_on_primary</item>
+
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/Shape.StudyMentor.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/Shape.StudyMentor.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/Shape.StudyMentor.Large</item>
+    </style>
+</resources>

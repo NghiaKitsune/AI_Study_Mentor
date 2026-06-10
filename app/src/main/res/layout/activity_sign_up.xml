@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SignUpActivity — UC1
+    Layout: NestedScrollView so the form scrolls when the keyboard pops.
+    Components: mascot · headline · 2 inputs · checkbox · primary button · OR divider · 2 SSO buttons · footer link
+-->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:fillViewport="true"
+    tools:context=".ui.SignUpActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_6"
+        android:paddingTop="@dimen/space_6"
+        android:paddingBottom="@dimen/space_8">
+
+        <!-- Top bar with close -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_close"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_lg"
+            android:layout_height="@dimen/icon_button_lg"
+            android:layout_gravity="start"
+            app:icon="@drawable/ic_close"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_close" />
+
+        <!-- Mascot -->
+        <ImageView
+            android:layout_width="@dimen/mascot_md"
+            android:layout_height="@dimen/mascot_md"
+            android:layout_marginTop="@dimen/space_4"
+            android:src="@drawable/ic_mascot_milo"
+            android:contentDescription="@string/cd_mascot" />
+
+        <!-- Headline -->
+        <TextView
+            android:id="@+id/text_title"
+            style="@style/Text.Display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_5"
+            android:text="@string/signup_title" />
+
+        <TextView
+            android:id="@+id/text_subtitle"
+            style="@style/Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:textColor="@color/text_secondary"
+            android:text="@string/signup_subtitle" />
+
+        <!-- Email -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_email"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:hint="Email"
+            app:startIconDrawable="@drawable/ic_mail"
+            app:boxCornerRadiusTopStart="@dimen/radius_md"
+            app:boxCornerRadiusTopEnd="@dimen/radius_md"
+            app:boxCornerRadiusBottomStart="@dimen/radius_md"
+            app:boxCornerRadiusBottomEnd="@dimen/radius_md">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_email"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_height"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_password"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:hint="Password"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:endIconMode="password_toggle"
+            app:boxCornerRadiusTopStart="@dimen/radius_md"
+            app:boxCornerRadiusTopEnd="@dimen/radius_md"
+            app:boxCornerRadiusBottomStart="@dimen/radius_md"
+            app:boxCornerRadiusBottomEnd="@dimen/radius_md">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_password"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_height"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password strength meter (4 bars) -->
+        <LinearLayout
+            android:id="@+id/strength_meter"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/space_3"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
+            <View android:id="@+id/bar_1"
+                android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:layout_marginEnd="3dp"
+                android:background="@color/border" />
+            <View android:id="@+id/bar_2"
+                android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:layout_marginEnd="3dp"
+                android:background="@color/border" />
+            <View android:id="@+id/bar_3"
+                android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:layout_marginEnd="3dp"
+                android:background="@color/border" />
+            <View android:id="@+id/bar_4"
+                android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/border" />
+        </LinearLayout>
+
+        <!-- Terms checkbox -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/check_terms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
+            android:text="@string/terms_agree"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body_sm" />
+
+        <!-- CTA -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create"
+            style="@style/Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_lg"
+            android:layout_marginTop="@dimen/space_5"
+            android:text="@string/btn_create_account" />
+
+        <!-- OR divider -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/border" />
+
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/space_3"
+                android:letterSpacing="0.1"
+                android:text="@string/divider_or" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/border" />
+        </LinearLayout>
+
+        <!-- SSO -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sso_google"
+            style="@style/Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_md"
+            android:layout_marginTop="@dimen/space_4"
+            android:text="Continue with Google" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sso_apple"
+            style="@style/Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_md"
+            android:layout_marginTop="@dimen/space_2"
+            android:text="Continue with Apple" />
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/space_6"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Text.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:text="@string/have_account" />
+
+            <TextView
+                android:id="@+id/btn_log_in"
+                style="@style/Text.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:textColor="@color/brand_primary_deep"
+                android:textStyle="bold"
+                android:text="@string/btn_login" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

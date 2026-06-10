@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ChatActivity — UC2-3 (core feature)
+    Toolbar · RecyclerView (multi-viewtype) · composer pinned to bottom
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.ChatActivity">
+
+    <!-- ==== Top bar ==== -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:background="?android:colorBackground"
+        app:contentInsetStartWithNavigation="0dp"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:padding="4dp"
+                android:src="@drawable/ic_mascot_milo"
+                android:contentDescription="@string/cd_mascot" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_3"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Text.H3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Milo" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@color/success" />
+
+                    <TextView
+                        style="@style/Text.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/chat_status_online" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.IconButton"
+                android:id="@+id/btn_chat_more"
+                android:layout_width="@dimen/icon_button_md"
+                android:layout_height="@dimen/icon_button_md"
+                app:icon="@drawable/ic_more"
+                app:iconTint="@color/text_primary"
+                android:contentDescription="@string/action_more" />
+        </LinearLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/border" />
+
+    <!-- ==== Messages list ==== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_4"
+        tools:listitem="@layout/item_chat_assistant" />
+
+    <!-- ==== "TRY ASKING" suggestion chips (shown before first user message) ==== -->
+    <LinearLayout
+        android:id="@+id/layout_suggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingBottom="@dimen/space_3"
+        android:visibility="visible">
+
+        <TextView
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_2"
+            android:letterSpacing="0.1"
+            android:text="TRY ASKING" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chips_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:chipSpacing="@dimen/space_2">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_suggest_1"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Explain Newton\'s 3 laws simply" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_suggest_2"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Solve: 2x² + 5x − 3 = 0" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_suggest_3"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="What\'s a Python decorator?" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_suggest_4"
+                style="@style/Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Compare DNA and RNA" />
+        </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
+
+    <!-- ==== Typing indicator (toggle visible while AI responds) ==== -->
+    <TextView
+        android:id="@+id/text_typing"
+        style="@style/Text.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_5"
+        android:layout_marginBottom="@dimen/space_2"
+        android:text="Milo is thinking…"
+        android:visibility="gone" />
+
+    <!-- ==== Composer ==== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_3">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_camera"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            android:layout_gravity="bottom"
+            app:icon="@drawable/ic_camera"
+            app:iconTint="@color/text_secondary"
+            android:contentDescription="@string/action_camera" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="@dimen/space_2"
+            app:cardBackgroundColor="@color/bg"
+            app:cardCornerRadius="@dimen/radius_xl"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/border"
+            app:strokeWidth="1dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="@string/composer_placeholder"
+                android:inputType="textMultiLine|textCapSentences"
+                android:maxLines="4"
+                android:minHeight="@dimen/icon_button_md"
+                android:paddingHorizontal="@dimen/space_4"
+                android:paddingVertical="@dimen/space_3"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_tertiary"
+                android:textSize="@dimen/text_body" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_send"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            android:layout_gravity="bottom"
+            app:srcCompat="@drawable/ic_send"
+            app:tint="@color/text_on_primary"
+            app:backgroundTint="@color/brand_primary"
+            app:elevation="0dp"
+            app:fabCustomSize="@dimen/icon_button_md"
+            app:maxImageSize="20dp"
+            android:contentDescription="@string/action_send" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Assistant message — mascot + surface bubble (left-aligned) -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start|bottom"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_2">
+
+    <ImageView
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="@dimen/space_2"
+        android:background="@drawable/bg_avatar_circle"
+        android:padding="2dp"
+        android:src="@drawable/ic_mascot_milo"
+        android:contentDescription="@string/cd_mascot" />
+
+    <TextView
+        android:id="@+id/text_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:background="@drawable/bg_bubble_assistant"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_3"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body"
+        tools:text="Mình giúp bạn nhé! Trước tiên, hãy nhớ rằng √(a·b) = √a · √b. Áp dụng vào √12, ta có: √12 = √(4·3) = 2√3." />
+</LinearLayout>

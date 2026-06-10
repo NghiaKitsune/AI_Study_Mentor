@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Top-left corner bracket — small L drawn with two thick strokes -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="36"
+    android:viewportHeight="36">
+    <path
+        android:strokeColor="#F5B544"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M3,14 L3,5 Q3,3 5,3 L14,3" />
+</vector>

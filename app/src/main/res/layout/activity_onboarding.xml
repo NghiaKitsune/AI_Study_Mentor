@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    OnboardingActivity — 3-step intro carousel shown on first launch.
+    Skip → SignUpActivity. Get started → SignUpActivity.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical">
+
+    <!-- Skip button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingTop="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_skip"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Skip"
+            android:textColor="@color/text_tertiary"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Mascot hero area -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <!-- Decorative background blob -->
+        <View
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_blob_primary_tint" />
+
+        <ImageView
+            android:id="@+id/img_mascot_hero"
+            android:layout_width="@dimen/mascot_lg"
+            android:layout_height="@dimen/mascot_lg"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_mascot_milo"
+            android:contentDescription="@string/cd_mascot" />
+    </FrameLayout>
+
+    <!-- Content card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_6"
+        android:paddingBottom="@dimen/space_6">
+
+        <!-- Tag label -->
+        <TextView
+            android:id="@+id/text_onboard_tag"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.12"
+            android:textColor="@color/brand_primary_deep"
+            android:textStyle="bold"
+            android:text="WELCOME" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/text_onboard_title"
+            style="@style/Text.Display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="Meet Milo, your AI mentor" />
+
+        <!-- Body -->
+        <TextView
+            android:id="@+id/text_onboard_body"
+            style="@style/Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:textColor="@color/text_secondary"
+            android:text="Ask anything — math, science, code, history. Milo explains step by step at your level." />
+
+        <!-- Dots + Next/Get started -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Page dots -->
+            <LinearLayout
+                android:id="@+id/layout_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View android:id="@+id/dot_0"
+                    android:layout_width="24dp" android:layout_height="8dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_dot_active" />
+                <View android:id="@+id/dot_1"
+                    android:layout_width="8dp" android:layout_height="8dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_dot_inactive" />
+                <View android:id="@+id/dot_2"
+                    android:layout_width="8dp" android:layout_height="8dp"
+                    android:background="@drawable/bg_dot_inactive" />
+            </LinearLayout>
+
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_next"
+                style="@style/Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height_md"
+                android:text="Next"
+                app:icon="@drawable/ic_arrow_right"
+                app:iconGravity="end"
+                app:iconTint="@color/text_on_primary" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

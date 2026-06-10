@@ -1,0 +1,340 @@
+# AI Study Mentor — Project Intelligence
+
+> **LIVING DOCUMENT**: This file is auto-updated after every session by Agent-2.
+> Read `## Session Log` first to understand what was done in previous sessions.
+
+---
+
+## Project Overview
+
+| Field | Value |
+|-------|-------|
+| Type | Android Java application |
+| minSdk | 33 (Android 13) |
+| targetSdk | 34 |
+| UI Framework | Material 3 (`com.google.android.material:material:1.11.0`) |
+| Language | Pure Java — NO Kotlin, NO Compose |
+| Layout | XML layouts — NO Fragment, NO NavComponent |
+| Package | `com.studymentor.app` |
+| App Name | AI Study Mentor (mascot: Milo) |
+
+---
+
+## Architecture
+
+```
+Multi-Activity (no Navigation Component)
+├── Data layer:  Room DB (Question + Message entities)
+├── Network:     Retrofit + MockAiService (swap via buildConfigField)
+├── Camera:      CameraX (UC2.5)
+└── State:       SharedPreferences via Session.java utility
+```
+
+**Key files:**
+- `util/Session.java` — all SharedPreferences keys and accessors
+- `StudyMentorApp.java` — singleton, holds `db()` Room instance
+- `data/AppDatabase.java` — Room DB, version 1
+- `api/MockAiService.java` — fake AI responses (USE_MOCK_AI=true in debug)
+- `api/MockOcrService.java` — fake OCR for camera scan
+
+**Switching to real backend:** In `app/build.gradle`:
+```groovy
+buildConfigField "boolean", "USE_MOCK_AI", "false"
+buildConfigField "String", "API_BASE_URL", '"https://your-api.com/"'
+```
+
+---
+
+## Build & Run
+
+### Build command
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+cd "D:\College BTEC\Application Development\ASM-20260430T042155Z-3-001\Update Version\android-starter"
+.\gradlew.bat assembleDebug
+```
+
+### APK output
+```
+app\build\outputs\apk\debug\app-debug.apk
+```
+
+### Run full test pipeline (manual)
+```
+.claude\hooks\run_full_test.bat
+```
+
+---
+
+## Emulator
+
+| Field | Value |
+|-------|-------|
+| AVD Name | `Pixel6_API33` |
+| System Image | android-33 / google_apis / x86_64 |
+| SDK path | `%LOCALAPPDATA%\Android\Sdk` |
+| ADB | `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe` |
+| Emulator exe | `%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe` |
+
+### Launch emulator
+```powershell
+$sdk = "$env:LOCALAPPDATA\Android\Sdk"
+Start-Process "$sdk\emulator\emulator.exe" -ArgumentList "-avd","Pixel6_API33","-no-snapshot-load","-no-audio","-gpu","swiftshader_indirect"
+```
+
+### Install APK
+```powershell
+$sdk = "$env:LOCALAPPDATA\Android\Sdk"
+& "$sdk\platform-tools\adb.exe" -s emulator-5554 install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+### Simulate logged-in session (for testing Home/Chat/History)
+```powershell
+# Push mock SharedPreferences with auth_token + onboarded=true
+# See: .claude\hooks\run_full_test.bat for full automation
+```
+
+---
+
+## Design Bundle
+
+| Field | Value |
+|-------|-------|
+| Bundle ID | `BonpCZVk9_BfLfOKdD0mEw` |
+| Fetch URL | `https://api.anthropic.com/v1/design/h/BonpCZVk9_BfLfOKdD0mEw` |
+| Last synced | 2026-05-29 |
+| Screens covered | Home, Chat, Answer, History, Onboarding, Quiz, QuizResult, Dashboard, Profile, Leaderboard, Notifications, TwoFA, AnswerTabbed |
+
+**Agent-1 uses WebFetch on this URL** to get the latest design and fix UI drift.
+When a new design bundle is created, update the Bundle ID and URL above.
+
+---
+
+## Design System
+
+### Colors (`app/src/main/res/values/colors.xml`)
+```
+brand_primary         #5C6BC0  (indigo)
+brand_primary_deep    #3949AB
+brand_primary_tint    #E8EAF6
+brand_accent          #FF8F00  (amber)
+brand_accent_soft     #FFF3E0
+text_primary          #1A1A2E
+text_secondary        #6B7080
+text_tertiary         #9CA3AF
+text_on_primary       #FFFFFF
+surface               #FFFFFF
+bg                    #F8F9FF
+border                #E5E7EB
+error_soft            #FFEBEE
+warning_soft          #FFF3E0
+```
+
+### Dimensions (`app/src/main/res/values/dimens.xml`)
+```
+space_2=4dp  space_3=8dp  space_4=12dp  space_6=20dp  space_8=28dp
+radius_sm=8dp  radius_md=12dp  radius_lg=20dp
+text_caption=11sp  text_body=14sp  text_h3=16sp  text_h2=18sp  text_h1=22sp  text_display=28sp
+button_height_md=48dp
+mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
+```
+
+### Key drawables (already created)
+`ic_mascot_milo`, `ic_flame`, `ic_arrow_right`, `ic_info`, `bg_dot_active`, `bg_dot_inactive`,
+`bg_blob_primary_tint`, `bg_mistake_error`, `bg_mistake_warning`
+
+---
+
+## Implementation Status
+
+### Phase 1 — MVP Screens ✅
+- SignUpActivity, LoginActivity, ForgotPasswordActivity
+- PersonalizeActivity (subject picker + level selector)
+- HomeActivity (greeting + recent questions + quick-start tiles)
+- ChatActivity (message list + composer)
+- AnswerActivity (step-by-step answer + StepAdapter)
+- HistoryActivity (filter chips + RecyclerView)
+- SettingsActivity (theme + language + notifications)
+
+### Phase 2 — Auth & Theme ✅
+- SplashActivity (scale-pulse mascot, routes to correct screen)
+- LoginActivity, ForgotPasswordActivity
+- Dark theme support
+
+### Phase 3A — Camera ✅
+- CameraActivity (CameraX preview + capture)
+- ScanPreviewActivity (OCR result + edit)
+- MockOcrService (fake OCR)
+- FileProvider configured
+
+### Phase 3B — Extended Screens ✅ (Design Bundle BonpCZVk9_BfLfOKdD0mEw)
+- **QuizActivity**: question + 4 option cards + timer + reveal + result flow
+- **QuizResultActivity**: score hero + rewards + answer list + recommendation card
+- **DashboardActivity**: streak hero + 2×2 stats grid + bar chart + subject list + Milo insight
+- **ProfileActivity**: gradient avatar + XP bar + badge grid (4×2) + activity feed
+- **LeaderboardActivity**: podium card + rank list + 3 tab modes (global/friends/week)
+- **NotificationsActivity**: filter chips (all/reminders/achievements/mistakes) + list
+- **TwoFAActivity**: 6-box OTP input + 30s countdown + backup codes card
+- **AnswerTabbedActivity**: 4-tab dark header (solution/concept/practice/pitfalls) + composer bar
+- **Navigation wired**: btn_bell→NotificationsActivity, nav_practice→QuizActivity, nav_profile→ProfileActivity, card_milo_review→QuizActivity, settings card_profile→ProfileActivity
+- **Build fixes**: XML curly quotes in quiz_result (→ &quot;), duplicate layout_weight in two_fa, invalid gravity="baseline" in dashboard
+
+### Design Bundle sYYOs3uSHmzuIr43Q3DGxg ✅ (2026-05-27)
+- **Home**: streak chip (flame + days) + XP progress stripe
+- **Chat**: "TRY ASKING" suggestion chips (4 examples, hidden after first message)
+- **Answer**: mascot in follow-up card + "Common mistakes" section
+- **History**: "Milo noticed" AI suggestion card (shown when questionCount ≥ 5)
+- **Onboarding**: OnboardingActivity (3-step carousel, shown on first launch)
+- **Session.java**: `streak()`, `hasSeenOnboarding()`, `markOnboardingSeen()`
+- **SplashActivity + MainActivity**: routing updated for onboarding flow
+
+---
+
+## Known Stubs (Pending Work)
+
+| # | Stub | Location | Priority | Notes |
+|---|------|----------|----------|-------|
+| 1 | "Common mistakes" text is hardcoded | AnswerActivity | Medium | Should come from ChatResponse.commonMistakes |
+| 2 | Streak chip không tự tăng theo ngày login thực tế | HomeActivity | Low | No daily login tracking logic |
+| 3 | XP title generic "Level N · AI Student" | HomeActivity | Low | No title progression system yet |
+| 4 | Quiz content hardcoded (1 câu duy nhất) | QuizActivity | High | Cần kết nối Room DB hoặc data layer thực |
+| 5 | QuizResultActivity hiển thị static score | QuizResultActivity | High | Cần nhận score từ QuizActivity qua Intent extra |
+| 6 | DashboardActivity toàn bộ là static mock data | DashboardActivity | Medium | Cần đọc từ Room DB (questionDao + statsDao) |
+| 7 | LeaderboardActivity dữ liệu fake | LeaderboardActivity | Low | Cần backend API hoặc mock động |
+
+---
+
+## Next Steps (Việc cần làm tiếp theo)
+
+### Priority 1 — Data wiring (kết nối UI với data thực)
+
+- [ ] **Quiz real data**: `QuizActivity` hiện hardcode 1 câu hỏi. Cần tạo `QuizQuestion` entity trong Room hoặc bundle câu hỏi từ JSON asset. Pass `questionId` qua Intent.
+- [ ] **Quiz → QuizResult score pass**: `QuizActivity.openResult()` mở `QuizResultActivity` nhưng không truyền score/total/correctIds. Thêm `putExtra("score", ...)` và đọc trong `QuizResultActivity`.
+- [ ] **Dashboard real stats**: `DashboardActivity` dùng toàn mock string. Thay bằng `questionDao.count()`, `questionDao.bookmarkedCount()`, và tính subject breakdown từ DB.
+
+### Priority 2 — UX polish
+
+- [ ] **Streak tracking thực**: Khi user open app mỗi ngày, compare date với `Session.lastOpenDate()`. Nếu khác ngày hôm qua → reset streak về 1; nếu cùng ngày hôm qua → `streak + 1`. Lưu qua `Session.java`.
+- [ ] **Common mistakes dynamic**: `AnswerActivity` hardcode "Common mistakes" section. Gắn với `ChatResponse` model để hiển thị từ AI response thực hoặc mock.
+- [ ] **Back stack Home**: Khi từ Quiz/History bấm back nhiều lần có thể loop. Verify back stack với `FLAG_ACTIVITY_NEW_TASK` hoặc `finishAffinity()` ở Home.
+
+### Priority 3 — Production readiness
+
+- [ ] **Swap MockAiService → real API**: Set `USE_MOCK_AI=false` trong `build.gradle` + cấu hình `API_BASE_URL`.
+- [ ] **Error handling**: Các network call (Retrofit) chưa có UI feedback khi fail (no-internet, timeout).
+- [ ] **Room migration**: `AppDatabase` version 1 — nếu schema thay đổi (thêm QuizQuestion table) cần viết `Migration` object.
+- [ ] **ProGuard / release build**: Chưa test `assembleRelease`. Cần kiểm tra R8 không strip Room DAO.
+
+---
+
+## Conventions & Rules
+
+1. **Java only** — never add Kotlin files or Compose dependencies
+2. **No Fragment** — every screen is a full Activity
+3. **No NavComponent** — use `startActivity()` + `finish()` directly
+4. **XML layouts** — no programmatic view creation for UI structure
+5. **Material 3** — always use `Widget.Material3.*` styles, never raw Android styles
+6. **No hardcoded strings in Java** — use `R.string.*`
+7. **No hardcoded colors in Java** — use `ContextCompat.getColor(this, R.color.*)`
+8. **Room on background thread** — always wrap DB calls in `executorService.execute()`
+9. **SplashScreen API** — `SplashScreen.installSplashScreen(this)` MUST be before `super.onCreate()` in SplashActivity
+10. **Critical files** — get extra care before editing: `AndroidManifest.xml`, `build.gradle`, `themes.xml`, `AppDatabase.java`, `Session.java`
+
+---
+
+## 🤖 Sub-Agent Protocol
+
+**After every Stop hook**, read `.claude/status/*.json` before doing anything else.
+
+### Decision tree:
+
+```
+Read build_status.json + logcat_status.json
+        │
+        ├── BUILD: FAILED
+        │     → Spawn Agent-3 (Rebuild+Fix)
+        │     → Spawn Agent-2 (Log+Update CLAUDE.md)
+        │
+        ├── LOGCAT: CRASH
+        │     ├── InflateException / Resources$NotFoundException
+        │     │     → Spawn Agent-1 (Design/UI Fixer)
+        │     └── RuntimeException / NPE / other
+        │           → Spawn Agent-3 (Rebuild+Fix)
+        │     → Always: Spawn Agent-2 (Log+Update CLAUDE.md)
+        │
+        └── BUILD: OK + LOGCAT: CLEAN
+              → Spawn Agent-2 (Log+Update CLAUDE.md — clean run entry)
+```
+
+### Agent-1 — Design/UI Fixer
+- Use `WebFetch` on Design Bundle URL (see ## Design Bundle above)
+- Parse HTML/JSX → find correct drawable/layout/colors for the broken screen
+- Fix XML files: drawables, layouts, icon viewports
+- Subagent_type: `general-purpose`
+
+### Agent-2 — Test + Log + CLAUDE.md Updater
+- Read all `status/*.json`
+- Append to `error_log.md`
+- **Append to `## Session Log` in this file (CLAUDE.md)**
+- Update `## Implementation Status` if a new feature was completed
+- Update `## Known Stubs` if a stub was resolved
+- Subagent_type: `general-purpose`
+
+### Agent-3 — Evaluate + Rebuild
+- Read error lines from `build_status.json` or `logcat_status.json`
+- Fix the relevant Java/XML file
+- Rebuild with `gradlew.bat assembleDebug` to verify
+- Max 2 auto-fix attempts. If still failing → write "NEEDS MANUAL FIX" and stop
+- Subagent_type: `general-purpose`
+
+### Rebuild rule
+```
+Max 2 auto-fix cycles per session.
+After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"}, report to user.
+```
+
+---
+
+## Session Log
+
+> Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-05-29] Session 3 — Bottom Nav Fix + Emulator Testing
+**Work done:**
+- Full emulator test pass on all 18 screens (Pixel6_API33, emulator-5554)
+- Fixed Quiz screen runtime bug: option TextViews had no text (added OPTION_TEXT_IDS[] + OPTION_TEXTS[] + setText() call in setupOptions())
+- Added `text_question` TextView text in setupQuestion(): "What is photosynthesis?"
+- **Bottom nav — Indicator size fix**: Added `BottomNav.ActiveIndicator` style (72dp × 40dp, brand_primary_tint) to themes.xml
+- **Bottom nav — Persistence fix**: Created `util/BottomNavHelper.java` static helper; added BottomNavigationView to activity_history.xml, activity_profile.xml, activity_quiz.xml; updated HomeActivity, HistoryActivity, ProfileActivity, QuizActivity to call BottomNavHelper.setup()
+- Tab switching uses FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP to avoid stack buildup
+- Verified with screenshots: History + Profile screens show bottom nav with correct tab highlighted
+
+**Build:** PASSED (55s) | **Logcat:** CLEAN
+**Screens verified on emulator:** Home, Chat, Quiz, History, Profile (bottom nav present and highlighting correctly on all)
+
+### [2026-05-29] Session 2 — Phase 3B Extended Screens (Design Bundle BonpCZVk9_BfLfOKdD0mEw)
+**Work done:**
+- Implemented 8 new activities: Quiz, QuizResult, Dashboard, Profile, Leaderboard, Notifications, TwoFA, AnswerTabbed
+- Created 8 activity layouts + 6 item layouts + 7 drawables (ic_zap, ic_star, ic_trophy, ic_crown, ic_medal, ic_lightbulb, ic_chevron_up)
+- Wired navigation: bell→Notifications, nav_practice→Quiz, nav_profile→Profile, milo_review→Quiz, settings profile card→Profile
+- Added 8 activities to AndroidManifest.xml
+- Fixed 3 XML build errors: curly quotes in quiz_result, duplicate layout_weight in two_fa, invalid gravity in dashboard
+
+**Build:** PASSED | **Logcat:** not tested
+**APK size:** ~incremental build
+
+### [2026-05-28] Session 1 — Design Bundle + Build System Setup
+**Work done:**
+- Implemented design bundle `sYYOs3uSHmzuIr43Q3DGxg` (Home/Chat/Answer/History/Onboarding)
+- Created OnboardingActivity (3-step carousel)
+- Added streak chip + XP progress bar to HomeActivity
+- Added suggestion chips to ChatActivity
+- Added "Common mistakes" section to AnswerActivity
+- Added "Milo noticed" card to HistoryActivity
+- Updated Session.java with streak/onboarding methods
+- Fixed crash: SplashActivity Theme.AppCompat (added SplashScreen.installSplashScreen)
+- Created Pixel6_API33 AVD and verified app launches crash-free
+- Set up .claude/ directory with 9 hooks + 3 sub-agents
+
+**Build:** PASSED | **Logcat:** CLEAN (0 crashes after fix)
+**APK size:** 16.2 MB | **Build time:** 74s cold / 24s incremental

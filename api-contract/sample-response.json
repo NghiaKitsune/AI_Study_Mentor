@@ -1,0 +1,24 @@
+{
+  "request_id": "a3f5c842-1b2d-4ef5-9012-3a4b5c6d7e8f",
+  "conversation_id": 1042,
+  "reply": "Mình giải từng bước nhé:\n\n1. Trừ 5 ở cả hai vế: 2x = 12\n2. Chia 2 ở cả hai vế: x = 6\n\nVậy nghiệm của phương trình là **x = 6**.",
+  "final_answer": "x = 6",
+  "steps": [
+    {
+      "index": 1,
+      "title": "Trừ 5 ở cả hai vế",
+      "body": "2x + 5 - 5 = 17 - 5\n2x = 12"
+    },
+    {
+      "index": 2,
+      "title": "Chia 2 ở cả hai vế",
+      "body": "2x / 2 = 12 / 2\nx = 6"
+    }
+  ],
+  "follow_ups": [
+    "Giải thích đơn giản hơn",
+    "Cách khác để giải",
+    "3 bài luyện tương tự"
+  ],
+  "tokens_used": 187
+}

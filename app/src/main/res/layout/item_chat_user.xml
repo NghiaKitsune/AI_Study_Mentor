@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User message bubble — right-aligned amber -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_2">
+
+    <TextView
+        android:id="@+id/text_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/bg_bubble_user"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_3"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body"
+        tools:text="Mình không hiểu cách rút gọn căn bậc hai. Bạn giúp mình nhé?" />
+</LinearLayout>

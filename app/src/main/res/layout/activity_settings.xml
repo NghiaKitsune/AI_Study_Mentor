@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SettingsActivity — UC10
+    Profile mini-row · sections of rows · sign-out button
+-->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    tools:context=".ui.SettingsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_5"
+        android:paddingTop="@dimen/space_4"
+        android:paddingBottom="@dimen/space_8">
+
+        <!-- Top -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/appbar_height"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_back"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="@dimen/icon_button_lg"
+                android:layout_height="@dimen/icon_button_lg"
+                app:icon="@drawable/ic_back"
+                app:iconTint="@color/text_primary" />
+
+            <TextView
+                style="@style/Text.H2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:text="@string/title_settings" />
+        </LinearLayout>
+
+        <!-- Profile -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile"
+            style="@style/Card.Default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/space_4">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_mascot_milo"
+                    android:contentDescription="@string/cd_avatar" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_3"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_profile_name"
+                        style="@style/Text.H3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Trần An" />
+
+                    <TextView
+                        android:id="@+id/text_profile_email"
+                        style="@style/Text.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="anttran@school.edu" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_tertiary"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Section: Preferences -->
+        <TextView
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_5"
+            android:letterSpacing="0.1"
+            android:text="@string/section_preferences"
+            android:textAllCaps="true" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Card.Default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="?android:listDivider"
+                android:showDividers="middle">
+
+                <include layout="@layout/item_setting_row" android:id="@+id/row_theme" />
+                <include layout="@layout/item_setting_row" android:id="@+id/row_language" />
+                <include layout="@layout/item_setting_row" android:id="@+id/row_notifications" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Sign out -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sign_out"
+            style="@style/Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_lg"
+            android:layout_marginTop="@dimen/space_6"
+            app:icon="@drawable/ic_logout"
+            app:iconTint="@color/error"
+            android:textColor="@color/error"
+            android:text="@string/btn_sign_out" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

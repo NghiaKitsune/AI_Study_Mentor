@@ -1,0 +1,10 @@
+{
+  "request_id": "a3f5c842-1b2d-4ef5-9012-3a4b5c6d7e8f",
+  "conversation_id": null,
+  "message": "Giải phương trình 2x + 5 = 17",
+  "context": {
+    "user_level": "high-school",
+    "subject": "math",
+    "locale": "vi-VN"
+  }
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FileProvider paths — used to expose camera-capture cache files (UC2.5) so
+    other components (Glide, share sheet, ScanPreviewActivity) can read them via
+    content:// URIs without storage permissions.
+-->
+<paths>
+    <!-- Scan captures land in external cache: /Android/data/<pkg>/cache/ -->
+    <external-cache-path name="scan_cache" path="." />
+    <!-- Fallback when external cache isn't available -->
+    <cache-path name="scan_cache_internal" path="." />
+    <!-- For sharing answer cards as images later -->
+    <external-files-path name="exports" path="." />
+</paths>

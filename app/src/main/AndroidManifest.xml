@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Network -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Camera scan (UC2) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Android 13+ scoped media + notifications -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".StudyMentorApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StudyMentor"
+        tools:targetApi="34">
+
+        <!-- Launcher / router -->
+        <activity
+            android:name=".ui.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.StudyMentor.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.OnboardingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.SignUpActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.ForgotPasswordActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.PersonalizeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.HomeActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.ChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- UC2.5 — Camera scan flow -->
+        <activity
+            android:name=".ui.CameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.StudyMentor.FullscreenBlack"
+            tools:ignore="LockedOrientationActivity" />
+
+        <activity
+            android:name=".ui.ScanPreviewActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.CameraActivity" />
+
+        <activity
+            android:name=".ui.AnswerActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.ChatActivity" />
+
+        <activity
+            android:name=".ui.HistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false" />
+
+        <!-- UC6 — Quiz -->
+        <activity android:name=".ui.QuizActivity" android:exported="false" />
+        <activity android:name=".ui.QuizResultActivity" android:exported="false" />
+
+        <!-- UC7 — Progress Dashboard -->
+        <activity android:name=".ui.DashboardActivity" android:exported="false" />
+
+        <!-- UC8 — Profile + Leaderboard -->
+        <activity android:name=".ui.ProfileActivity" android:exported="false" />
+        <activity android:name=".ui.LeaderboardActivity" android:exported="false" />
+
+        <!-- UC9 — Notifications -->
+        <activity android:name=".ui.NotificationsActivity" android:exported="false" />
+
+        <!-- UC10 — 2FA Setup -->
+        <activity
+            android:name=".ui.TwoFAActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- UC4 — Tabbed Answer variant -->
+        <activity
+            android:name=".ui.AnswerTabbedActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.ChatActivity" />
+
+        <!-- FileProvider — shares camera-capture cache files as content:// URIs (UC2.5) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+</manifest>

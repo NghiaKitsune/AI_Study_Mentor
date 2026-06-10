@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    TwoFAActivity — UC10 2FA Setup
+    TopBar | Icon | Title | OTP boxes | Timer | Backup codes notice | Security tips | CTA
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.TwoFAActivity">
+
+    <!-- TopBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_back"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_back"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_back" />
+
+        <ProgressBar
+            android:layout_width="0dp"
+            android:layout_height="5dp"
+            android:layout_weight="1"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_gravity="center"
+            android:max="3"
+            android:progress="3"
+            android:progressTint="@color/brand_primary"
+            android:progressBackgroundTint="@color/surface_3"
+            android:layout_marginStart="@dimen/space_2"
+            android:layout_marginEnd="@dimen/space_2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_help"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_info"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="Help" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_6"
+            android:paddingTop="@dimen/space_2"
+            android:paddingBottom="@dimen/space_5">
+
+            <!-- Lock icon -->
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_blob_primary_tint"
+                android:layout_marginBottom="@dimen/space_4">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lock"
+                    app:tint="@color/brand_primary_darker"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <!-- Title -->
+            <TextView
+                style="@style/Text.H1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="Verify the 6-digit code" />
+
+            <TextView
+                style="@style/Text.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingMultiplier="1.4"
+                android:layout_marginBottom="@dimen/space_6"
+                android:text="Open your authenticator app (Google Authenticator, Authy, 1Password) and enter the code shown for AI Study Mentor." />
+
+            <!-- OTP boxes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_4">
+
+                <EditText android:id="@+id/otp_1" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1"
+                    tools:text="4" />
+                <EditText android:id="@+id/otp_2" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1"
+                    tools:text="7" />
+                <EditText android:id="@+id/otp_3" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1"
+                    tools:text="2" />
+                <EditText android:id="@+id/otp_4" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1"
+                    tools:text="9" />
+                <EditText android:id="@+id/otp_5" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1" />
+                <EditText android:id="@+id/otp_6" android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:layout_marginHorizontal="3dp" android:gravity="center"
+                    android:textSize="22sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                    android:background="@drawable/bg_composer" android:inputType="number" android:maxLength="1" />
+            </LinearLayout>
+
+            <!-- Expiry + resend row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_6">
+
+                <TextView
+                    android:id="@+id/text_expiry"
+                    style="@style/Text.Caption"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/text_tertiary"
+                    android:text="Code expires in 0:24" />
+
+                <TextView
+                    android:id="@+id/btn_resend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/brand_primary_deep"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:text="Resend" />
+            </LinearLayout>
+
+            <!-- Backup codes notice -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_5"
+                app:cardBackgroundColor="@color/warning_soft"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/warning"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_info" app:tint="@color/warning"
+                        android:layout_marginEnd="@dimen/space_3" android:layout_marginTop="1dp"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical">
+                        <TextView style="@style/Text.Body" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textStyle="bold"
+                            android:layout_marginBottom="3dp" android:text="Save your backup codes" />
+                        <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textColor="@color/text_secondary"
+                            android:lineSpacingMultiplier="1.3"
+                            android:text="You\'ll get 10 single-use codes after this step. Keep them somewhere safe — you\'ll need them if you lose your device." />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Security tips -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_4">
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="center_vertical" android:orientation="horizontal"
+                        android:layout_marginBottom="@dimen/space_3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                            android:src="@drawable/ic_info" app:tint="@color/info"
+                            android:layout_marginEnd="@dimen/space_2" android:contentDescription="@null" />
+                        <TextView style="@style/Text.Body" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:textStyle="bold"
+                            android:text="Your data is encrypted" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="top" android:orientation="horizontal" android:layout_marginBottom="@dimen/space_2">
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                            android:src="@drawable/ic_check" app:tint="@color/success"
+                            android:layout_marginEnd="@dimen/space_2" android:layout_marginTop="2dp"
+                            android:contentDescription="@null" />
+                        <TextView style="@style/Text.Caption" android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:textColor="@color/text_secondary" android:lineSpacingMultiplier="1.3"
+                            android:text="Questions, photos, and chat history use end-to-end encryption." />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="top" android:orientation="horizontal" android:layout_marginBottom="@dimen/space_2">
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                            android:src="@drawable/ic_check" app:tint="@color/success"
+                            android:layout_marginEnd="@dimen/space_2" android:layout_marginTop="2dp"
+                            android:contentDescription="@null" />
+                        <TextView style="@style/Text.Caption" android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:textColor="@color/text_secondary" android:lineSpacingMultiplier="1.3"
+                            android:text="We never share your data with third parties or use it to train ads." />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:gravity="top" android:orientation="horizontal">
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                            android:src="@drawable/ic_check" app:tint="@color/success"
+                            android:layout_marginEnd="@dimen/space_2" android:layout_marginTop="2dp"
+                            android:contentDescription="@null" />
+                        <TextView style="@style/Text.Caption" android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:textColor="@color/text_secondary" android:lineSpacingMultiplier="1.3"
+                            android:text="Suspicious-content filter runs locally — your prompts stay private." />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom CTA -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:colorBackground"
+        android:elevation="4dp"
+        android:padding="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_verify"
+            style="@style/Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_lg"
+            android:text="Verify &amp; enable 2FA" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studymentor.example.com/schema/chat-response.json",
+  "title": "ChatResponse",
+  "type": "object",
+  "required": ["request_id", "reply"],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Echo of the client's request_id."
+    },
+    "conversation_id": {
+      "type": ["integer", "null"],
+      "description": "Server-issued for the first turn, echoed for subsequent turns."
+    },
+    "reply": {
+      "type": "string",
+      "description": "Assistant's full reply, markdown allowed."
+    },
+    "final_answer": {
+      "type": ["string", "null"],
+      "description": "Optional short final answer for problems with a clear result (e.g. \"x = 6\")."
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index", "title", "body"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 1 },
+          "title": { "type": "string" },
+          "body":  { "type": "string" }
+        }
+      }
+    },
+    "follow_ups": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 5
+    },
+    "tokens_used": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "error": {
+      "type": ["object", "null"],
+      "properties": {
+        "code":    { "type": "string", "enum": ["rate_limit", "model_error", "invalid_input"] },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}

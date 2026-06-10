@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    DashboardActivity — UC7 Progress dashboard
+    TopBar | Streak hero | 2x2 stats | Weekly chart | Top subjects | Milo insight
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:orientation="vertical"
+    tools:context=".ui.DashboardActivity">
+
+    <!-- TopBar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/appbar_height"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_4">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_back"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_back"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_back" />
+
+        <TextView
+            style="@style/Text.H2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_2"
+            android:text="Your progress" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_settings"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_settings"
+            app:iconTint="@color/text_primary"
+            android:contentDescription="@string/action_more" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingBottom="@dimen/space_10">
+
+            <!-- Streak hero card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_4"
+                app:cardBackgroundColor="@color/brand_primary"
+                app:cardCornerRadius="@dimen/radius_xl"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_5">
+
+                    <TextView
+                        style="@style/Text.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#BF1A1610"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1"
+                        android:textAllCaps="true"
+                        android:text="Current Streak" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:id="@+id/text_streak"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            android:textSize="52sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.03"
+                            android:text="7" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_2"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:text="days 🔥" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_streak_best"
+                        style="@style/Text.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CC1A1610"
+                        android:textStyle="bold"
+                        android:text="Best: 12 days · Keep going!" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2x2 stats grid -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/space_4">
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Card.Default" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginBottom="@dimen/space_2"
+                        android:layout_marginEnd="@dimen/space_1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:padding="@dimen/space_4">
+                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
+                                android:background="@drawable/bg_blob_primary_tint" android:gravity="center"
+                                android:layout_marginBottom="@dimen/space_3">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                    android:src="@drawable/ic_sparkles" app:tint="#7C5CE6" android:contentDescription="@null" />
+                            </LinearLayout>
+                            <TextView android:id="@+id/text_stat_questions" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="24sp" android:textStyle="bold"
+                                android:textColor="@color/text_primary" android:text="247" />
+                            <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                                android:layout_marginTop="4dp" android:text="Questions asked" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Card.Default" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginEnd="@dimen/space_1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:padding="@dimen/space_4">
+                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
+                                android:background="@drawable/bg_mistake_warning" android:gravity="center"
+                                android:layout_marginBottom="@dimen/space_3">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                    android:src="@drawable/ic_target" app:tint="#4FA37A" android:contentDescription="@null" />
+                            </LinearLayout>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:textSize="24sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                                android:text="92%" />
+                            <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                                android:layout_marginTop="4dp" android:text="Quiz accuracy" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Card.Default" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginBottom="@dimen/space_2"
+                        android:layout_marginStart="@dimen/space_1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:padding="@dimen/space_4">
+                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
+                                android:background="@drawable/bg_composer" android:gravity="center"
+                                android:layout_marginBottom="@dimen/space_3">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                    android:src="@drawable/ic_zap" app:tint="@color/brand_primary" android:contentDescription="@null" />
+                            </LinearLayout>
+                            <TextView android:id="@+id/text_stat_xp" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textSize="24sp" android:textStyle="bold"
+                                android:textColor="@color/text_primary" android:text="1,840" />
+                            <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                                android:layout_marginTop="4dp" android:text="Total XP" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Card.Default" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginStart="@dimen/space_1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:padding="@dimen/space_4">
+                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
+                                android:background="@drawable/bg_scan_hint" android:gravity="center"
+                                android:layout_marginBottom="@dimen/space_3">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                    android:src="@drawable/ic_history" app:tint="@color/info" android:contentDescription="@null" />
+                            </LinearLayout>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:textSize="24sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                                android:text="24h" />
+                            <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                                android:layout_marginTop="4dp" android:text="Study time" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Weekly chart section -->
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="This week · 74 questions" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Card.Default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_5">
+
+                <!-- Simple bar chart using LinearLayout bars -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:padding="@dimen/space_4">
+
+                    <!-- M -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="M" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- T -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- W -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- T -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- F -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="F" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- S (today - highlighted) -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textSize="10sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/brand_primary" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- S -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Top subjects -->
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true"
+                android:layout_marginBottom="@dimen/space_3"
+                android:text="Top subjects" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_subjects"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="@dimen/space_5" />
+
+            <!-- Milo insight -->
+            <TextView
+                style="@style/Text.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textAllCaps="true"
+                android:layout_marginBottom="@dimen/space_3"
+                android:text="Milo's insight" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/brand_primary_tint"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_primary_soft"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_4">
+
+                    <ImageView
+                        android:layout_width="@dimen/mascot_sm"
+                        android:layout_height="@dimen/mascot_sm"
+                        android:src="@drawable/ic_mascot_milo"
+                        android:layout_marginEnd="@dimen/space_3"
+                        android:contentDescription="@string/cd_mascot" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Text.Body"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="@dimen/space_3"
+                            android:text="You ask a lot about algebraic equations. Your accuracy is 89% — solid! Try the new calculus intro next; it builds on what you already know." />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.chip.Chip
+                                style="@style/Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="Try calculus" />
+
+                            <com.google.android.material.chip.Chip
+                                style="@style/Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/space_2"
+                                android:text="Maybe later" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>
