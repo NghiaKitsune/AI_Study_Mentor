@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Adaptive icon foreground — Milo mascot scaled to 84% of the 108dp canvas.
+    Matches Logo.html AppIcon: mascot = size*0.84, marginTop = size*0.08.
+    Transform: scaleX=0.907 scaleY=0.907, translateX=8.64 translateY=9.33
+    Result: mascot appears 90.7dp wide × 97.9dp tall, 8.64dp margin left/right,
+            9.33dp from top — amber gradient background visible around it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:scaleX="0.907"
+        android:scaleY="0.907"
+        android:translateX="8.64"
+        android:translateY="9.33">
+
+        <!-- ── Left ear (behind body) ── -->
+        <path
+            android:fillColor="#B06818"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="3"
+            android:pathData="M 20,31 m -12.5,0 a 12.5,12.5 0 1,0 25,0 a 12.5,12.5 0 1,0 -25,0 Z"/>
+        <path
+            android:fillColor="#5A2E08"
+            android:pathData="M 20,33 m -6.5,0 a 6.5,6.5 0 1,0 13,0 a 6.5,6.5 0 1,0 -13,0 Z"/>
+
+        <!-- ── Right ear (behind body) ── -->
+        <path
+            android:fillColor="#B06818"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="3"
+            android:pathData="M 78,21 m -13,0 a 13,13 0 1,0 26,0 a 13,13 0 1,0 -26,0 Z"/>
+        <path
+            android:fillColor="#5A2E08"
+            android:pathData="M 78,23 m -7,0 a 7,7 0 1,0 14,0 a 7,7 0 1,0 -14,0 Z"/>
+
+        <!-- ── Main round body ── -->
+        <path
+            android:fillColor="#B06818"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="3.4"
+            android:pathData="M 50,59 m -39,0 a 39,40 0 1,0 78,0 a 39,40 0 1,0 -78,0 Z"/>
+
+        <!-- ── Fur tuft ── -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="1.7"
+            android:strokeLineCap="round"
+            android:pathData="M43,20 Q46,14 49,20"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="1.7"
+            android:strokeLineCap="round"
+            android:pathData="M48,18 Q51,12 54,18"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="1.5"
+            android:strokeLineCap="round"
+            android:pathData="M53,20 Q56,15 58,21"/>
+
+        <!-- ── Paws ── -->
+        <path
+            android:fillColor="#8A5010"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.8"
+            android:pathData="M 25,96 m -15.5,0 a 15.5,9 0 1,0 31,0 a 15.5,9 0 1,0 -31,0 Z"/>
+        <path
+            android:fillColor="#8A5010"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.8"
+            android:pathData="M 75,96 m -15.5,0 a 15.5,9 0 1,0 31,0 a 15.5,9 0 1,0 -31,0 Z"/>
+
+        <!-- ── Muzzle ── -->
+        <path
+            android:fillColor="#6A3808"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.4"
+            android:pathData="M 50,67 m -24,0 a 24,19 0 1,0 48,0 a 24,19 0 1,0 -48,0 Z"/>
+
+        <!-- ── Blush (50% opacity) ── -->
+        <path
+            android:fillColor="#80E07070"
+            android:pathData="M 17,60 m -10,0 a 10,6.5 0 1,0 20,0 a 10,6.5 0 1,0 -20,0 Z"/>
+        <path
+            android:fillColor="#80E07070"
+            android:pathData="M 83,60 m -10,0 a 10,6.5 0 1,0 20,0 a 10,6.5 0 1,0 -20,0 Z"/>
+
+        <!-- ── Blush strokes (85% opacity) ── -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#D9E07070"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:pathData="M13,57 Q16,56 19,57"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#D9E07070"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:pathData="M13,60 Q16,59 19,60"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#D9E07070"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:pathData="M80,57 Q83,56 86,57"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#D9E07070"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:pathData="M80,60 Q83,59 86,60"/>
+
+        <!-- ── Happy eyes ^^ ── -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.8"
+            android:strokeLineCap="round"
+            android:pathData="M29,49 Q34,44 39,49"/>
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.8"
+            android:strokeLineCap="round"
+            android:pathData="M61,49 Q66,44 71,49"/>
+
+        <!-- ── Eye glimmers (40% opacity) ── -->
+        <path
+            android:fillColor="#66FFFFFF"
+            android:pathData="M 34,51.5 m -5,0 a 5,2.5 0 1,0 10,0 a 5,2.5 0 1,0 -10,0 Z"/>
+        <path
+            android:fillColor="#66FFFFFF"
+            android:pathData="M 66,51.5 m -5,0 a 5,2.5 0 1,0 10,0 a 5,2.5 0 1,0 -10,0 Z"/>
+
+        <!-- ── Nose Y-mark ── -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.1"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M47,67 Q50,64 53,67 M50,63 L50,69"/>
+
+        <!-- ── Smile ── -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#1A0802"
+            android:strokeWidth="2.3"
+            android:strokeLineCap="round"
+            android:pathData="M41,74 Q50,82 59,74"/>
+
+    </group>
+
+</vector>
