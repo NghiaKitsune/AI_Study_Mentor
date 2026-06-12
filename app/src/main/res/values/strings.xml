@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
     AI Study Mentor - Sample strings.xml
     Drop into: app/src/main/res/values/strings.xml
@@ -31,14 +31,14 @@
     <string name="greeting_afternoon">Good afternoon,</string>
     <string name="greeting_evening">Good evening,</string>
     <string name="daily_challenge_label">DAILY CHALLENGE</string>
-    <string name="daily_challenge_body">Solve 3 problems to keep your streak alive 🔥</string>
+    <string name="daily_challenge_body">Solve 3 problems to keep your streak alive ðŸ”¥</string>
     <string name="btn_start_now">Start now</string>
     <string name="section_quick_start">Quick start</string>
     <string name="section_recent">Recent questions</string>
-    <string name="composer_placeholder">Ask Milo anything…</string>
+    <string name="composer_placeholder">Ask Milo anythingâ€¦</string>
 
     <!-- Chat -->
-    <string name="chat_status_online">Online · ready to help</string>
+    <string name="chat_status_online">Online Â· ready to help</string>
     <string name="chat_first_greeting">Hi! I\'m Milo. What would you like to learn today? You can type a question, paste a problem, or tap the camera to snap one.</string>
     <string name="chat_error_unreachable">I couldn\'t reach my brain right now. Try again in a sec!</string>
 
@@ -136,7 +136,7 @@
     <!-- Onboarding carousel -->
     <string name="onboard_tag_0">WELCOME</string>
     <string name="onboard_title_0">Meet Milo, your AI mentor</string>
-    <string name="onboard_body_0">Ask anything — math, science, code, history. Milo explains step by step at your level.</string>
+    <string name="onboard_body_0">Ask anything â€” math, science, code, history. Milo explains step by step at your level.</string>
     <string name="onboard_tag_1">SOLVE FASTER</string>
     <string name="onboard_title_1">Solve with photos</string>
     <string name="onboard_body_1">Snap a problem from your textbook. Milo reads equations, diagrams, and handwriting.</string>
@@ -147,6 +147,7 @@
     <string name="onboard_btn_get_started">Get started</string>
 
     <!-- Splash -->
+    <string name="mascot_name">Milo</string>
     <string name="splash_tagline">Your AI study companion</string>
 
     <!-- Login -->
@@ -166,7 +167,7 @@
 
     <!-- ============ Camera scan (UC2.5) ============ -->
     <string name="camera_title">Scan a problem</string>
-    <string name="camera_hint">Đặt bài tập trong khung</string>
+    <string name="camera_hint">Äáº·t bÃ i táº­p trong khung</string>
     <string name="camera_mode_photo">Photo</string>
     <string name="camera_mode_document">Document</string>
     <string name="camera_mode_math">Math</string>
@@ -177,17 +178,18 @@
     <string name="camera_perm_body">Milo needs your camera to scan textbook problems. You can change this any time in Settings.</string>
     <string name="camera_perm_grant">Grant access</string>
     <string name="camera_perm_settings">Open settings</string>
-    <string name="camera_error_capture">Couldn\'t capture that — try again.</string>
+    <string name="camera_error_capture">Couldn\'t capture that â€” try again.</string>
 
     <string name="scan_title">Review scan</string>
     <string name="scan_recognized_label">Recognized text</string>
     <string name="scan_confidence_label">%1$d%% match</string>
-    <string name="scan_recognized_hint">Milo recognized %1$d%% — fix any wrong characters before sending.</string>
+    <string name="scan_recognized_hint">Milo recognized %1$d%% â€” fix any wrong characters before sending.</string>
     <string name="scan_action_retake">Retake</string>
     <string name="scan_action_send">Ask Milo</string>
     <string name="scan_action_crop">Crop</string>
     <string name="scan_copy">Copy</string>
-    <string name="scan_processing">Reading your problem…</string>
+    <string name="scan_processing">Reading your problemâ€¦</string>
     <string name="scan_milo_suggests">Milo suggests</string>
     <string name="scan_prompt_prefix">Help me solve this problem:\n\n%1$s</string>
 </resources>
+

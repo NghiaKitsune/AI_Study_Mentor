@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SplashActivity — 1.5s branded intro before routing.
-    Replaces MainActivity as the app entry. Uses Theme.StudyMentor.Splash so the
-    system splash icon (also Milo) blends seamlessly into this Activity.
+    SplashActivity — Logo.html wordmark design (2026-06-12).
+    Shows amber-rounded-square app icon + "Milo" title + "AI Study Mentor" subtitle + 3 loading dots.
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,6 +11,7 @@
     android:background="?android:colorBackground"
     tools:context=".ui.SplashActivity">
 
+    <!-- Center: app icon + wordmark -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,29 +19,71 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/img_splash_mascot"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:src="@drawable/ic_mascot_milo"
-            android:contentDescription="@string/cd_mascot" />
+        <!-- App icon: amber rounded square + mascot -->
+        <FrameLayout
+            android:id="@+id/container_app_icon"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_app_icon"
+            android:elevation="8dp">
 
+            <ImageView
+                android:id="@+id/img_splash_mascot"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:src="@drawable/ic_mascot_milo"
+                android:contentDescription="@string/cd_mascot"/>
+        </FrameLayout>
+
+        <!-- "Milo" — mascot name, bold display -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_4"
-            android:text="@string/app_name"
+            android:text="@string/mascot_name"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_h1"
             android:textStyle="bold"
-            android:letterSpacing="-0.02" />
+            android:letterSpacing="-0.025"/>
 
+        <!-- "AI Study Mentor" subtitle -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_1"
-            android:text="@string/splash_tagline"
+            android:text="@string/app_name"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_body" />
+            android:textSize="@dimen/text_micro"/>
+
     </LinearLayout>
+
+    <!-- Loading dots (3 dots: inactive · active · inactive) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/bg_loading_dot_off"/>
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_loading_dot_on"/>
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_loading_dot_off"/>
+
+    </LinearLayout>
+
 </FrameLayout>

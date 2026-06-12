@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
@@ -30,8 +29,8 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Subtle pulse on the mascot
-        ImageView mascot = findViewById(R.id.img_splash_mascot);
+        // Scale-up entrance on the app icon container
+        android.view.View mascot = findViewById(R.id.container_app_icon);
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(mascot, "scaleX", 0.85f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(mascot, "scaleY", 0.85f, 1f);
         scaleX.setDuration(800);
