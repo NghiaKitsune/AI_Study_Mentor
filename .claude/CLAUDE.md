@@ -105,6 +105,9 @@ $sdk = "$env:LOCALAPPDATA\Android\Sdk"
 | Last synced | 2026-05-29 |
 | Screens covered | Home, Chat, Answer, History, Onboarding, Quiz, QuizResult, Dashboard, Profile, Leaderboard, Notifications, TwoFA, AnswerTabbed |
 
+**Logo bundle:** `McnAsHlacIoKwKqHFtaDEQ` — `https://api.anthropic.com/v1/design/h/McnAsHlacIoKwKqHFtaDEQ?open_file=Logo.html`
+— Covers: App icon (adaptive launcher), splash screen layout, mascot Milo v3 (kawaii chibi capybara), loading dots. Last synced 2026-06-12.
+
 **Agent-1 uses WebFetch on this URL** to get the latest design and fix UI drift.
 When a new design bundle is created, update the Bundle ID and URL above.
 
@@ -298,6 +301,29 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-06-12] Session 4 — Logo.html Integration + Adaptive Icon Fix
+**Work done:**
+- **Fetched Logo.html design bundle** (`McnAsHlacIoKwKqHFtaDEQ`) — gzip-compressed tar, decompressed via PowerShell GZipStream + tar extraction
+- **Rewrote `ic_mascot_milo.xml`** — full Milo v3 kawaii chibi capybara from Logo.html: left/right ear + inner, body ellipse, 3 fur tuft strokes, 2 paws, muzzle, blush ellipses (#80E07070 50%), blush strokes (#D9E07070 85%), arc eyes (^^ happy), glimmers (#66FFFFFF 40%), nose Y-mark, smile. viewportWidth=100 viewportHeight=108.
+- **Created `ic_launcher_background.xml`** — amber linear gradient 135°: #FFCF6A → #F5B544 → #E8960A
+- **Created `ic_launcher_foreground.xml`** — 108×108dp viewport, all mascot paths wrapped in `<group scaleX="0.907" scaleY="0.907" translateX="8.64" translateY="9.33">`. Math: mascot=size×0.84=90.72dp, marginTop=size×0.08=8.64dp, leftMargin=(108-90.72)/2=8.64dp. Amber gradient visible as ~8.6dp border around mascot — matches Logo.html AppIcon spec exactly.
+- **Updated `ic_launcher.xml` + `ic_launcher_round.xml`** — changed foreground from `@drawable/ic_mascot_milo` → `@drawable/ic_launcher_foreground` so adaptive icon uses the properly-scaled version
+- **Created `bg_app_icon.xml`** — amber gradient rounded square (radius=21dp, 22% of 96dp) for Splash screen icon container
+- **Created `bg_loading_dot_on.xml`** (#F5B544 amber oval) + **`bg_loading_dot_off.xml`** (#D4C4A0 sand oval)
+- **Rewrote `activity_splash.xml`** — FrameLayout with: center LinearLayout (96dp `container_app_icon` FrameLayout + 80dp mascot ImageView `layout_gravity="bottom|center_horizontal"` + "Milo" bold h1 title + "AI Study Mentor" subtitle) + bottom LinearLayout (3× 6dp loading dots: off/on/off)
+- **Updated `strings.xml`** — added `<string name="mascot_name">Milo</string>`
+- **Updated `SplashActivity.java`** — changed scale-pulse animation target from `img_splash_mascot` (ImageView) to `container_app_icon` (View); removed unused `ImageView` import
+- **Cleaned `.gitignore`** — added `.claude/screenshots/`, `.claude/status/`, `.claude/settings.local.json`, `.claude/metrics.md`, `.claude/change_log.md`, `.claude/error_log.md`, `PHASE_3A_NOTES.md`
+- **Force-pushed to GitHub** `https://github.com/NghiaKitsune/AI_Study_Mentor.git` (replaced old repo history, renamed local branch master→main)
+
+**Key SVG→VectorDrawable patterns established:**
+- Ellipse/circle: `M cx,cy m -rx,0 a rx,ry 0 1,0 2rx,0 a rx,ry 0 1,0 -2rx,0 Z`
+- Alpha in color: 50%→`#80`, 85%→`#D9`, 40%→`#66` prefix on RRGGBB
+- Adaptive icon safe zone: 108dp canvas, mascot scaled to 84% using `<group>` transform
+
+**Build:** PASSED (1m 12s) | **Logcat:** not tested (UI-only changes)
+**Committed:** `62bc128` | **Pushed:** origin/main
 
 ### [2026-05-29] Session 3 — Bottom Nav Fix + Emulator Testing
 **Work done:**
