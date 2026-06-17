@@ -1,3 +1,9 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # AI Study Mentor — Project Intelligence
 
 > **LIVING DOCUMENT**: This file is auto-updated after every session by Agent-2.
@@ -27,15 +33,17 @@ Multi-Activity (no Navigation Component)
 ├── Data layer:  Room DB (Question + Message entities)
 ├── Network:     Retrofit + MockAiService (swap via buildConfigField)
 ├── Camera:      CameraX (UC2.5)
-└── State:       SharedPreferences via Session.java utility
+├── State:       SharedPreferences via Session.java utility
+└── Views:       ViewBinding enabled (buildFeatures.viewBinding = true)
 ```
 
 **Key files:**
 - `util/Session.java` — all SharedPreferences keys and accessors
-- `StudyMentorApp.java` — singleton, holds `db()` Room instance
-- `data/AppDatabase.java` — Room DB, version 1
+- `StudyMentorApp.java` — singleton, holds `db()` + `executor()` (single-thread ExecutorService)
+- `data/AppDatabase.java` — Room DB, version 1; uses `fallbackToDestructiveMigration()` — any schema change wipes the DB
 - `api/MockAiService.java` — fake AI responses (USE_MOCK_AI=true in debug)
 - `api/MockOcrService.java` — fake OCR for camera scan
+- `util/BottomNavHelper.java` — static helper; call `BottomNavHelper.setup(activity, navItemId)` in every Activity that has a bottom nav
 
 **Switching to real backend:** In `app/build.gradle`:
 ```groovy
@@ -50,7 +58,6 @@ buildConfigField "String", "API_BASE_URL", '"https://your-api.com/"'
 ### Build command
 ```powershell
 $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-cd "D:\College BTEC\Application Development\ASM-20260430T042155Z-3-001\Update Version\android-starter"
 .\gradlew.bat assembleDebug
 ```
 
@@ -191,42 +198,49 @@ mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
 - **Session.java**: `streak()`, `hasSeenOnboarding()`, `markOnboardingSeen()`
 - **SplashActivity + MainActivity**: routing updated for onboarding flow
 
+### Phase 4 — Data Wiring + Technical Quality ✅ (2026-06-12)
+- **Quiz real data**: `QuizDataSource` reads `assets/quiz_questions.json` (25 questions: 5×math/science/code/history/general) via Gson; `QuizActivity` uses live questions + 24s countdown timer + reveal logic
+- **Quiz→Result score pass**: `QuizActivity.openResult()` passes `EXTRA_SCORE` + `EXTRA_TOTAL`; `QuizResultActivity` reads and displays real pct
+- **Dashboard real stats**: removed fake `Math.max` floors; `countBySubject()` DAO method drives subject breakdown bars
+- **Streak daily tracking**: `Session.updateStreak()` compares today vs `KEY_LAST_OPEN_DATE`; called from `SplashActivity.route()`
+- **Subject detection**: `ChatActivity.detectSubject()` keyword-matches prompt → math/science/code/history/general
+- **Common mistakes dynamic**: `ChatResponse.commonMistakes` field; `MockAiService` returns 2 subject-specific tips; `ChatActivity` serializes to JSON → `AnswerActivity.bindMistakes()` deserializes
+- **Profile badges real data**: `ProfileActivity.bindBadges()` reads streak/questionCount/bookmarks/mathCount/bestQuizPct from DB; 6 badges with real unlock conditions
+- **Follow-up chips wired**: `AnswerActivity.bindFollowUps()` wires 3 chips → prefilled ChatActivity or QuizActivity by subject
+- **Dark mode persistence**: `StudyMentorApp.onCreate()` calls `AppCompatDelegate.setDefaultNightMode(Session.themeMode(this))` before DB init
+- **Notifications scheduling**: `HomeActivity.scheduleStudyReminder()` enqueues `StudyReminderWorker` daily via WorkManager (KEEP policy, skips if notifications off)
+- **History search**: search bar toggle + `TextWatcher` → `applySearch()` in-memory filter by prompt text
+- **History delete**: long-press → `AlertDialog` → `questionDao.delete(q)` + reload
+- **D1 background writes**: `StudyMentorApp.executor()` (single-thread `ExecutorService`); `ChatActivity` moves `updateAnswer()` + assistant `messageDao.insert()` off main thread
+- **D4 ProGuard**: added rules for Room DAO interfaces, Gson POJO field preservation, Retrofit methods, WorkManager Workers
+- **D2 skipped**: `QuizQuestion` is a JSON POJO (not Room entity) — no migration needed; AppDatabase still v1
+- **D3 skipped**: email + password validation already present in `SignUpActivity` + `LoginActivity`
+- **Best quiz score tracking**: `Session.saveQuizResult()` persists best % to SharedPreferences; `QuizResultActivity` calls it after each quiz
+
 ---
 
 ## Known Stubs (Pending Work)
 
 | # | Stub | Location | Priority | Notes |
 |---|------|----------|----------|-------|
-| 1 | "Common mistakes" text is hardcoded | AnswerActivity | Medium | Should come from ChatResponse.commonMistakes |
-| 2 | Streak chip không tự tăng theo ngày login thực tế | HomeActivity | Low | No daily login tracking logic |
-| 3 | XP title generic "Level N · AI Student" | HomeActivity | Low | No title progression system yet |
-| 4 | Quiz content hardcoded (1 câu duy nhất) | QuizActivity | High | Cần kết nối Room DB hoặc data layer thực |
-| 5 | QuizResultActivity hiển thị static score | QuizResultActivity | High | Cần nhận score từ QuizActivity qua Intent extra |
-| 6 | DashboardActivity toàn bộ là static mock data | DashboardActivity | Medium | Cần đọc từ Room DB (questionDao + statsDao) |
-| 7 | LeaderboardActivity dữ liệu fake | LeaderboardActivity | Low | Cần backend API hoặc mock động |
+| 1 | LeaderboardActivity dữ liệu fake | LeaderboardActivity | Low | Cần backend API hoặc mock động |
+| 2 | `allowMainThreadQueries()` still enabled for reads | StudyMentorApp | Low | Writes already moved to executor; reads are small MVP queries |
+| 3 | assembleRelease not tested | build.gradle | Medium | ProGuard rules added but release APK not verified end-to-end |
 
 ---
 
 ## Next Steps (Việc cần làm tiếp theo)
 
-### Priority 1 — Data wiring (kết nối UI với data thực)
+### Priority 1 — Production readiness
 
-- [ ] **Quiz real data**: `QuizActivity` hiện hardcode 1 câu hỏi. Cần tạo `QuizQuestion` entity trong Room hoặc bundle câu hỏi từ JSON asset. Pass `questionId` qua Intent.
-- [ ] **Quiz → QuizResult score pass**: `QuizActivity.openResult()` mở `QuizResultActivity` nhưng không truyền score/total/correctIds. Thêm `putExtra("score", ...)` và đọc trong `QuizResultActivity`.
-- [ ] **Dashboard real stats**: `DashboardActivity` dùng toàn mock string. Thay bằng `questionDao.count()`, `questionDao.bookmarkedCount()`, và tính subject breakdown từ DB.
+- [ ] **Swap MockAiService → real API**: Set `USE_MOCK_AI=false` in `build.gradle` + configure `API_BASE_URL`.
+- [ ] **Error handling**: Retrofit `onFailure` shows Snackbar in ChatActivity; verify other network paths have feedback.
+- [ ] **assembleRelease test**: Run `.\gradlew.bat assembleRelease` and install; verify ProGuard doesn't strip Room/Gson/Retrofit symbols.
 
 ### Priority 2 — UX polish
 
-- [ ] **Streak tracking thực**: Khi user open app mỗi ngày, compare date với `Session.lastOpenDate()`. Nếu khác ngày hôm qua → reset streak về 1; nếu cùng ngày hôm qua → `streak + 1`. Lưu qua `Session.java`.
-- [ ] **Common mistakes dynamic**: `AnswerActivity` hardcode "Common mistakes" section. Gắn với `ChatResponse` model để hiển thị từ AI response thực hoặc mock.
-- [ ] **Back stack Home**: Khi từ Quiz/History bấm back nhiều lần có thể loop. Verify back stack với `FLAG_ACTIVITY_NEW_TASK` hoặc `finishAffinity()` ở Home.
-
-### Priority 3 — Production readiness
-
-- [ ] **Swap MockAiService → real API**: Set `USE_MOCK_AI=false` trong `build.gradle` + cấu hình `API_BASE_URL`.
-- [ ] **Error handling**: Các network call (Retrofit) chưa có UI feedback khi fail (no-internet, timeout).
-- [ ] **Room migration**: `AppDatabase` version 1 — nếu schema thay đổi (thêm QuizQuestion table) cần viết `Migration` object.
-- [ ] **ProGuard / release build**: Chưa test `assembleRelease`. Cần kiểm tra R8 không strip Room DAO.
+- [ ] **Back stack Home**: multiple-back-presses from Quiz/History can loop. Verify with `FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP` or `finishAffinity()`.
+- [ ] **Leaderboard dynamic data**: Currently all fake strings. Could use mock random data seeded by `questionDao.count()` for a realistic feel.
 
 ---
 
@@ -239,9 +253,11 @@ mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
 5. **Material 3** — always use `Widget.Material3.*` styles, never raw Android styles
 6. **No hardcoded strings in Java** — use `R.string.*`
 7. **No hardcoded colors in Java** — use `ContextCompat.getColor(this, R.color.*)`
-8. **Room on background thread** — always wrap DB calls in `executorService.execute()`
-9. **SplashScreen API** — `SplashScreen.installSplashScreen(this)` MUST be before `super.onCreate()` in SplashActivity
-10. **Critical files** — get extra care before editing: `AndroidManifest.xml`, `build.gradle`, `themes.xml`, `AppDatabase.java`, `Session.java`
+8. **Room on background thread** — always wrap DB calls in `StudyMentorApp.get().executor().execute()`
+9. **ViewBinding** — use generated binding classes (e.g. `ActivityHomeBinding`) instead of `findViewById`; inflate with `ActivityXxxBinding.inflate(getLayoutInflater())`
+10. **SplashScreen API** — `SplashScreen.installSplashScreen(this)` MUST be before `super.onCreate()` in SplashActivity
+11. **DB schema changes** — `AppDatabase` uses `fallbackToDestructiveMigration()`; bumping `version` wipes all user data. Only do this intentionally.
+12. **Critical files** — get extra care before editing: `AndroidManifest.xml`, `build.gradle`, `themes.xml`, `AppDatabase.java`, `Session.java`
 
 ---
 
@@ -301,6 +317,45 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-06-12] Session 5 — Phase A–D: Data Wiring, Feature Completion, Technical Quality
+**Work done:**
+
+**Phase A — Bug Fixes & Data Wiring:**
+- `Session.updateStreak()` — daily streak tracking via `KEY_LAST_OPEN_DATE` comparison; called from `SplashActivity.route()`
+- `Session.saveQuizResult()` + `Session.bestQuizPct()` — persists best quiz percentage
+- `ChatActivity.detectSubject()` — keyword-matching sets `q.subject` (math/science/code/history/general) instead of hardcoded "general"
+- `DashboardActivity` — removed fake `Math.max` floors; `questionDao().countBySubject(subject)` drives real subject breakdown bars
+- `QuestionDao` — added `countBySubject(String)` and `@Delete void delete(Question)`
+
+**Phase B — Feature Completion:**
+- `QuizQuestion.java` + `QuizDataSource.java` — POJO + static loader from `assets/quiz_questions.json` (25 questions, 5 per subject)
+- `quiz_questions.json` — 25 questions with question/subject/subjectTag/options[4]/correctIndex/explanation
+- `QuizActivity` full rewrite — live question bank, 24s CountDownTimer, reveal answer, subject icon, `openResult()` passes `EXTRA_SCORE`+`EXTRA_TOTAL`
+- `QuizResultActivity` — reads EXTRA_SCORE/EXTRA_TOTAL, displays real pct, calls `Session.saveQuizResult()`
+- `ProfileActivity.bindBadges()` — 6 badges with real unlock conditions (streak≥7, q≥1, quiz=100%, bookmarks≥3, math≥10, streak≥30)
+- `AnswerActivity.bindFollowUps()` — wires 3 follow-up chips to prefilled chat or QuizActivity by subject
+- `AnswerActivity.bindMistakes()` — deserializes `EXTRA_MISTAKES_JSON` from ChatActivity into `text_mistake_1/2`
+
+**Phase C — New Features:**
+- `ChatResponse.commonMistakes` — added `List<String>` field
+- `MockAiService` — populates 2 subject-specific common mistake tips per response
+- `ChatActivity` — serializes mistakes to JSON → `EXTRA_MISTAKES_JSON` passed to AnswerActivity; `offerViewSteps()` also passes mistakes
+- `StudyMentorApp.onCreate()` — `AppCompatDelegate.setDefaultNightMode(Session.themeMode(this))` fixes dark mode reset on restart
+- `HomeActivity.scheduleStudyReminder()` — enqueues `StudyReminderWorker` daily (WorkManager, KEEP, conditional on notificationsOn)
+- `StudyReminderWorker` — new Worker: creates notification channel, posts daily study reminder
+- `app/build.gradle` — added `work-runtime:2.9.0`
+- `HistoryActivity` — search bar (toggle + TextWatcher → `applySearch()`) + long-press delete dialog
+- `HistoryAdapter` — `OnRowLongClick` interface + `setOnLongClickListener`
+- `activity_history.xml` + `strings.xml` — search bar layout + dialog/notification strings
+
+**Phase D — Technical Quality:**
+- `StudyMentorApp` — added `ExecutorService executor` (single-thread); DB write-heavy calls in `ChatActivity` moved to `executor.execute()` (updateAnswer + appendAssistant insert)
+- `proguard-rules.pro` — added: `@Dao interface *`, `com.studymentor.app.data.**`, Gson `@SerializedName` field preservation, `QuizQuestion` full keep, Retrofit method annotations, WorkManager Worker constructors
+- D2 skipped: QuizQuestion is JSON POJO not Room entity; AppDatabase stays v1
+- D3 skipped: email regex + password length validation already in SignUpActivity + LoginActivity
+
+**Build:** PASSED (7s incremental) | **Logcat:** not tested (no regression-risk changes)
 
 ### [2026-06-12] Session 4 — Logo.html Integration + Adaptive Icon Fix
 **Work done:**
