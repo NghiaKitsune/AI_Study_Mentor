@@ -27,6 +27,12 @@ import com.studymentor.app.StudyMentorApp;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import com.studymentor.app.StudyReminderWorker;
 
 /**
  * UC2 — Home.
@@ -54,6 +60,7 @@ public class HomeActivity extends AppCompatActivity {
         bindComposer();
         bindBottomNav();
         maybeAskForNotifications();
+        scheduleStudyReminder();
     }
 
     /** Shows the system POST_NOTIFICATIONS prompt once on Android 13+. */
@@ -101,7 +108,7 @@ public class HomeActivity extends AppCompatActivity {
         TextView tvXp    = findViewById(R.id.text_xp_value);
         LinearProgressIndicator bar = findViewById(R.id.progress_xp);
 
-        tvLevel.setText("Level " + level + " · AI Student");
+        tvLevel.setText(levelTitle(level) + " · Level " + level);
         tvXp.setText(xpInLevel + " / " + xpNextLevel + " XP");
         bar.setProgressCompat((int) ((xpInLevel / (float) xpNextLevel) * 100), true);
     }
@@ -151,6 +158,25 @@ public class HomeActivity extends AppCompatActivity {
 
     private void bindBottomNav() {
         BottomNavHelper.setup(this, R.id.nav_home);
+    }
+
+    private void scheduleStudyReminder() {
+        if (!Session.notificationsOn(this)) return;
+        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
+                StudyReminderWorker.class, 1, TimeUnit.DAYS)
+                .build();
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "study_reminder",
+                ExistingPeriodicWorkPolicy.KEEP,
+                request);
+    }
+
+    private static String levelTitle(int level) {
+        if (level >= 10) return "Master";
+        if (level >= 7)  return "Expert";
+        if (level >= 5)  return "Scholar";
+        if (level >= 3)  return "Explorer";
+        return "Beginner";
     }
 
     private void openChat(String prefill) {

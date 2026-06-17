@@ -1,6 +1,7 @@
 package com.studymentor.app.data;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -32,6 +33,12 @@ public interface QuestionDao {
 
     @Query("SELECT COUNT(*) FROM questions WHERE bookmarked = 1")
     int bookmarkedCount();
+
+    @Query("SELECT COUNT(*) FROM questions WHERE subject = :subject")
+    int countBySubject(String subject);
+
+    @Delete
+    void delete(Question q);
 
     /** Updates the {@code answer} column without rewriting the whole row. */
     @Query("UPDATE questions SET answer = :answer WHERE id = :id")

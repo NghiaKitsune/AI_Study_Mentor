@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.studymentor.app.R;
+import com.studymentor.app.StudyMentorApp;
 import com.studymentor.app.util.BottomNavHelper;
 import com.studymentor.app.util.Session;
 
@@ -50,15 +51,21 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void bindBadges() {
+        int streak       = Session.streak(this);
+        int qCount       = StudyMentorApp.get().db().questionDao().count();
+        int bookmarks    = StudyMentorApp.get().db().questionDao().bookmarkedCount();
+        int mathCount    = StudyMentorApp.get().db().questionDao().countBySubject("math");
+        int bestQuizPct  = Session.bestQuizPct(this);
+
         List<BadgeItem> badges = Arrays.asList(
-            new BadgeItem(R.drawable.ic_flame,    "Week Warrior",  "7-day streak",         true,  R.color.brand_accent),
-            new BadgeItem(R.drawable.ic_sparkles, "First Steps",   "Ask 1 question",       true,  R.color.subject_math),
-            new BadgeItem(R.drawable.ic_target,   "Sharp Shooter", "10 perfect quizzes",   true,  R.color.subject_science),
-            new BadgeItem(R.drawable.ic_book,     "Bookworm",      "100 questions",         true,  R.color.info),
-            new BadgeItem(R.drawable.ic_trophy,   "Top 10",        "Weekly leaderboard",   false, R.color.brand_primary),
-            new BadgeItem(R.drawable.ic_crown,    "Math Master",   "50 algebra correct",   false, R.color.subject_history),
-            new BadgeItem(R.drawable.ic_zap,      "Speed Demon",   "Quiz in < 30s",        false, R.color.warning),
-            new BadgeItem(R.drawable.ic_medal,    "Marathon",      "30-day streak",         false, R.color.subject_math)
+            new BadgeItem(R.drawable.ic_flame,    "Week Warrior",  "7-day streak",       streak >= 7,       R.color.brand_accent),
+            new BadgeItem(R.drawable.ic_sparkles, "First Steps",   "Ask 1 question",     qCount >= 1,       R.color.subject_math),
+            new BadgeItem(R.drawable.ic_target,   "Sharp Shooter", "Score 100% on quiz", bestQuizPct == 100, R.color.subject_science),
+            new BadgeItem(R.drawable.ic_book,     "Bookworm",      "Bookmark 3+ answers",bookmarks >= 3,    R.color.info),
+            new BadgeItem(R.drawable.ic_trophy,   "Top 10",        "Weekly leaderboard", false,             R.color.brand_primary),
+            new BadgeItem(R.drawable.ic_crown,    "Math Master",   "10+ math questions", mathCount >= 10,   R.color.subject_history),
+            new BadgeItem(R.drawable.ic_zap,      "Speed Demon",   "Quiz in < 30s",      false,             R.color.warning),
+            new BadgeItem(R.drawable.ic_medal,    "Marathon",      "30-day streak",       streak >= 30,      R.color.subject_math)
         );
 
         RecyclerView rv = findViewById(R.id.rv_badges);

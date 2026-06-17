@@ -40,22 +40,26 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void bindLiveStats() {
         int questionCount = StudyMentorApp.get().db().questionDao().count();
-
         TextView tvQ = findViewById(R.id.text_stat_questions);
-        if (tvQ != null) tvQ.setText(String.valueOf(Math.max(questionCount, 247)));
+        if (tvQ != null) tvQ.setText(String.valueOf(questionCount));
 
-        // Streak from session
         int streak = com.studymentor.app.util.Session.streak(this);
         TextView tvStreak = findViewById(R.id.text_streak);
-        if (tvStreak != null) tvStreak.setText(String.valueOf(Math.max(streak, 7)));
+        if (tvStreak != null) tvStreak.setText(String.valueOf(streak));
     }
 
     private void bindSubjects() {
+        int mathCount    = StudyMentorApp.get().db().questionDao().countBySubject("math");
+        int codeCount    = StudyMentorApp.get().db().questionDao().countBySubject("code");
+        int scienceCount = StudyMentorApp.get().db().questionDao().countBySubject("science");
+        int historyCount = StudyMentorApp.get().db().questionDao().countBySubject("history");
+        int total        = Math.max(mathCount + codeCount + scienceCount + historyCount, 1);
+
         List<SubjectStat> subjects = Arrays.asList(
-            new SubjectStat("Math", 89, 36, R.color.subject_math, R.drawable.ic_sparkles),
-            new SubjectStat("Coding", 62, 25, R.color.subject_code, R.drawable.ic_settings),
-            new SubjectStat("Science", 48, 19, R.color.subject_science, R.drawable.ic_target),
-            new SubjectStat("Languages", 30, 12, R.color.subject_language, R.drawable.ic_book)
+            new SubjectStat("Math",      mathCount,    mathCount    * 100 / total, R.color.subject_math,     R.drawable.ic_sparkles),
+            new SubjectStat("Coding",    codeCount,    codeCount    * 100 / total, R.color.subject_code,     R.drawable.ic_settings),
+            new SubjectStat("Science",   scienceCount, scienceCount * 100 / total, R.color.subject_science,  R.drawable.ic_target),
+            new SubjectStat("Languages", historyCount, historyCount * 100 / total, R.color.subject_language, R.drawable.ic_book)
         );
 
         RecyclerView rv = findViewById(R.id.rv_subjects);

@@ -13,6 +13,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 import com.studymentor.app.R;
 import com.studymentor.app.StudyMentorApp;
 import com.studymentor.app.api.ChatResponse;
@@ -31,8 +33,9 @@ import java.util.List;
  */
 public class AnswerActivity extends AppCompatActivity {
 
-    public static final String EXTRA_QUESTION_ID = "extra_question_id";
-    public static final String EXTRA_STEPS_JSON  = "extra_steps_json";
+    public static final String EXTRA_QUESTION_ID  = "extra_question_id";
+    public static final String EXTRA_STEPS_JSON   = "extra_steps_json";
+    public static final String EXTRA_MISTAKES_JSON = "extra_mistakes_json";
 
     private Question question;
     private MaterialButton btnBookmark;
@@ -56,6 +59,8 @@ public class AnswerActivity extends AppCompatActivity {
                         : getString(R.string.open_in_chat_hint));
 
         bindSteps();
+        bindMistakes();
+        bindFollowUps();
         bindBookmark();
         bindShare();
     }
@@ -104,6 +109,48 @@ public class AnswerActivity extends AppCompatActivity {
         List<ChatResponse.Step> list = new ArrayList<>();
         list.add(s);
         return list;
+    }
+
+    private void bindFollowUps() {
+        String prompt  = question != null ? question.prompt  : "";
+        String subject = question != null ? question.subject : "general";
+
+        findViewById(R.id.chip_follow_simpler).setOnClickListener(v ->
+                openChat("Explain this more simply: " + prompt));
+
+        findViewById(R.id.chip_follow_another).setOnClickListener(v ->
+                openChat("Show me another method to solve: " + prompt));
+
+        findViewById(R.id.chip_follow_practice).setOnClickListener(v -> {
+            Intent i = new Intent(this, QuizActivity.class);
+            if (subject != null && !subject.equals("general"))
+                i.putExtra(QuizActivity.EXTRA_SUBJECT, subject);
+            startActivity(i);
+        });
+    }
+
+    private void openChat(String prefill) {
+        Intent i = new Intent(this, ChatActivity.class);
+        i.putExtra(ChatActivity.EXTRA_PROMPT, prefill);
+        startActivity(i);
+    }
+
+    private void bindMistakes() {
+        String json = getIntent().getStringExtra(EXTRA_MISTAKES_JSON);
+        if (json == null || json.isEmpty()) return;
+        try {
+            Type listType = new TypeToken<List<String>>() {}.getType();
+            List<String> mistakes = new Gson().fromJson(json, listType);
+            if (mistakes == null || mistakes.isEmpty()) return;
+            if (mistakes.size() >= 1) {
+                TextView tv = findViewById(R.id.text_mistake_1);
+                if (tv != null) tv.setText(mistakes.get(0));
+            }
+            if (mistakes.size() >= 2) {
+                TextView tv = findViewById(R.id.text_mistake_2);
+                if (tv != null) tv.setText(mistakes.get(1));
+            }
+        } catch (Exception ignored) {}
     }
 
     private void bindBookmark() {

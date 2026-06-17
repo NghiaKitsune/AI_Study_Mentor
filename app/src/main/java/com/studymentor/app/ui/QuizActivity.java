@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,35 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.studymentor.app.R;
+import com.studymentor.app.data.QuizDataSource;
+import com.studymentor.app.data.QuizQuestion;
 import com.studymentor.app.util.BottomNavHelper;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
  * UC6 — Quiz active screen.
- * Multiple choice with timer, option reveal (correct/wrong), and Milo explanation.
+ * Loads 5 questions from QuizDataSource (assets/quiz_questions.json),
+ * optionally filtered by EXTRA_SUBJECT. Tracks score across all questions
+ * and passes it to QuizResultActivity.
  */
 public class QuizActivity extends AppCompatActivity {
 
-    private static final int[] OPTION_IDS = {
-        R.id.option_a, R.id.option_b, R.id.option_c, R.id.option_d
-    };
-    private static final int[] CIRCLE_IDS = {
-        R.id.circle_a, R.id.circle_b, R.id.circle_c, R.id.circle_d
-    };
-    private static final int[] OPTION_TEXT_IDS = {
-        R.id.text_option_a, R.id.text_option_b, R.id.text_option_c, R.id.text_option_d
-    };
-    private static final String[] OPTION_TEXTS = {
-        "The process by which plants make food using sunlight",
-        "A chemical reaction that releases energy in animals",
-        "Conversion of light energy into chemical energy stored in glucose",
-        "Absorption of minerals from soil through root hairs"
-    };
-    private static final int CORRECT_IDX = 2; // option C is correct
+    public static final String EXTRA_SUBJECT = "extra_subject";
 
+    private static final int[] OPTION_IDS      = {R.id.option_a, R.id.option_b, R.id.option_c, R.id.option_d};
+    private static final int[] CIRCLE_IDS      = {R.id.circle_a, R.id.circle_b, R.id.circle_c, R.id.circle_d};
+    private static final int[] OPTION_TEXT_IDS = {R.id.text_option_a, R.id.text_option_b, R.id.text_option_c, R.id.text_option_d};
+    private static final String[] CIRCLE_LABELS = {"A", "B", "C", "D"};
+
+    private List<QuizQuestion> questions;
+    private int currentIdx  = 0;
     private int selectedIdx = -1;
     private boolean submitted = false;
+    private int score = 0;
     private CountDownTimer timer;
 
     @Override
@@ -47,32 +47,56 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        setupQuestion();
-        setupOptions();
-        setupTimer();
+        String subject = getIntent().getStringExtra(EXTRA_SUBJECT);
+        questions = QuizDataSource.random(this, subject, 5);
+        if (questions.isEmpty()) { finish(); return; }
+
+        showQuestion(0);
+        startTimer();
         setupCta();
 
         findViewById(R.id.btn_close).setOnClickListener(v -> finish());
         BottomNavHelper.setup(this, R.id.nav_practice);
     }
 
-    private void setupQuestion() {
-        TextView label = findViewById(R.id.text_question_label);
-        label.setText("QUESTION 3 / 5");
-        ((android.widget.ProgressBar) findViewById(R.id.progress_quiz)).setProgress(3);
-        TextView question = findViewById(R.id.text_question);
-        if (question != null) question.setText("What is photosynthesis?");
-    }
+    private void showQuestion(int idx) {
+        QuizQuestion q = questions.get(idx);
 
-    private void setupOptions() {
+        ProgressBar pb = findViewById(R.id.progress_quiz);
+        pb.setMax(questions.size());
+        pb.setProgress(idx + 1);
+
+        ((TextView) findViewById(R.id.text_question_label))
+                .setText("QUESTION " + (idx + 1) + " / " + questions.size());
+
+        String tag = (q.subjectTag != null && !q.subjectTag.isEmpty())
+                ? q.subjectTag
+                : q.subject.toUpperCase(Locale.US) + " · MULTIPLE CHOICE";
+        ((TextView) findViewById(R.id.text_subject_tag)).setText(tag);
+        ((ImageView) findViewById(R.id.img_subject)).setImageResource(subjectIcon(q.subject));
+
+        ((TextView) findViewById(R.id.text_question)).setText(q.question);
+
         for (int i = 0; i < OPTION_IDS.length; i++) {
-            final int idx = i;
+            final int fi = i;
+            ((TextView) findViewById(OPTION_TEXT_IDS[i])).setText(q.options[i]);
+
             MaterialCardView card = findViewById(OPTION_IDS[i]);
-            card.setOnClickListener(v -> {
-                if (!submitted) selectOption(idx);
-            });
-            ((TextView) findViewById(OPTION_TEXT_IDS[i])).setText(OPTION_TEXTS[i]);
+            card.setCardBackgroundColor(getColor(R.color.surface));
+            card.setStrokeColor(getColor(R.color.border));
+            card.setOnClickListener(v -> { if (!submitted) selectOption(fi); });
+
+            TextView circle = findViewById(CIRCLE_IDS[i]);
+            circle.setBackgroundResource(R.drawable.bg_blob_primary_tint);
+            circle.setText(CIRCLE_LABELS[i]);
+            circle.setTextColor(getColor(R.color.text_secondary));
         }
+
+        findViewById(R.id.card_explanation).setVisibility(View.GONE);
+
+        MaterialButton btn = findViewById(R.id.btn_check);
+        btn.setText("Check answer");
+        btn.setEnabled(false);
     }
 
     private void selectOption(int idx) {
@@ -81,17 +105,17 @@ public class QuizActivity extends AppCompatActivity {
             MaterialCardView card = findViewById(OPTION_IDS[i]);
             boolean sel = (i == idx);
             card.setCardBackgroundColor(sel
-                ? getColor(R.color.brand_primary_tint)
-                : getColor(R.color.surface));
+                    ? getColor(R.color.brand_primary_tint)
+                    : getColor(R.color.surface));
             card.setStrokeColor(sel
-                ? getColor(R.color.brand_primary)
-                : getColor(R.color.border));
+                    ? getColor(R.color.brand_primary)
+                    : getColor(R.color.border));
         }
-        MaterialButton btn = findViewById(R.id.btn_check);
-        btn.setEnabled(true);
+        ((MaterialButton) findViewById(R.id.btn_check)).setEnabled(true);
     }
 
-    private void setupTimer() {
+    private void startTimer() {
+        if (timer != null) timer.cancel();
         TextView tvTimer = findViewById(R.id.text_timer);
         timer = new CountDownTimer(24_000, 1_000) {
             @Override public void onTick(long ms) {
@@ -111,6 +135,8 @@ public class QuizActivity extends AppCompatActivity {
         btn.setOnClickListener(v -> {
             if (!submitted) {
                 revealAnswer();
+            } else if (currentIdx < questions.size() - 1) {
+                advanceQuestion();
             } else {
                 openResult();
             }
@@ -121,19 +147,20 @@ public class QuizActivity extends AppCompatActivity {
         submitted = true;
         if (timer != null) timer.cancel();
 
-        for (int i = 0; i < OPTION_IDS.length; i++) {
-            MaterialCardView card = findViewById(OPTION_IDS[i]);
-            TextView circle = findViewById(CIRCLE_IDS[i]);
-            boolean isCorrect = (i == CORRECT_IDX);
-            boolean isWrong = (i == selectedIdx && i != CORRECT_IDX);
+        QuizQuestion q   = questions.get(currentIdx);
+        int correctIdx   = q.correctIndex;
+        if (selectedIdx == correctIdx) score++;
 
-            if (isCorrect) {
+        for (int i = 0; i < OPTION_IDS.length; i++) {
+            MaterialCardView card   = findViewById(OPTION_IDS[i]);
+            TextView circle         = findViewById(CIRCLE_IDS[i]);
+            if (i == correctIdx) {
                 card.setCardBackgroundColor(getColor(R.color.success_soft));
                 card.setStrokeColor(getColor(R.color.success));
                 circle.setBackgroundColor(getColor(R.color.success));
                 circle.setTextColor(getColor(android.R.color.white));
                 circle.setText("✓");
-            } else if (isWrong) {
+            } else if (i == selectedIdx) {
                 card.setCardBackgroundColor(getColor(R.color.error_soft));
                 card.setStrokeColor(getColor(R.color.error));
                 circle.setBackgroundColor(getColor(R.color.error));
@@ -142,27 +169,52 @@ public class QuizActivity extends AppCompatActivity {
             }
         }
 
-        // Show explanation
-        View explanation = findViewById(R.id.card_explanation);
-        explanation.setVisibility(View.VISIBLE);
+        View expCard        = findViewById(R.id.card_explanation);
+        expCard.setVisibility(View.VISIBLE);
+        TextView resultLabel = expCard.findViewById(R.id.text_result_label);
+        TextView textExpl    = expCard.findViewById(R.id.text_explanation);
 
-        TextView resultLabel = explanation.findViewById(R.id.text_result_label);
-        if (selectedIdx == CORRECT_IDX) {
+        if (selectedIdx == -1) {
+            resultLabel.setText("TIME'S UP");
+            resultLabel.setTextColor(getColor(R.color.error));
+        } else if (selectedIdx == correctIdx) {
             resultLabel.setText("CORRECT");
             resultLabel.setTextColor(getColor(R.color.success));
         } else {
             resultLabel.setText("INCORRECT");
             resultLabel.setTextColor(getColor(R.color.error));
         }
+        if (q.explanation != null) textExpl.setText(q.explanation);
 
         MaterialButton btn = findViewById(R.id.btn_check);
-        btn.setText("Next question");
         btn.setEnabled(true);
+        btn.setText(currentIdx < questions.size() - 1 ? "Next question" : "See results");
+    }
+
+    private void advanceQuestion() {
+        currentIdx++;
+        selectedIdx = -1;
+        submitted   = false;
+        showQuestion(currentIdx);
+        startTimer();
     }
 
     private void openResult() {
-        startActivity(new Intent(this, QuizResultActivity.class));
+        Intent i = new Intent(this, QuizResultActivity.class);
+        i.putExtra(QuizResultActivity.EXTRA_SCORE, score);
+        i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
+        startActivity(i);
         finish();
+    }
+
+    private static int subjectIcon(String subject) {
+        if (subject == null) return R.drawable.ic_sparkles;
+        switch (subject) {
+            case "science": return R.drawable.ic_target;
+            case "code":    return R.drawable.ic_settings;
+            case "history": return R.drawable.ic_book;
+            default:        return R.drawable.ic_sparkles;
+        }
     }
 
     @Override

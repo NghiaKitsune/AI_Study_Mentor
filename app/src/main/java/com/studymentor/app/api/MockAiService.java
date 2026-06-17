@@ -90,6 +90,24 @@ public class MockAiService implements AiService {
         r.follow_ups.add("Explain simpler");
         r.follow_ups.add("Show another method");
         r.follow_ups.add("Practice 3 problems");
+
+        r.commonMistakes = new ArrayList<>();
+        if (prompt.contains("2x") || prompt.contains("x^2") || prompt.contains("quadratic")
+                || prompt.contains("equation") || prompt.contains("algebra")) {
+            r.commonMistakes.add("Watch out for sign errors — write parentheses around negative terms.");
+            r.commonMistakes.add("Tip: substitute your answer back into the original equation to verify.");
+        } else if (prompt.contains("photosynthesis") || prompt.contains("biology")
+                || prompt.contains("chemistry") || prompt.contains("physics")) {
+            r.commonMistakes.add("Don't confuse reactants and products — write the equation direction clearly.");
+            r.commonMistakes.add("Remember units: energy is Joules (J), force is Newtons (N), velocity is m/s.");
+        } else if (prompt.contains("code") || prompt.contains("program") || prompt.contains("function")
+                || prompt.contains("bug") || prompt.contains("algorithm")) {
+            r.commonMistakes.add("Off-by-one errors are very common in loops — check your index boundaries.");
+            r.commonMistakes.add("Always initialise variables before use to avoid unexpected null/zero values.");
+        } else {
+            r.commonMistakes.add("Read the question carefully — look for keywords like 'not', 'except', or 'always'.");
+            r.commonMistakes.add("Tip: eliminate obviously wrong answers first to improve your odds.");
+        }
         return r;
     }
 

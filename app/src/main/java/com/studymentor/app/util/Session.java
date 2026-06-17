@@ -25,7 +25,9 @@ public final class Session {
     private static final String KEY_THEME_MODE  = "theme_mode";        // AppCompatDelegate.MODE_NIGHT_*
     private static final String KEY_LANGUAGE    = "language";          // "en" | "vi"
     private static final String KEY_NOTIFS      = "notifications_on";
-    private static final String KEY_STREAK      = "streak_days";
+    private static final String KEY_STREAK         = "streak_days";
+    private static final String KEY_LAST_OPEN_DATE  = "last_open_date"; // "yyyy-MM-dd"
+    private static final String KEY_BEST_QUIZ_PCT   = "best_quiz_pct"; // 0–100
 
     private Session() {}
 
@@ -97,6 +99,45 @@ public final class Session {
 
     public static int streak(Context c) { return p(c).getInt(KEY_STREAK, 0); }
     public static void setStreak(Context c, int days) { p(c).edit().putInt(KEY_STREAK, days).apply(); }
+
+    /**
+     * Call once per app launch (e.g. SplashActivity).
+     * Compares today vs last-open-date:
+     *   same day   → no change
+     *   yesterday  → streak + 1
+     *   older      → reset to 1
+     */
+    public static void updateStreak(Context c) {
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        String last = p(c).getString(KEY_LAST_OPEN_DATE, "");
+
+        if (last.equals(today)) return;
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -1);
+        String yesterday = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(cal.getTime());
+
+        int newStreak = last.equals(yesterday) ? streak(c) + 1 : 1;
+        p(c).edit()
+                .putInt(KEY_STREAK, newStreak)
+                .putString(KEY_LAST_OPEN_DATE, today)
+                .apply();
+    }
+
+    // ---- Quiz best score -------------------------------------------
+
+    public static int bestQuizPct(Context c) { return p(c).getInt(KEY_BEST_QUIZ_PCT, 0); }
+
+    /** Saves quiz result; only updates KEY_BEST_QUIZ_PCT when it improves. */
+    public static void saveQuizResult(Context c, int score, int total) {
+        if (total <= 0) return;
+        int pct = score * 100 / total;
+        if (pct > bestQuizPct(c)) {
+            p(c).edit().putInt(KEY_BEST_QUIZ_PCT, pct).apply();
+        }
+    }
 
     // ---- Onboarding seen flag --------------------------------------
 

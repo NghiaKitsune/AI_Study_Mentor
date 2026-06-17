@@ -24,14 +24,26 @@ import java.util.List;
  */
 public class QuizResultActivity extends AppCompatActivity {
 
+    public static final String EXTRA_SCORE = "extra_score";
+    public static final String EXTRA_TOTAL = "extra_total";
+
+    private int score;
+    private int total;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_result);
 
-        ((TextView) findViewById(R.id.text_score)).setText("4 / 5");
-        ((TextView) findViewById(R.id.text_accuracy)).setText("80% accuracy · Physics quiz");
-        ((TextView) findViewById(R.id.text_streak)).setText("8");
+        score = getIntent().getIntExtra(EXTRA_SCORE, 0);
+        total = getIntent().getIntExtra(EXTRA_TOTAL, 1);
+        com.studymentor.app.util.Session.saveQuizResult(this, score, total);
+        int pct = total > 0 ? (score * 100 / total) : 0;
+
+        ((TextView) findViewById(R.id.text_score)).setText(score + " / " + total);
+        ((TextView) findViewById(R.id.text_accuracy)).setText(pct + "% accuracy · Quiz result");
+        int streak = com.studymentor.app.util.Session.streak(this);
+        ((TextView) findViewById(R.id.text_streak)).setText(String.valueOf(streak));
 
         setupAnswerList();
 
@@ -63,7 +75,8 @@ public class QuizResultActivity extends AppCompatActivity {
     }
 
     private void shareResult() {
-        String body = "I scored 4/5 (80%) on a Physics quiz in AI Study Mentor! 🎉\n\n— shared from AI Study Mentor";
+        int pct = total > 0 ? (score * 100 / total) : 0;
+        String body = "I scored " + score + "/" + total + " (" + pct + "%) on a quiz in AI Study Mentor!\n\n— shared from AI Study Mentor";
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT, body);

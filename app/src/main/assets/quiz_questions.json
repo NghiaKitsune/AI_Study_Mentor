@@ -1,0 +1,202 @@
+[
+  {
+    "question": "If 2x + 5 = 17, what is the value of x?",
+    "subject": "math",
+    "subjectTag": "MATH · ALGEBRA · MULTIPLE CHOICE",
+    "options": ["x = 5", "x = 6", "x = 11", "x = 4"],
+    "correctIndex": 1,
+    "explanation": "Subtract 5 from both sides: 2x = 12, then divide by 2: x = 6."
+  },
+  {
+    "question": "What is the correct formula for the area of a circle?",
+    "subject": "math",
+    "subjectTag": "MATH · GEOMETRY · MULTIPLE CHOICE",
+    "options": ["πr²", "2πr", "2πr²", "πr"],
+    "correctIndex": 0,
+    "explanation": "Area = πr². Circumference (the perimeter) is 2πr — don't confuse the two."
+  },
+  {
+    "question": "Simplify: 3x + 2x",
+    "subject": "math",
+    "subjectTag": "MATH · ALGEBRA · MULTIPLE CHOICE",
+    "options": ["5x²", "6x", "5x", "x⁵"],
+    "correctIndex": 2,
+    "explanation": "Combine like terms: (3 + 2)x = 5x. The variable and exponent don't change."
+  },
+  {
+    "question": "What is 20% of 150?",
+    "subject": "math",
+    "subjectTag": "MATH · PERCENTAGES · MULTIPLE CHOICE",
+    "options": ["25", "30", "35", "20"],
+    "correctIndex": 1,
+    "explanation": "20% of 150 = (20/100) × 150 = 0.2 × 150 = 30."
+  },
+  {
+    "question": "What is the slope of the line y = 3x + 7?",
+    "subject": "math",
+    "subjectTag": "MATH · LINEAR FUNCTIONS · MULTIPLE CHOICE",
+    "options": ["7", "3", "21", "1/3"],
+    "correctIndex": 1,
+    "explanation": "In y = mx + b, m is the slope. Here m = 3 and b = 7 is the y-intercept."
+  },
+  {
+    "question": "Which process uses sunlight to produce glucose in plants?",
+    "subject": "science",
+    "subjectTag": "SCIENCE · BIOLOGY · MULTIPLE CHOICE",
+    "options": ["Respiration", "Fermentation", "Photosynthesis", "Transpiration"],
+    "correctIndex": 2,
+    "explanation": "Photosynthesis: 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂. Chlorophyll captures the light energy."
+  },
+  {
+    "question": "Newton's second law states that Force equals:",
+    "subject": "science",
+    "subjectTag": "SCIENCE · PHYSICS · MULTIPLE CHOICE",
+    "options": ["mass × velocity", "mass × acceleration", "mass × distance", "mass ÷ time"],
+    "correctIndex": 1,
+    "explanation": "F = ma. Force equals mass times acceleration. More mass or more acceleration means more force."
+  },
+  {
+    "question": "What is the correct chemical formula for water?",
+    "subject": "science",
+    "subjectTag": "SCIENCE · CHEMISTRY · MULTIPLE CHOICE",
+    "options": ["H₂O₂", "H₂O", "HO", "H₃O"],
+    "correctIndex": 1,
+    "explanation": "Water is H₂O — two hydrogen atoms bonded to one oxygen. H₂O₂ is hydrogen peroxide."
+  },
+  {
+    "question": "DNA stands for:",
+    "subject": "science",
+    "subjectTag": "SCIENCE · BIOLOGY · MULTIPLE CHOICE",
+    "options": ["Deoxyribonucleic Acid", "Diribose Nucleic Acid", "Dynamic Nitrogen Array", "Dioxide Nucleic Acid"],
+    "correctIndex": 0,
+    "explanation": "DNA (Deoxyribonucleic Acid) is the molecule that carries genetic information in all living organisms."
+  },
+  {
+    "question": "Velocity is best described as:",
+    "subject": "science",
+    "subjectTag": "SCIENCE · PHYSICS · MULTIPLE CHOICE",
+    "options": ["Distance divided by time", "Speed in a specific direction", "Acceleration multiplied by time", "Force divided by mass"],
+    "correctIndex": 1,
+    "explanation": "Velocity has both magnitude (speed) and direction. Speed alone has no direction — velocity does."
+  },
+  {
+    "question": "What does O(n) mean in Big O notation?",
+    "subject": "code",
+    "subjectTag": "CODING · ALGORITHMS · MULTIPLE CHOICE",
+    "options": ["Constant time", "Exponential time", "Linear time", "Logarithmic time"],
+    "correctIndex": 2,
+    "explanation": "O(n) = linear time. As input size n doubles, runtime doubles. O(1) is constant, O(log n) is logarithmic."
+  },
+  {
+    "question": "Which loop in Java guarantees at least one execution?",
+    "subject": "code",
+    "subjectTag": "CODING · JAVA · MULTIPLE CHOICE",
+    "options": ["for", "while", "do-while", "foreach"],
+    "correctIndex": 2,
+    "explanation": "A do-while loop runs the body first, then checks the condition. The body always executes at least once."
+  },
+  {
+    "question": "CSS stands for:",
+    "subject": "code",
+    "subjectTag": "CODING · WEB · MULTIPLE CHOICE",
+    "options": ["Cascading Style Sheets", "Computer Styling System", "Creative Style Syntax", "Custom Sheet Script"],
+    "correctIndex": 0,
+    "explanation": "CSS (Cascading Style Sheets) controls how HTML elements are displayed — colors, fonts, layout, etc."
+  },
+  {
+    "question": "What is the result of 10 % 3 in most programming languages?",
+    "subject": "code",
+    "subjectTag": "CODING · OPERATORS · MULTIPLE CHOICE",
+    "options": ["3", "1", "0", "3.33"],
+    "correctIndex": 1,
+    "explanation": "The % operator gives the remainder. 10 ÷ 3 = 3 with remainder 1, so 10 % 3 = 1."
+  },
+  {
+    "question": "An array is best described as:",
+    "subject": "code",
+    "subjectTag": "CODING · DATA STRUCTURES · MULTIPLE CHOICE",
+    "options": ["A single value only", "Key-value pairs", "Multiple values of the same type in order", "Only strings"],
+    "correctIndex": 2,
+    "explanation": "Arrays hold multiple elements of the same type in a fixed-size, indexed sequence (index starts at 0)."
+  },
+  {
+    "question": "In which year did World War II end?",
+    "subject": "history",
+    "subjectTag": "HISTORY · WORLD WAR II · MULTIPLE CHOICE",
+    "options": ["1943", "1944", "1945", "1946"],
+    "correctIndex": 2,
+    "explanation": "WWII ended in 1945: Germany surrendered in May (V-E Day) and Japan in September (V-J Day)."
+  },
+  {
+    "question": "Who was the first President of the United States?",
+    "subject": "history",
+    "subjectTag": "HISTORY · AMERICAN HISTORY · MULTIPLE CHOICE",
+    "options": ["Thomas Jefferson", "Benjamin Franklin", "Abraham Lincoln", "George Washington"],
+    "correctIndex": 3,
+    "explanation": "George Washington served as the 1st US President from 1789 to 1797 after the Constitutional Convention."
+  },
+  {
+    "question": "The Renaissance began in which country?",
+    "subject": "history",
+    "subjectTag": "HISTORY · RENAISSANCE · MULTIPLE CHOICE",
+    "options": ["France", "Spain", "Italy", "England"],
+    "correctIndex": 2,
+    "explanation": "The Renaissance (14th–17th century) began in Italian city-states like Florence, Venice, and Rome."
+  },
+  {
+    "question": "Who was the first human to walk on the Moon?",
+    "subject": "history",
+    "subjectTag": "HISTORY · SPACE EXPLORATION · MULTIPLE CHOICE",
+    "options": ["Buzz Aldrin", "Neil Armstrong", "Yuri Gagarin", "John Glenn"],
+    "correctIndex": 1,
+    "explanation": "Neil Armstrong stepped onto the Moon on July 20, 1969, during the Apollo 11 mission. Yuri Gagarin was the first human in space (1961)."
+  },
+  {
+    "question": "The French Revolution began in which year?",
+    "subject": "history",
+    "subjectTag": "HISTORY · FRENCH REVOLUTION · MULTIPLE CHOICE",
+    "options": ["1776", "1783", "1789", "1799"],
+    "correctIndex": 2,
+    "explanation": "The French Revolution began in 1789 with the storming of the Bastille. It ended monarchy and shaped modern democracy."
+  },
+  {
+    "question": "The speed of light is approximately:",
+    "subject": "general",
+    "subjectTag": "GENERAL · PHYSICS · MULTIPLE CHOICE",
+    "options": ["300,000 km/s", "30,000 km/s", "3,000 km/s", "3,000,000 km/s"],
+    "correctIndex": 0,
+    "explanation": "Light travels at ~299,792 km/s in a vacuum, commonly rounded to 300,000 km/s."
+  },
+  {
+    "question": "What is the official language of Brazil?",
+    "subject": "general",
+    "subjectTag": "GENERAL · GEOGRAPHY · MULTIPLE CHOICE",
+    "options": ["Spanish", "Portuguese", "French", "English"],
+    "correctIndex": 1,
+    "explanation": "Brazil was colonized by Portugal, so Portuguese is the official language — not Spanish like most of South America."
+  },
+  {
+    "question": "How many continents are there on Earth?",
+    "subject": "general",
+    "subjectTag": "GENERAL · GEOGRAPHY · MULTIPLE CHOICE",
+    "options": ["5", "6", "7", "8"],
+    "correctIndex": 2,
+    "explanation": "The 7 continents are: Africa, Antarctica, Asia, Australia/Oceania, Europe, North America, and South America."
+  },
+  {
+    "question": "Which is the largest planet in our solar system?",
+    "subject": "general",
+    "subjectTag": "GENERAL · ASTRONOMY · MULTIPLE CHOICE",
+    "options": ["Saturn", "Neptune", "Uranus", "Jupiter"],
+    "correctIndex": 3,
+    "explanation": "Jupiter is the largest planet, with a mass greater than all other planets in the solar system combined."
+  },
+  {
+    "question": "At what temperature does water boil at sea level?",
+    "subject": "general",
+    "subjectTag": "GENERAL · SCIENCE · MULTIPLE CHOICE",
+    "options": ["90°C", "95°C", "100°C", "105°C"],
+    "correctIndex": 2,
+    "explanation": "Water boils at 100°C (212°F) at standard atmospheric pressure (1 atm / sea level)."
+  }
+]

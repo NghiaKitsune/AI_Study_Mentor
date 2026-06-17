@@ -46,7 +46,10 @@
     <dimen name="icon_button_lg">44dp</dimen>
 
     <dimen name="appbar_height">56dp</dimen>
-    <dimen name="bottomnav_height">64dp</dimen>
+    <dimen name="bottomnav_height">72dp</dimen>
+
+    <!-- Increase icon-to-label gap in BottomNavigationView (Material3 internal override) -->
+    <dimen name="m3_navigation_bar_item_label_padding_top">8dp</dimen>
 
     <!-- ============ Touch target minimum (Android guideline) ============ -->
     <dimen name="touch_min">48dp</dimen>

@@ -188,9 +188,9 @@
                             android:layout_marginTop="@dimen/space_3"
                             app:chipSpacing="@dimen/space_2">
 
-                            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_simpler" />
-                            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_another" />
-                            <com.google.android.material.chip.Chip style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_practice" />
+                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_simpler"  style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_simpler" />
+                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_another"  style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_another" />
+                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_practice" style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_practice" />
                         </com.google.android.material.chip.ChipGroup>
                     </LinearLayout>
                 </LinearLayout>

@@ -284,10 +284,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_compose_send"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
                 android:layout_width="@dimen/icon_button_md"
                 android:layout_height="@dimen/icon_button_md"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
                 app:icon="@drawable/ic_send"
                 app:iconSize="20dp"
                 app:iconTint="@color/text_on_primary"

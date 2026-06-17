@@ -2,12 +2,18 @@ package com.studymentor.app.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -32,6 +38,7 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView rv;
     private View emptyState;
     private ChipGroup chips;
+    private String searchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,7 @@ public class HistoryActivity extends AppCompatActivity {
         chips      = findViewById(R.id.chips_filter);
 
         bindStats();
+        bindSearch();
         bindFilter();
         bindList();
         bindEmptyStateCta();
@@ -56,6 +64,30 @@ public class HistoryActivity extends AppCompatActivity {
         setStat(R.id.stat_questions, String.valueOf(count),     getString(R.string.stat_questions));
         setStat(R.id.stat_bookmarks, String.valueOf(bookmarks), getString(R.string.stat_bookmarks));
         setStat(R.id.stat_accuracy,  "—",                       getString(R.string.stat_accuracy));
+    }
+
+    private void bindSearch() {
+        View searchBar = findViewById(R.id.layout_search);
+        EditText input = findViewById(R.id.input_search);
+
+        findViewById(R.id.btn_search).setOnClickListener(v -> {
+            boolean show = searchBar.getVisibility() != View.VISIBLE;
+            searchBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (!show) {
+                searchQuery = "";
+                input.setText("");
+                reload();
+            }
+        });
+
+        input.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+            @Override public void afterTextChanged(Editable s) {
+                searchQuery = s.toString();
+                reload();
+            }
+        });
     }
 
     private void setStat(int id, String value, String label) {
@@ -75,8 +107,22 @@ public class HistoryActivity extends AppCompatActivity {
             i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, q.id);
             startActivity(i);
         });
+        adapter.setOnLongClick(this::showDeleteDialog);
         rv.setAdapter(adapter);
         reload();
+    }
+
+    private void showDeleteDialog(com.studymentor.app.data.Question q) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_delete_q_title)
+                .setMessage("“" + q.prompt + "”")
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.dialog_delete_confirm, (d, w) -> {
+                    StudyMentorApp.get().db().questionDao().delete(q);
+                    reload();
+                    bindStats();
+                })
+                .show();
     }
 
     private void bindEmptyStateCta() {
@@ -90,9 +136,20 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void reload() {
-        List<Question> items = applyFilter(StudyMentorApp.get().db().questionDao().all());
+        List<Question> all   = StudyMentorApp.get().db().questionDao().all();
+        List<Question> items = applyFilter(applySearch(all));
         adapter.setItems(items);
         toggleEmpty(items.isEmpty());
+    }
+
+    private List<Question> applySearch(List<Question> all) {
+        if (searchQuery == null || searchQuery.trim().isEmpty()) return all;
+        String lq = searchQuery.trim().toLowerCase();
+        List<Question> out = new ArrayList<>();
+        for (Question q : all) {
+            if (q.prompt != null && q.prompt.toLowerCase().contains(lq)) out.add(q);
+        }
+        return out;
     }
 
     private List<Question> applyFilter(List<Question> all) {

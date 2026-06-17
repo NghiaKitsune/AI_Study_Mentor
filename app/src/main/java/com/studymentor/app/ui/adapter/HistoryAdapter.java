@@ -19,15 +19,19 @@ import java.util.List;
  */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.VH> {
 
-    public interface OnRowClick { void onClick(Question q); }
+    public interface OnRowClick     { void onClick(Question q);     }
+    public interface OnRowLongClick { void onLongClick(Question q); }
 
     private List<Question> items;
     private final OnRowClick onClick;
+    private OnRowLongClick onLongClick;
 
     public HistoryAdapter(List<Question> items, OnRowClick onClick) {
         this.items = items;
         this.onClick = onClick;
     }
+
+    public void setOnLongClick(OnRowLongClick listener) { this.onLongClick = listener; }
 
     public void setItems(List<Question> items) {
         this.items = items;
@@ -49,6 +53,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.VH> {
                 q.createdAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
         h.meta.setText(q.subject + " · " + relative);
         h.itemView.setOnClickListener(v -> onClick.onClick(q));
+        h.itemView.setOnLongClickListener(v -> {
+            if (onLongClick != null) { onLongClick.onLongClick(q); return true; }
+            return false;
+        });
     }
 
     @Override public int getItemCount() { return items == null ? 0 : items.size(); }

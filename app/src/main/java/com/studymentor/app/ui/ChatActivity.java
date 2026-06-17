@@ -24,6 +24,7 @@ import com.studymentor.app.StudyMentorApp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
     private View layoutSuggestions;
     private long questionId = -1L;
     private String lastStepsJson;
+    private String lastMistakesJson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +133,7 @@ public class ChatActivity extends AppCompatActivity {
         if (questionId <= 0) {
             Question q = new Question();
             q.prompt = text;
-            q.subject = "general";
+            q.subject = detectSubject(text);
             q.createdAt = System.currentTimeMillis();
             questionId = StudyMentorApp.get().db().questionDao().insert(q);
         }
@@ -157,9 +159,13 @@ public class ChatActivity extends AppCompatActivity {
                         : getString(R.string.chat_error_unreachable);
                 appendAssistant(reply);
                 if (response.body() != null && response.body().reply != null) {
-                    StudyMentorApp.get().db().questionDao().updateAnswer(questionId, reply);
+                    final long qid = questionId;
+                    StudyMentorApp.get().executor().execute(() ->
+                            StudyMentorApp.get().db().questionDao().updateAnswer(qid, reply));
                     if (response.body().steps != null && !response.body().steps.isEmpty()) {
-                        lastStepsJson = new Gson().toJson(response.body().steps);
+                        lastStepsJson   = new Gson().toJson(response.body().steps);
+                        lastMistakesJson = response.body().commonMistakes != null
+                                ? new Gson().toJson(response.body().commonMistakes) : null;
                         offerViewSteps();
                     }
                 }
@@ -173,7 +179,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private void appendAssistant(String text) {
         Message m = Message.assistant(questionId, text);
-        StudyMentorApp.get().db().messageDao().insert(m);
+        StudyMentorApp.get().executor().execute(() ->
+                StudyMentorApp.get().db().messageDao().insert(m));
         messages.add(m);
         adapter.notifyItemInserted(messages.size() - 1);
         scrollToBottom();
@@ -182,14 +189,16 @@ public class ChatActivity extends AppCompatActivity {
     /** Surfaces a "View steps" Snackbar so the user can open AnswerActivity for the latest reply. */
     private void offerViewSteps() {
         if (questionId <= 0) return;
-        final long qid = questionId;
-        final String steps = lastStepsJson;
+        final long qid     = questionId;
+        final String steps   = lastStepsJson;
+        final String mistakes = lastMistakesJson;
         com.google.android.material.snackbar.Snackbar
                 .make(rv, "Step-by-step breakdown ready", com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
                 .setAction("View", v -> {
                     Intent i = new Intent(this, AnswerActivity.class);
                     i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, qid);
-                    if (steps != null) i.putExtra(AnswerActivity.EXTRA_STEPS_JSON, steps);
+                    if (steps   != null) i.putExtra(AnswerActivity.EXTRA_STEPS_JSON,   steps);
+                    if (mistakes != null) i.putExtra(AnswerActivity.EXTRA_MISTAKES_JSON, mistakes);
                     startActivity(i);
                 })
                 .show();
@@ -197,5 +206,28 @@ public class ChatActivity extends AppCompatActivity {
 
     private void scrollToBottom() {
         rv.post(() -> rv.smoothScrollToPosition(Math.max(0, messages.size() - 1)));
+    }
+
+    private static String detectSubject(String prompt) {
+        String lp = prompt.toLowerCase(Locale.US);
+        String[] mathKw    = {"math", "equation", "algebra", "calculus", "geometry",
+                               "derivative", "integral", "quadratic", "trigonometry",
+                               "fraction", "percentage", "probability", "x^2"};
+        String[] scienceKw = {"physics", "chemistry", "biology", "photosynthesis",
+                               "molecule", "velocity", "acceleration", "newton",
+                               "gravity", "evolution", "dna", "periodic table",
+                               "atom", "reaction", "organism"};
+        String[] codeKw    = {"code", "program", "function", "debug", "javascript",
+                               "python", "algorithm", "array", "variable", "syntax",
+                               "compiler", "database", "sql", "html", "css", "bug",
+                               "loop", "class", "object", "git"};
+        String[] historyKw = {"history", "war", "revolution", "dynasty", "civilization",
+                               "ancient", "medieval", "empire", "colonial", "battle",
+                               "president", "independence", "century", "kingdom"};
+        for (String kw : mathKw)    if (lp.contains(kw)) return "math";
+        for (String kw : scienceKw) if (lp.contains(kw)) return "science";
+        for (String kw : codeKw)    if (lp.contains(kw)) return "code";
+        for (String kw : historyKw) if (lp.contains(kw)) return "history";
+        return "general";
     }
 }

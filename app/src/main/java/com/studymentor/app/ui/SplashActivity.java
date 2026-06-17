@@ -44,6 +44,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void route() {
+        Session.updateStreak(this);
         Intent next;
         if (!Session.isLoggedIn(this)) {
             // Show 3-step onboarding carousel on very first launch

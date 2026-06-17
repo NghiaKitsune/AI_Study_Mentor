@@ -13,6 +13,7 @@ public class ChatResponse {
     public String final_answer;
     public List<Step> steps;
     public List<String> follow_ups;
+    public List<String> commonMistakes; // up to 2 items shown in AnswerActivity
     public Integer tokens_used;
     public ErrorInfo error;
 
