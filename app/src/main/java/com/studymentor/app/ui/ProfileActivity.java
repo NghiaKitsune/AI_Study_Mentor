@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.studymentor.app.R;
 import com.studymentor.app.StudyMentorApp;
 import com.studymentor.app.util.BottomNavHelper;
@@ -24,7 +26,8 @@ import java.util.List;
 
 /**
  * UC8 — Profile + Achievements.
- * Hero avatar | XP bar | Stats row | Badge grid | Activity feed
+ * Amber gradient header: avatar + circular XP ring + name + level + XP bar.
+ * Stats row (overlap) | Badge grid 4×2 | Activity feed.
  */
 public class ProfileActivity extends AppCompatActivity {
 
@@ -46,8 +49,57 @@ public class ProfileActivity extends AppCompatActivity {
     private void bindProfile() {
         String name = Session.name(this);
         if (name == null || name.isEmpty() || name.equals("Friend")) name = "Nghia Mentor";
-
         ((TextView) findViewById(R.id.text_profile_name)).setText(name);
+
+        int totalQuestions = StudyMentorApp.get().db().questionDao().count();
+        int totalXp        = totalQuestions * 10;
+        int level          = Math.max(1, totalXp / 100 + 1);
+        int xpInLevel      = totalXp % 100;
+        int pct            = (int) ((xpInLevel / 100f) * 100);
+
+        ((TextView) findViewById(R.id.text_level_title))
+                .setText(levelTitle(level) + " · Level " + level);
+        ((TextView) findViewById(R.id.text_xp_current))
+                .setText(xpInLevel + " XP");
+        ((TextView) findViewById(R.id.text_xp_remaining))
+                .setText((100 - xpInLevel) + " XP to next level");
+
+        ((LinearProgressIndicator) findViewById(R.id.progress_xp))
+                .setProgressCompat(pct, true);
+        ((CircularProgressIndicator) findViewById(R.id.progress_ring_xp))
+                .setProgressCompat(pct, true);
+
+        // Stats row
+        ((TextView) findViewById(R.id.text_stat_streak))
+                .setText(String.valueOf(Session.streak(this)));
+        ((TextView) findViewById(R.id.text_stat_xp))
+                .setText(String.valueOf(totalXp));
+
+        int badgesUnlocked = countBadges(Session.streak(this), totalQuestions,
+                Session.bestQuizPct(this),
+                StudyMentorApp.get().db().questionDao().bookmarkedCount(),
+                StudyMentorApp.get().db().questionDao().countBySubject("math"));
+        ((TextView) findViewById(R.id.text_stat_badges))
+                .setText(badgesUnlocked + "/8");
+    }
+
+    private int countBadges(int streak, int qCount, int bestQuizPct, int bookmarks, int mathCount) {
+        int count = 0;
+        if (streak >= 7)       count++;
+        if (qCount >= 1)       count++;
+        if (bestQuizPct == 100) count++;
+        if (bookmarks >= 3)    count++;
+        if (mathCount >= 10)   count++;
+        if (streak >= 30)      count++;
+        return count; // Top10 and SpeedDemon badges are always locked
+    }
+
+    private static String levelTitle(int level) {
+        if (level >= 10) return "Master";
+        if (level >= 7)  return "Expert";
+        if (level >= 5)  return "Scholar";
+        if (level >= 3)  return "Explorer";
+        return "Beginner";
     }
 
     private void bindBadges() {
@@ -58,14 +110,14 @@ public class ProfileActivity extends AppCompatActivity {
         int bestQuizPct  = Session.bestQuizPct(this);
 
         List<BadgeItem> badges = Arrays.asList(
-            new BadgeItem(R.drawable.ic_flame,    "Week Warrior",  "7-day streak",       streak >= 7,       R.color.brand_accent),
-            new BadgeItem(R.drawable.ic_sparkles, "First Steps",   "Ask 1 question",     qCount >= 1,       R.color.subject_math),
-            new BadgeItem(R.drawable.ic_target,   "Sharp Shooter", "Score 100% on quiz", bestQuizPct == 100, R.color.subject_science),
-            new BadgeItem(R.drawable.ic_book,     "Bookworm",      "Bookmark 3+ answers",bookmarks >= 3,    R.color.info),
-            new BadgeItem(R.drawable.ic_trophy,   "Top 10",        "Weekly leaderboard", false,             R.color.brand_primary),
-            new BadgeItem(R.drawable.ic_crown,    "Math Master",   "10+ math questions", mathCount >= 10,   R.color.subject_history),
-            new BadgeItem(R.drawable.ic_zap,      "Speed Demon",   "Quiz in < 30s",      false,             R.color.warning),
-            new BadgeItem(R.drawable.ic_medal,    "Marathon",      "30-day streak",       streak >= 30,      R.color.subject_math)
+            new BadgeItem(R.drawable.ic_flame,    "Week Warrior",  "7-day streak",        streak >= 7,        R.color.brand_accent),
+            new BadgeItem(R.drawable.ic_sparkles, "First Steps",   "Ask 1 question",      qCount >= 1,        R.color.subject_math),
+            new BadgeItem(R.drawable.ic_target,   "Sharp Shooter", "Score 100% on quiz",  bestQuizPct == 100, R.color.subject_science),
+            new BadgeItem(R.drawable.ic_book,     "Bookworm",      "Bookmark 3+ answers", bookmarks >= 3,     R.color.info),
+            new BadgeItem(R.drawable.ic_trophy,   "Top 10",        "Weekly leaderboard",  false,              R.color.brand_primary),
+            new BadgeItem(R.drawable.ic_crown,    "Math Master",   "10+ math questions",  mathCount >= 10,    R.color.subject_history),
+            new BadgeItem(R.drawable.ic_zap,      "Speed Demon",   "Quiz in < 30s",       false,              R.color.warning),
+            new BadgeItem(R.drawable.ic_medal,    "Marathon",      "30-day streak",        streak >= 30,       R.color.subject_math)
         );
 
         RecyclerView rv = findViewById(R.id.rv_badges);
@@ -85,6 +137,8 @@ public class ProfileActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(new ActivityAdapter(items));
     }
+
+    // ===== Inner types =====
 
     static class BadgeItem {
         final int icon; final String label, desc; final boolean unlocked; final int colorRes;
@@ -146,8 +200,7 @@ public class ProfileActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull VH h, int pos) {
             ActivityItem a = items.get(pos);
             h.icon.setImageResource(a.icon);
-            int color = h.itemView.getContext().getColor(a.colorRes);
-            h.icon.getDrawable().setTint(color);
+            h.icon.getDrawable().setTint(h.itemView.getContext().getColor(a.colorRes));
             h.text.setText(a.text);
             h.time.setText(a.time);
         }

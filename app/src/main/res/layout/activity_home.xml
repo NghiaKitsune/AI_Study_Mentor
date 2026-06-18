@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     HomeActivity — UC2
-    CoordinatorLayout so the BottomNavigationView pins, and the rest scrolls.
+    CoordinatorLayout so bottom nav + composer pin; content scrolls.
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,16 +22,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/space_5"
-            android:paddingTop="@dimen/space_5">
+            android:orientation="vertical">
 
-            <!-- ==== Top bar: avatar + greeting + bell ==== -->
+            <!-- ==== Top bar: avatar + greeting + streak + bell ==== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/space_5"
+                android:paddingTop="@dimen/space_5"
+                android:paddingBottom="@dimen/space_3">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/img_avatar"
@@ -51,21 +52,21 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/text_greeting"
-                        style="@style/Text.Caption"
+                        android:id="@+id/text_greeting_sub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_label"
+                        android:textColor="@color/text_tertiary"
                         android:text="@string/greeting_morning" />
 
                     <TextView
                         android:id="@+id/text_user_name"
-                        style="@style/Text.H2"
+                        style="@style/Text.H3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         tools:text="Trần An" />
                 </LinearLayout>
 
-                <!-- Streak chip -->
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_streak"
                     style="@style/Widget.Material3.Chip.Assist"
@@ -93,49 +94,113 @@
                     app:iconTint="@color/text_primary" />
             </LinearLayout>
 
-            <!-- ==== Hero card (daily challenge) ==== -->
+            <!-- ==== Daily challenge card ==== -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_hero"
+                android:id="@+id/card_daily_challenge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_5"
+                android:layout_marginHorizontal="@dimen/space_5"
+                android:layout_marginTop="@dimen/space_3"
                 app:cardBackgroundColor="@android:color/transparent"
                 app:cardCornerRadius="@dimen/radius_lg"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
+                <!-- 2-column layout: body text | progress ring -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_hero_gradient"
-                    android:orientation="vertical"
+                    android:background="@drawable/bg_challenge_gradient"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:padding="@dimen/space_5">
 
-                    <TextView
-                        style="@style/Text.Caption"
-                        android:layout_width="wrap_content"
+                    <!-- Body column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.12"
-                        android:textColor="#80FFFFFF"
-                        android:text="@string/daily_challenge_label" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        style="@style/Text.H2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        android:textColor="#FFFFFF"
-                        android:text="@string/daily_challenge_body" />
+                        <TextView
+                            android:id="@+id/text_challenge_overline"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.12"
+                            android:text="@string/daily_challenge_label"
+                            android:textColor="#B8FFFFFF"
+                            android:textSize="@dimen/text_caption"
+                            android:textAllCaps="true" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_start_now"
-                        android:layout_width="wrap_content"
-                        android:layout_height="@dimen/button_height_md"
-                        android:layout_marginTop="@dimen/space_4"
-                        android:text="@string/btn_start_now"
-                        android:textColor="@color/brand_primary_darker"
-                        app:backgroundTint="#FFFFFF"
-                        app:cornerRadius="@dimen/radius_pill" />
+                        <TextView
+                            android:id="@+id/text_challenge_title"
+                            style="@style/Text.H3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:textColor="#FFFFFF"
+                            android:text="@string/daily_challenge_body" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_challenge_start"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/button_height_sm"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/btn_start_now"
+                            android:textColor="@color/brand_primary_darker"
+                            app:backgroundTint="#F2FFFFFF"
+                            app:cornerRadius="@dimen/radius_pill" />
+                    </LinearLayout>
+
+                    <!-- Progress ring -->
+                    <FrameLayout
+                        android:id="@+id/view_progress_ring"
+                        android:layout_width="@dimen/progress_ring_size"
+                        android:layout_height="@dimen/progress_ring_size"
+                        android:layout_marginStart="@dimen/space_5"
+                        android:background="@drawable/bg_ring_overlay">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/text_ring_num"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="@dimen/text_ring_value"
+                                    android:textStyle="bold"
+                                    android:text="0" />
+
+                                <TextView
+                                    android:id="@+id/text_ring_denom"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="1dp"
+                                    android:textColor="#A6FFFFFF"
+                                    android:textSize="@dimen/text_label"
+                                    android:text="@string/ring_challenge_total" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/text_ring_lbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#8CFFFFFF"
+                                android:textSize="@dimen/text_micro"
+                                android:text="@string/ring_challenge_period" />
+                        </LinearLayout>
+                    </FrameLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -145,25 +210,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_6"
+                android:paddingHorizontal="@dimen/space_5"
                 android:text="@string/section_quick_start" />
 
-            <GridLayout
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_3"
-                android:columnCount="2"
-                android:rowCount="2"
-                android:useDefaultMargins="true">
+                android:paddingHorizontal="@dimen/space_5"
+                android:clipToPadding="false"
+                android:scrollbars="none">
 
-                <include layout="@layout/item_quick_start_tile"
-                    android:id="@+id/tile_math" />
-                <include layout="@layout/item_quick_start_tile"
-                    android:id="@+id/tile_science" />
-                <include layout="@layout/item_quick_start_tile"
-                    android:id="@+id/tile_code" />
-                <include layout="@layout/item_quick_start_tile"
-                    android:id="@+id/tile_history" />
-            </GridLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <include layout="@layout/item_quick_start_tile"
+                        android:id="@+id/card_qs_math"
+                        android:layout_width="158dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/space_3" />
+
+                    <include layout="@layout/item_quick_start_tile"
+                        android:id="@+id/card_qs_science"
+                        android:layout_width="158dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/space_3" />
+
+                    <include layout="@layout/item_quick_start_tile"
+                        android:id="@+id/card_qs_code"
+                        android:layout_width="158dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/space_3" />
+
+                    <include layout="@layout/item_quick_start_tile"
+                        android:id="@+id/card_qs_history"
+                        android:layout_width="158dp"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <!-- ==== Section: Recent questions ==== -->
             <TextView
@@ -171,6 +257,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_6"
+                android:paddingHorizontal="@dimen/space_5"
                 android:text="@string/section_recent" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -178,70 +265,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_3"
+                android:paddingHorizontal="@dimen/space_5"
+                android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
                 tools:itemCount="3"
-                tools:listitem="@layout/item_history_row" />
+                tools:listitem="@layout/item_recent_question" />
 
-            <!-- ==== XP Progress stripe ==== -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_xp_progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_5"
-                app:cardBackgroundColor="@color/brand_primary_tint"
-                app:cardCornerRadius="@dimen/radius_md"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/brand_primary_soft"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/space_4">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/text_xp_level"
-                            style="@style/Text.Body"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@color/brand_primary_darker"
-                            android:textStyle="bold"
-                            tools:text="Level 7 · Algebra Apprentice" />
-
-                        <TextView
-                            android:id="@+id/text_xp_value"
-                            style="@style/Text.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/brand_primary_deep"
-                            android:textStyle="bold"
-                            tools:text="340 / 500 XP" />
-                    </LinearLayout>
-
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
-                        android:id="@+id/progress_xp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        app:indicatorColor="@color/brand_primary"
-                        app:trackColor="@color/brand_primary_soft"
-                        app:trackCornerRadius="@dimen/radius_pill"
-                        android:progress="68"
-                        style="@style/Widget.Material3.LinearProgressIndicator" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ==== Composer pinned just above the bottom nav ==== -->
+    <!-- ==== Composer pinned just above bottom nav ==== -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_composer"
         android:layout_width="match_parent"

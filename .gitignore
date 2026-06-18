@@ -59,6 +59,7 @@ Thumbs.db
 # Claude Code — local/runtime artifacts (not for version control)
 .claude/screenshots/
 .claude/status/
+.claude/backups/
 .claude/settings.local.json
 .claude/metrics.md
 .claude/change_log.md

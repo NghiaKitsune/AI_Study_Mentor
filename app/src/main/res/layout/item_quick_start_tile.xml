@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Quick-start tile used in Home GridLayout -->
+<!-- Quick-start tile — horizontal card for Home HorizontalScrollView -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="0dp"
+    android:layout_width="158dp"
     android:layout_height="wrap_content"
-    android:layout_columnWeight="1"
-    android:layout_gravity="fill_horizontal"
     app:cardBackgroundColor="@color/surface"
     app:cardCornerRadius="@dimen/radius_md"
     app:cardElevation="0dp"
@@ -17,33 +15,50 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:padding="@dimen/space_4">
 
-        <ImageView
-            android:id="@+id/img_tile_icon"
-            android:layout_width="@dimen/icon_button_md"
-            android:layout_height="@dimen/icon_button_md"
-            android:background="@drawable/bg_avatar_circle"
-            android:padding="8dp"
-            android:src="@drawable/ic_sparkles"
-            app:tint="@color/brand_primary_darker"
-            tools:ignore="ContentDescription" />
+        <!-- Icon container — backgroundTint set per-subject in HomeActivity -->
+        <FrameLayout
+            android:id="@+id/container_tile_icon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_avatar_circle">
 
-        <TextView
-            android:id="@+id/text_tile_title"
-            style="@style/Text.H3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3"
-            tools:text="Math" />
+            <ImageView
+                android:id="@+id/img_tile_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_sparkles"
+                tools:ignore="ContentDescription" />
+        </FrameLayout>
 
-        <TextView
-            android:id="@+id/text_tile_subtitle"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_1"
-            tools:text="Solve a problem" />
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_3"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_tile_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_body"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                tools:text="Math" />
+
+            <TextView
+                android:id="@+id/text_tile_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="@dimen/text_label"
+                android:textColor="@color/text_tertiary"
+                tools:text="Solve a problem" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

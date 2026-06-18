@@ -34,6 +34,12 @@
     <string name="daily_challenge_body">Solve 3 problems to keep your streak alive 🔥</string>
     <string name="btn_start_now">Start now</string>
     <string name="section_quick_start">Quick start</string>
+    <string name="qs_subtitle_math">Solve a problem</string>
+    <string name="qs_subtitle_science">Ask a question</string>
+    <string name="qs_subtitle_code">Debug some code</string>
+    <string name="qs_subtitle_history">Explore a topic</string>
+    <string name="ring_challenge_total">/3</string>
+    <string name="ring_challenge_period">today</string>
     <string name="section_recent">Recent questions</string>
     <string name="composer_placeholder">Ask Milo anything…</string>
 
@@ -75,6 +81,14 @@
     <string name="subject_history">History</string>
     <string name="subject_language">Languages</string>
     <string name="subject_geo">Geography</string>
+
+    <!-- Profile stats labels -->
+    <string name="stat_label_streak">Day streak</string>
+    <string name="stat_label_xp">Total XP</string>
+    <string name="stat_label_badges">Badges</string>
+    <string name="section_achievements">Achievements</string>
+    <string name="action_view_all">View all</string>
+    <string name="section_activity">Recent activity</string>
 
     <!-- Generic actions -->
     <string name="action_back">Back</string>

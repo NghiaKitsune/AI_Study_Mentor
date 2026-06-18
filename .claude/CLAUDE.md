@@ -44,6 +44,40 @@ Multi-Activity (no Navigation Component)
 - `api/MockAiService.java` — fake AI responses (USE_MOCK_AI=true in debug)
 - `api/MockOcrService.java` — fake OCR for camera scan
 - `util/BottomNavHelper.java` — static helper; call `BottomNavHelper.setup(activity, navItemId)` in every Activity that has a bottom nav
+- `util/SubjectIcons.java` — maps subject string (`math`/`science`/`code`/`history`/`language`) → drawable resource ID; use this instead of inline switch statements
+- `data/QuizDataSource.java` — loads `assets/quiz_questions.json` (cached after first read); call `QuizDataSource.random(ctx, subject, count)` to get shuffled questions; pass `null`/`"all"` for subject to include all
+- `StudyReminderWorker.java` — WorkManager Worker; creates notification channel + posts daily study reminder; respects `Session.notificationsOn()`
+- `data/MessageDao.java` — DAO for individual chat turns (insert/getByQuestionId)
+
+**Files quan trọng nhất (auto-load mỗi session):**
+
+@.claude/DESIGN_MIGRATION_LOG.md
+
+**Room DB entity fields:**
+```
+questions: id (PK autoGen) | prompt | answer | subject | createdAt (epoch ms) | bookmarked
+messages:  id (PK autoGen) | questionId (FK→questions.id) | role ("user"|"assistant") | text | sentAt (epoch ms)
+```
+Use `Message.user(questionId, text)` / `Message.assistant(questionId, text)` factory methods rather than the default constructor.
+
+**API layer (`api/` package):**
+- `AiService` — Retrofit interface: single endpoint `POST api/chat` → `ChatResponse`
+- `ApiClient` — builds OkHttp + Retrofit; returns `MockAiService` when `BuildConfig.USE_MOCK_AI=true`, real impl otherwise
+- `ChatRequest` fields: `request_id` (UUID String), `conversation_id` (Long, null for new), `message` (String), `context.{user_level, subject, locale}`
+- `ChatResponse` fields: `reply`, `final_answer`, `steps` (List<Step{index,title,body}>), `follow_ups` (List<String>), `commonMistakes` (List<String>, max 2), `error` (nullable ErrorInfo{code,message})
+
+**Key Intent extras (inter-Activity contracts):**
+- `ChatActivity`: `EXTRA_PROMPT` (String, prefill composer), `EXTRA_QUESTION_ID` (long, load existing conversation)
+- `AnswerActivity`: `EXTRA_QUESTION_ID` (long), `EXTRA_STEPS_JSON` (String, Gson list of `ChatResponse.Step`), `EXTRA_MISTAKES_JSON` (String, Gson `List<String>`)
+- `QuizResultActivity`: `EXTRA_SCORE` (int), `EXTRA_TOTAL` (int)
+
+**SplashActivity routing** (called after `Session.updateStreak()`):
+```
+not logged in + onboarding not seen → OnboardingActivity (first ever launch)
+not logged in + onboarding seen     → SignUpActivity
+logged in + not onboarded           → PersonalizeActivity
+logged in + onboarded               → HomeActivity
+```
 
 **Switching to real backend:** In `app/build.gradle`:
 ```groovy
@@ -95,10 +129,20 @@ $sdk = "$env:LOCALAPPDATA\Android\Sdk"
 & "$sdk\platform-tools\adb.exe" -s emulator-5554 install -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
+### View logcat (filter to app only)
+```powershell
+$sdk = "$env:LOCALAPPDATA\Android\Sdk"
+& "$sdk\platform-tools\adb.exe" -s emulator-5554 logcat --pid=$(& "$sdk\platform-tools\adb.exe" shell pidof com.studymentor.app)
+```
+
 ### Simulate logged-in session (for testing Home/Chat/History)
 ```powershell
-# Push mock SharedPreferences with auth_token + onboarded=true
-# See: .claude\hooks\run_full_test.bat for full automation
+$sdk = "$env:LOCALAPPDATA\Android\Sdk"
+# Write a SharedPreferences XML with auth_token + onboarded flags
+$xml = '<?xml version="1.0" encoding="utf-8" standalone="yes"?><map><string name="auth_token">mock_token</string><boolean name="onboarded" value="true" /><boolean name="onboarding_seen" value="true" /></map>'
+$xml | Out-File -Encoding utf8 ".\mock_prefs.xml"
+& "$sdk\platform-tools\adb.exe" -s emulator-5554 push ".\mock_prefs.xml" "/data/data/com.studymentor.app/shared_prefs/_preferences_default.xml"
+Remove-Item ".\mock_prefs.xml"
 ```
 
 ---
@@ -253,7 +297,7 @@ mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
 5. **Material 3** — always use `Widget.Material3.*` styles, never raw Android styles
 6. **No hardcoded strings in Java** — use `R.string.*`
 7. **No hardcoded colors in Java** — use `ContextCompat.getColor(this, R.color.*)`
-8. **Room on background thread** — always wrap DB calls in `StudyMentorApp.get().executor().execute()`
+8. **Room threading** — DB **writes** must go on `StudyMentorApp.get().executor().execute()`; DB **reads** currently run on the main thread via `allowMainThreadQueries()` (known MVP stub — see Known Stubs #2)
 9. **ViewBinding** — use generated binding classes (e.g. `ActivityHomeBinding`) instead of `findViewById`; inflate with `ActivityXxxBinding.inflate(getLayoutInflater())`
 10. **SplashScreen API** — `SplashScreen.installSplashScreen(this)` MUST be before `super.onCreate()` in SplashActivity
 11. **DB schema changes** — `AppDatabase` uses `fallbackToDestructiveMigration()`; bumping `version` wipes all user data. Only do this intentionally.

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     ProfileActivity — UC8
-    TopBar | Hero avatar+level | XP bar | 3-cell stats | Badges 4x2 | Activity feed | BottomNav
+    Amber gradient header (topbar + avatar + XP) · Stats overlap · Badges · Activity · BottomNav
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,40 +12,6 @@
     android:background="?android:colorBackground"
     android:orientation="vertical"
     tools:context=".ui.ProfileActivity">
-
-    <!-- TopBar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/appbar_height"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/space_4">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_back"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="@dimen/icon_button_md"
-            android:layout_height="@dimen/icon_button_md"
-            app:icon="@drawable/ic_back"
-            app:iconTint="@color/text_primary"
-            android:contentDescription="@string/action_back" />
-
-        <TextView
-            style="@style/Text.H2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/space_2"
-            android:text="Profile" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_settings"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="@dimen/icon_button_md"
-            android:layout_height="@dimen/icon_button_md"
-            app:icon="@drawable/ic_settings"
-            app:iconTint="@color/text_primary"
-            android:contentDescription="@string/action_more" />
-    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -58,107 +24,154 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Hero section -->
+            <!-- ===== Gradient header (topbar + hero) ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:background="@drawable/bg_challenge_gradient"
                 android:orientation="vertical"
-                android:background="@color/brand_primary_tint"
-                android:paddingTop="@dimen/space_2"
-                android:paddingBottom="@dimen/space_6"
-                android:paddingHorizontal="@dimen/space_5">
+                android:paddingBottom="@dimen/space_8">
 
-                <!-- Avatar with gradient ring + level badge -->
-                <FrameLayout
-                    android:layout_width="100dp"
-                    android:layout_height="100dp">
+                <!-- TopBar: back | title | settings — white on amber -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/appbar_height"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/space_4">
 
-                    <!-- Gradient ring (approximated with primary bg) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_back"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="@dimen/icon_button_md"
+                        android:layout_height="@dimen/icon_button_md"
+                        app:icon="@drawable/ic_back"
+                        app:iconTint="@android:color/white"
+                        android:contentDescription="@string/action_back" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/space_2"
+                        android:text="Profile"
+                        android:textColor="#FFFFFF"
+                        android:textSize="@dimen/text_h3"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_settings"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="@dimen/icon_button_md"
+                        android:layout_height="@dimen/icon_button_md"
+                        app:icon="@drawable/ic_settings"
+                        app:iconTint="@android:color/white"
+                        android:contentDescription="@string/action_more" />
+                </LinearLayout>
+
+                <!-- Avatar + XP ring + name + level + XP bar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/space_4">
+
+                    <!-- Avatar with circular XP ring -->
                     <FrameLayout
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:background="@drawable/bg_hero_gradient"
-                        android:padding="4dp">
+                        android:layout_width="96dp"
+                        android:layout_height="96dp">
 
-                        <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_avatar_circle">
+                        <!-- Circular XP progress ring -->
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progress_ring_xp"
+                            android:layout_width="96dp"
+                            android:layout_height="96dp"
+                            android:layout_gravity="center"
+                            app:indicatorColor="#FFFFFF"
+                            app:trackColor="#4DFFFFFF"
+                            app:trackThickness="5dp"
+                            app:indicatorSize="88dp"
+                            android:progress="68" />
 
-                            <ImageView
-                                android:layout_width="72dp"
-                                android:layout_height="72dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_mascot_milo"
-                                android:contentDescription="@string/cd_avatar" />
-                        </FrameLayout>
+                        <!-- Avatar -->
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_gravity="center"
+                            android:background="@color/surface"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_mascot_milo"
+                            android:contentDescription="@string/cd_avatar"
+                            app:shapeAppearanceOverlay="@style/Shape.StudyMentor.Round" />
                     </FrameLayout>
 
-                    <!-- Level badge -->
                     <TextView
-                        android:id="@+id/text_level_badge"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_gravity="bottom|end"
-                        android:gravity="center"
-                        android:background="@drawable/bg_avatar_circle"
-                        android:textColor="@color/brand_primary"
-                        android:textSize="12sp"
+                        android:id="@+id/text_profile_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_3"
+                        android:textColor="#FFFFFF"
+                        android:textSize="@dimen/text_h2"
                         android:textStyle="bold"
-                        android:text="7" />
-                </FrameLayout>
+                        tools:text="Nghia Mentor" />
 
-                <TextView
-                    android:id="@+id/text_profile_name"
-                    style="@style/Text.H2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_3"
-                    tools:text="Nghia Mentor" />
+                    <TextView
+                        android:id="@+id/text_level_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:textColor="#A6FFFFFF"
+                        android:textSize="@dimen/text_body_sm"
+                        android:textStyle="bold"
+                        tools:text="Level 7 · Algebra Apprentice" />
 
-                <TextView
-                    android:id="@+id/text_level_title"
-                    style="@style/Text.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textColor="@color/text_secondary"
-                    android:textStyle="bold"
-                    android:text="Level 7 · Algebra Apprentice" />
+                    <!-- XP progress bar -->
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/progress_xp"
+                        style="@style/Widget.Material3.LinearProgressIndicator"
+                        android:layout_width="240dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_4"
+                        app:indicatorColor="#FFFFFF"
+                        app:trackColor="#4DFFFFFF"
+                        app:trackCornerRadius="@dimen/radius_pill"
+                        android:progress="68" />
 
-                <!-- XP progress bar -->
-                <ProgressBar
-                    android:id="@+id/progress_xp"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="280dp"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="@dimen/space_4"
-                    android:max="500"
-                    android:progress="340"
-                    android:progressTint="@color/brand_primary"
-                    android:progressBackgroundTint="@color/surface_3" />
+                    <!-- XP labels -->
+                    <LinearLayout
+                        android:layout_width="240dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="5dp">
 
-                <LinearLayout
-                    android:layout_width="280dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="6dp">
-                    <TextView style="@style/Text.Caption" android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:textColor="@color/text_tertiary" android:textStyle="bold"
-                        android:text="340 XP" />
-                    <TextView style="@style/Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:textColor="@color/text_tertiary" android:textStyle="bold"
-                        android:text="160 XP to Level 8 →" />
+                        <TextView
+                            android:id="@+id/text_xp_current"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="#B8FFFFFF"
+                            android:textSize="@dimen/text_micro"
+                            android:textStyle="bold"
+                            tools:text="340 XP" />
+
+                        <TextView
+                            android:id="@+id/text_xp_remaining"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#8CFFFFFF"
+                            android:textSize="@dimen/text_micro"
+                            android:textStyle="bold"
+                            tools:text="160 XP to next level" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Stats row (3 cells) -->
+            <!-- ===== Stats row (overlaps gradient bottom) ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="-16dp"
+                android:layout_marginTop="-28dp"
                 android:layout_marginHorizontal="@dimen/space_4"
                 android:layout_marginBottom="@dimen/space_5">
 
@@ -167,7 +180,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardElevation="2dp">
+                    app:cardElevation="4dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:gravity="center"
                         android:paddingVertical="@dimen/space_4" android:paddingHorizontal="@dimen/space_2">
@@ -175,11 +188,12 @@
                             android:src="@drawable/ic_flame" app:tint="@color/brand_accent"
                             android:layout_marginBottom="4dp" android:contentDescription="@null" />
                         <TextView android:id="@+id/text_stat_streak" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold"
-                            android:textColor="@color/text_primary" android:text="7" />
+                            android:layout_height="wrap_content" android:textSize="@dimen/text_h3"
+                            android:textStyle="bold" android:textColor="@color/text_primary"
+                            tools:text="7" />
                         <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                             android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:gravity="center" android:text="Day streak" />
+                            android:layout_marginTop="3dp" android:gravity="center" android:text="@string/stat_label_streak" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -189,7 +203,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginHorizontal="1dp"
-                    app:cardElevation="2dp">
+                    app:cardElevation="4dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:gravity="center"
                         android:paddingVertical="@dimen/space_4" android:paddingHorizontal="@dimen/space_2">
@@ -197,11 +211,12 @@
                             android:src="@drawable/ic_zap" app:tint="@color/brand_primary"
                             android:layout_marginBottom="4dp" android:contentDescription="@null" />
                         <TextView android:id="@+id/text_stat_xp" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold"
-                            android:textColor="@color/text_primary" android:text="1,840" />
+                            android:layout_height="wrap_content" android:textSize="@dimen/text_h3"
+                            android:textStyle="bold" android:textColor="@color/text_primary"
+                            tools:text="1,840" />
                         <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                             android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:gravity="center" android:text="Total XP" />
+                            android:layout_marginTop="3dp" android:gravity="center" android:text="@string/stat_label_xp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -210,24 +225,25 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardElevation="2dp">
+                    app:cardElevation="4dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:gravity="center"
                         android:paddingVertical="@dimen/space_4" android:paddingHorizontal="@dimen/space_2">
                         <ImageView android:layout_width="18dp" android:layout_height="18dp"
-                            android:src="@drawable/ic_medal" app:tint="#7C5CE6"
+                            android:src="@drawable/ic_medal" app:tint="@color/subject_math"
                             android:layout_marginBottom="4dp" android:contentDescription="@null" />
                         <TextView android:id="@+id/text_stat_badges" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold"
-                            android:textColor="@color/text_primary" android:text="4 / 8" />
+                            android:layout_height="wrap_content" android:textSize="@dimen/text_h3"
+                            android:textStyle="bold" android:textColor="@color/text_primary"
+                            tools:text="4/8" />
                         <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                             android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:gravity="center" android:text="Badges" />
+                            android:layout_marginTop="3dp" android:gravity="center" android:text="@string/stat_label_badges" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- Achievements section -->
+            <!-- ===== Achievements section ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -238,15 +254,16 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:gravity="center_vertical" android:orientation="horizontal"
                     android:layout_marginBottom="@dimen/space_3">
-                    <TextView style="@style/Text.Caption" android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:textColor="@color/text_tertiary" android:textStyle="bold"
-                        android:letterSpacing="0.08" android:textAllCaps="true" android:text="Achievements" />
+                    <TextView style="@style/Text.Caption" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1"
+                        android:textColor="@color/text_tertiary" android:textStyle="bold"
+                        android:letterSpacing="0.08" android:textAllCaps="true"
+                        android:text="@string/section_achievements" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:textColor="@color/brand_primary_deep" android:textSize="13sp" android:textStyle="bold"
-                        android:text="View all" />
+                        android:textColor="@color/brand_primary_deep" android:textSize="@dimen/text_caption"
+                        android:textStyle="bold" android:text="@string/action_view_all" />
                 </LinearLayout>
 
-                <!-- Badges grid 4x2 (using GridLayout) -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_badges"
                     android:layout_width="match_parent"
@@ -254,7 +271,7 @@
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
 
-            <!-- Recent activity -->
+            <!-- ===== Recent activity ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -262,9 +279,11 @@
                 android:paddingHorizontal="@dimen/space_4"
                 android:paddingBottom="@dimen/space_10">
 
-                <TextView style="@style/Text.Caption" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:textColor="@color/text_tertiary" android:textStyle="bold" android:letterSpacing="0.08"
-                    android:textAllCaps="true" android:layout_marginBottom="@dimen/space_3" android:text="Recent activity" />
+                <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
+                    android:textStyle="bold" android:letterSpacing="0.08" android:textAllCaps="true"
+                    android:layout_marginBottom="@dimen/space_3"
+                    android:text="@string/section_activity" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_activity"

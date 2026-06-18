@@ -64,8 +64,8 @@
     <!-- Height 68dp: centered on icon (y≈24dp), extends to y≈58dp — covers icon + label -->
     <style name="BottomNav.ActiveIndicator"
            parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:width">80dp</item>
-        <item name="android:height">90dp</item>
+        <item name="android:width">@dimen/bottomnav_indicator_size</item>
+        <item name="android:height">@dimen/bottomnav_indicator_size</item>
         <item name="android:color">@color/brand_primary_tint</item>
     </style>
 

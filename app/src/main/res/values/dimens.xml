@@ -26,12 +26,14 @@
 
     <!-- ============ Text sizes ============ -->
     <dimen name="text_display">32sp</dimen>
+    <dimen name="text_ring_value">28sp</dimen>
     <dimen name="text_h1">26sp</dimen>
     <dimen name="text_h2">22sp</dimen>
     <dimen name="text_h3">18sp</dimen>
     <dimen name="text_body">15sp</dimen>
     <dimen name="text_body_sm">14sp</dimen>
     <dimen name="text_caption">13sp</dimen>
+    <dimen name="text_label">12sp</dimen>
     <dimen name="text_micro">11sp</dimen>
 
     <!-- ============ Component heights ============ -->
@@ -47,12 +49,14 @@
 
     <dimen name="appbar_height">56dp</dimen>
     <dimen name="bottomnav_height">72dp</dimen>
+    <dimen name="bottomnav_indicator_size">30dp</dimen>
 
     <!-- Increase icon-to-label gap in BottomNavigationView (Material3 internal override) -->
     <dimen name="m3_navigation_bar_item_label_padding_top">8dp</dimen>
 
     <!-- ============ Touch target minimum (Android guideline) ============ -->
     <dimen name="touch_min">48dp</dimen>
+    <dimen name="progress_bar_height">8dp</dimen>
 
     <!-- ============ Elevation ============ -->
     <dimen name="elev_1">2dp</dimen>
@@ -64,4 +68,8 @@
     <dimen name="mascot_sm">40dp</dimen>
     <dimen name="mascot_md">72dp</dimen>
     <dimen name="mascot_lg">120dp</dimen>
+
+    <!-- ============ Avatar & progress ring ============ -->
+    <dimen name="avatar_xl">84dp</dimen>
+    <dimen name="progress_ring_size">78dp</dimen>
 </resources>

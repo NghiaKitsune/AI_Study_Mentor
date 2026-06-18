@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <!-- rgba(white, 18%) fill + rgba(white, 30%) border on amber gradient card -->
+    <solid android:color="#2EFFFFFF" />
+    <stroke android:width="2dp" android:color="#4DFFFFFF" />
+</shape>
