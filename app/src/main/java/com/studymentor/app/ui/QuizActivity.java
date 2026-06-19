@@ -41,6 +41,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String[] CIRCLE_LABELS = {"A", "B", "C", "D"};
 
     private List<QuizQuestion> questions;
+    private int[] userAnswers;
     private int currentIdx  = 0;
     private int selectedIdx = -1;
     private boolean submitted = false;
@@ -55,6 +56,9 @@ public class QuizActivity extends AppCompatActivity {
         String subject = getIntent().getStringExtra(EXTRA_SUBJECT);
         questions = QuizDataSource.random(this, subject, 5);
         if (questions.isEmpty()) { finish(); return; }
+
+        userAnswers = new int[questions.size()];
+        java.util.Arrays.fill(userAnswers, -1);
 
         showQuestion(0);
         startTimer();
@@ -107,6 +111,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private void selectOption(int idx) {
         selectedIdx = idx;
+        userAnswers[currentIdx] = idx;
         for (int i = 0; i < OPTION_IDS.length; i++) {
             MaterialCardView card = findViewById(OPTION_IDS[i]);
             boolean sel = (i == idx);
@@ -237,9 +242,19 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void openResult() {
+        StringBuilder subjects = new StringBuilder();
+        StringBuilder corrects = new StringBuilder();
+        for (int j = 0; j < questions.size(); j++) {
+            if (j > 0) { subjects.append(','); corrects.append(','); }
+            String sub = questions.get(j).subject;
+            subjects.append(sub != null ? sub : "general");
+            corrects.append(userAnswers[j] == questions.get(j).correctIndex ? '1' : '0');
+        }
         Intent i = new Intent(this, QuizResultActivity.class);
         i.putExtra(QuizResultActivity.EXTRA_SCORE, score);
         i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
+        i.putExtra(QuizResultActivity.EXTRA_SUBJECTS_CSV, subjects.toString());
+        i.putExtra(QuizResultActivity.EXTRA_CORRECT_CSV, corrects.toString());
         startActivity(i);
         finish();
     }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="@dimen/space_4"
+    android:paddingVertical="@dimen/space_3">
+
+    <View
+        android:id="@+id/view_bar"
+        android:layout_width="4dp"
+        android:layout_height="34dp"
+        android:layout_marginEnd="@dimen/space_3" />
+
+    <TextView
+        android:id="@+id/text_subject"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="@dimen/text_body_sm"
+        android:textColor="@color/text_primary"
+        tools:text="Math" />
+
+    <TextView
+        android:id="@+id/text_fraction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_body_sm"
+        android:textStyle="bold"
+        tools:text="3/3" />
+
+</LinearLayout>
