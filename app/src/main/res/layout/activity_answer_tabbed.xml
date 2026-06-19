@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    AnswerTabbedActivity — UC4 Tabbed Answer variant
-    Dark header (question) | Scrollable tab bar | Content pane | Floating composer
--->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,24 +12,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/text_primary"
+        android:background="@color/dark_header"
         android:orientation="vertical"
         android:paddingBottom="@dimen/space_5">
 
-        <!-- Back + SOLVED pill + Bookmark -->
+        <!-- AppBar: back | SOLVED pill | bookmark -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/appbar_height"
+            android:layout_height="56dp"
             android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/space_3">
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingTop="@dimen/space_2">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_back"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="@dimen/icon_button_md"
-                android:layout_height="@dimen/icon_button_md"
-                app:icon="@drawable/ic_back"
-                app:iconTint="@color/bg" />
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_tab_ic">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_back"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    app:icon="@drawable/ic_back"
+                    app:iconTint="@android:color/white"
+                    android:contentDescription="@string/action_back" />
+            </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
@@ -42,58 +47,77 @@
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="28dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_scan_confidence"
+                    android:background="@drawable/bg_solved_pill"
                     android:gravity="center"
                     android:paddingHorizontal="@dimen/space_3">
 
-                    <ImageView android:layout_width="12dp" android:layout_height="12dp"
-                        android:src="@drawable/ic_check" app:tint="@color/brand_primary"
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_check"
+                        app:tint="@android:color/white"
                         android:contentDescription="@null" />
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp" android:textColor="@color/brand_primary"
-                        android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.06"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"
                         android:text="SOLVED" />
                 </LinearLayout>
             </FrameLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_bookmark"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="@dimen/icon_button_md"
-                android:layout_height="@dimen/icon_button_md"
-                app:icon="@drawable/ic_bookmark"
-                app:iconTint="@color/bg" />
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_tab_ic">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_bookmark"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    app:icon="@drawable/ic_bookmark"
+                    app:iconTint="@android:color/white"
+                    android:contentDescription="@string/action_bookmark" />
+            </FrameLayout>
         </LinearLayout>
 
-        <!-- Question text in header -->
+        <!-- Question section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/space_4">
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingTop="@dimen/space_2">
 
             <TextView
-                style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/brand_primary"
+                android:textSize="@dimen/text_micro"
                 android:textStyle="bold"
-                android:letterSpacing="0.08"
+                android:textColor="@color/brand_primary"
+                android:letterSpacing="0.1"
                 android:layout_marginBottom="@dimen/space_2"
                 android:text="QUESTION" />
 
             <TextView
                 android:id="@+id/text_question"
-                style="@style/Text.H3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/bg"
-                android:lineSpacingMultiplier="1.3"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:lineSpacingMultiplier="1.35"
                 tools:text="Why does the sky appear blue during the day but red at sunset?" />
 
+            <!-- Meta row: subject + timestamp -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,66 +125,159 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="@dimen/space_3">
 
-                <ImageView android:layout_width="20dp" android:layout_height="20dp"
-                    android:src="@drawable/ic_sparkles" app:tint="@color/brand_primary"
-                    android:layout_marginEnd="@dimen/space_2" android:contentDescription="@null" />
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_sparkles"
+                    app:tint="@color/brand_primary"
+                    android:layout_marginEnd="@dimen/space_2"
+                    android:contentDescription="@null" />
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:textColor="#99F8EFD9" android:textSize="12sp" android:textStyle="bold"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
                     android:text="Physics · Optics" />
 
-                <View android:layout_width="3dp" android:layout_height="3dp"
-                    android:background="@color/border" android:layout_marginHorizontal="@dimen/space_2" />
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="3dp"
+                    android:background="#80FFFFFF"
+                    android:layout_marginHorizontal="@dimen/space_2" />
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:textColor="#99F8EFD9" android:textSize="12sp" android:text="Asked 2 min ago" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="12sp"
+                    android:text="Asked 2 min ago" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Tab row -->
-    <HorizontalScrollView
+    <!-- Tab bar: full-width equal tabs with per-tab bottom indicator -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
         android:background="?android:colorBackground">
 
+        <!-- Tab: Solution -->
         <LinearLayout
-            android:id="@+id/tab_row"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/space_3">
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-            <TextView android:id="@+id/tab_solution" android:layout_width="wrap_content" android:layout_height="match_parent"
-                android:gravity="center" android:paddingHorizontal="@dimen/space_4"
-                android:textSize="13sp" android:textStyle="bold" android:textColor="@color/text_primary"
+            <TextView
+                android:id="@+id/tab_solution"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
                 android:text="Solution" />
 
-            <TextView android:id="@+id/tab_concept" android:layout_width="wrap_content" android:layout_height="match_parent"
-                android:gravity="center" android:paddingHorizontal="@dimen/space_4"
-                android:textSize="13sp" android:textStyle="bold" android:textColor="@color/text_tertiary"
+            <View
+                android:id="@+id/ind_solution"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/brand_primary"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <!-- Tab: Concept -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tab_concept"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_tertiary"
                 android:text="Concept" />
 
-            <TextView android:id="@+id/tab_practice" android:layout_width="wrap_content" android:layout_height="match_parent"
-                android:gravity="center" android:paddingHorizontal="@dimen/space_4"
-                android:textSize="13sp" android:textStyle="bold" android:textColor="@color/text_tertiary"
+            <View
+                android:id="@+id/ind_concept"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/brand_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Tab: Practice -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tab_practice"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_tertiary"
                 android:text="Practice" />
 
-            <TextView android:id="@+id/tab_pitfalls" android:layout_width="wrap_content" android:layout_height="match_parent"
-                android:gravity="center" android:paddingHorizontal="@dimen/space_4"
-                android:textSize="13sp" android:textStyle="bold" android:textColor="@color/text_tertiary"
-                android:text="Pitfalls" />
+            <View
+                android:id="@+id/ind_practice"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/brand_primary"
+                android:visibility="gone" />
         </LinearLayout>
-    </HorizontalScrollView>
 
-    <!-- Tab indicator line -->
+        <!-- Tab: Pitfalls -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tab_pitfalls"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_tertiary"
+                android:text="Pitfalls" />
+
+            <View
+                android:id="@+id/ind_pitfalls"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/brand_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 1dp divider below tab bar -->
     <View
-        android:id="@+id/tab_indicator"
-        android:layout_width="80dp"
-        android:layout_height="2dp"
-        android:background="@color/brand_primary"
-        android:layout_marginStart="@dimen/space_3" />
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/border" />
 
     <!-- Content pane -->
     <androidx.core.widget.NestedScrollView
@@ -168,7 +285,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/surface"
+        android:background="?android:colorBackground"
         android:scrollbars="none"
         android:paddingBottom="80dp"
         android:clipToPadding="false">
@@ -178,26 +295,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/space_4" />
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingTop="@dimen/space_4" />
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Floating follow-up composer -->
+    <!-- Bottom composer -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="?android:colorBackground"
-        android:elevation="8dp"
-        android:padding="@dimen/space_2">
+        android:elevation="4dp"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="10dp">
 
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_mascot_milo"
-            android:layout_marginStart="@dimen/space_2"
-            android:layout_marginEnd="@dimen/space_2"
-            android:contentDescription="@string/cd_mascot" />
+        <!-- Mascot avatar circle -->
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_blob_primary_tint"
+            android:layout_marginEnd="@dimen/space_3">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_mascot_milo"
+                android:contentDescription="@string/cd_mascot" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/text_follow_up"
@@ -205,24 +331,25 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/text_tertiary"
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:text="Ask a follow-up..." />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_send"
-            style="@style/Button.Primary"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="@dimen/space_2"
-            app:icon="@drawable/ic_send"
-            app:iconTint="@color/text_on_primary"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp" />
+        <!-- Send button: 38dp brand circle -->
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_btn_primary_circle"
+            android:layout_marginStart="@dimen/space_3">
+
+            <ImageView
+                android:id="@+id/btn_send"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_send"
+                app:tint="@android:color/white"
+                android:contentDescription="@string/action_send" />
+        </FrameLayout>
     </LinearLayout>
 
 </LinearLayout>
