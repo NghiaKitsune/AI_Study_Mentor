@@ -57,21 +57,22 @@
                 tools:text="QUESTION 3 / 5" />
         </LinearLayout>
 
-        <!-- Timer pill -->
+        <!-- Timer pill (bg swapped to error state programmatically when time runs out) -->
         <LinearLayout
             android:id="@+id/timer_pill"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:background="@drawable/bg_mistake_warning"
+            android:background="@drawable/bg_timer_normal"
             android:gravity="center_vertical"
             android:paddingHorizontal="@dimen/space_3"
             android:paddingVertical="@dimen/space_1">
 
             <ImageView
+                android:id="@+id/img_timer"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:src="@drawable/ic_flame"
-                app:tint="@color/brand_accent"
+                android:src="@drawable/ic_history"
+                app:tint="@color/brand_primary_deep"
                 android:contentDescription="@null" />
 
             <TextView
@@ -79,7 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:textColor="@color/brand_accent"
+                android:textColor="@color/brand_primary_deep"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="0:24" />
@@ -113,7 +114,7 @@
                     android:id="@+id/img_subject"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:background="@drawable/bg_blob_primary_tint"
+                    android:background="@color/surface_2"
                     android:padding="6dp"
                     android:src="@drawable/ic_sparkles"
                     android:contentDescription="@null" />
@@ -161,9 +162,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="@dimen/space_4">
-                    <TextView android:id="@+id/circle_a" android:layout_width="28dp" android:layout_height="28dp"
+                    <TextView android:id="@+id/circle_a" android:layout_width="32dp" android:layout_height="32dp"
                         android:gravity="center" android:text="A" android:textSize="13sp" android:textStyle="bold"
-                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_circle_surf2" />
                     <TextView android:id="@+id/text_option_a" style="@style/Text.Body" android:layout_width="0dp"
                         android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
                         tools:text="A force that pulls objects toward Earth" />
@@ -183,9 +184,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="@dimen/space_4">
-                    <TextView android:id="@+id/circle_b" android:layout_width="28dp" android:layout_height="28dp"
+                    <TextView android:id="@+id/circle_b" android:layout_width="32dp" android:layout_height="32dp"
                         android:gravity="center" android:text="B" android:textSize="13sp" android:textStyle="bold"
-                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_circle_surf2" />
                     <TextView android:id="@+id/text_option_b" style="@style/Text.Body" android:layout_width="0dp"
                         android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
                         tools:text="The total energy of motion of an object" />
@@ -205,9 +206,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="@dimen/space_4">
-                    <TextView android:id="@+id/circle_c" android:layout_width="28dp" android:layout_height="28dp"
+                    <TextView android:id="@+id/circle_c" android:layout_width="32dp" android:layout_height="32dp"
                         android:gravity="center" android:text="C" android:textSize="13sp" android:textStyle="bold"
-                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_circle_surf2" />
                     <TextView android:id="@+id/text_option_c" style="@style/Text.Body" android:layout_width="0dp"
                         android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
                         tools:text="Any push or pull that changes motion" />
@@ -227,9 +228,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="@dimen/space_4">
-                    <TextView android:id="@+id/circle_d" android:layout_width="28dp" android:layout_height="28dp"
+                    <TextView android:id="@+id/circle_d" android:layout_width="32dp" android:layout_height="32dp"
                         android:gravity="center" android:text="D" android:textSize="13sp" android:textStyle="bold"
-                        android:textColor="@color/text_secondary" android:background="@drawable/bg_blob_primary_tint" />
+                        android:textColor="@color/text_secondary" android:background="@drawable/bg_circle_surf2" />
                     <TextView android:id="@+id/text_option_d" style="@style/Text.Body" android:layout_width="0dp"
                         android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/space_3"
                         tools:text="A measure of how heavy an object is" />

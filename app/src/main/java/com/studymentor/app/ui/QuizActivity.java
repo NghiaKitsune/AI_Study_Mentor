@@ -1,6 +1,9 @@
 package com.studymentor.app.ui;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -9,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -84,10 +89,11 @@ public class QuizActivity extends AppCompatActivity {
             MaterialCardView card = findViewById(OPTION_IDS[i]);
             card.setCardBackgroundColor(getColor(R.color.surface));
             card.setStrokeColor(getColor(R.color.border));
+            card.setAlpha(1.0f);
             card.setOnClickListener(v -> { if (!submitted) selectOption(fi); });
 
             TextView circle = findViewById(CIRCLE_IDS[i]);
-            circle.setBackgroundResource(R.drawable.bg_blob_primary_tint);
+            circle.setBackground(ovalDrawable(getColor(R.color.surface_2)));
             circle.setText(CIRCLE_LABELS[i]);
             circle.setTextColor(getColor(R.color.text_secondary));
         }
@@ -116,6 +122,8 @@ public class QuizActivity extends AppCompatActivity {
 
     private void startTimer() {
         if (timer != null) timer.cancel();
+        // Reset to normal state
+        setTimerNormal();
         TextView tvTimer = findViewById(R.id.text_timer);
         timer = new CountDownTimer(24_000, 1_000) {
             @Override public void onTick(long ms) {
@@ -124,9 +132,30 @@ public class QuizActivity extends AppCompatActivity {
             }
             @Override public void onFinish() {
                 tvTimer.setText("0:00");
+                setTimerError();
                 if (!submitted) revealAnswer();
             }
         }.start();
+    }
+
+    private void setTimerNormal() {
+        View pill = findViewById(R.id.timer_pill);
+        pill.setBackgroundResource(R.drawable.bg_timer_normal);
+        TextView tvTimer = findViewById(R.id.text_timer);
+        tvTimer.setTextColor(getColor(R.color.brand_primary_deep));
+        ImageView imgTimer = findViewById(R.id.img_timer);
+        ImageViewCompat.setImageTintList(imgTimer,
+                ColorStateList.valueOf(getColor(R.color.brand_primary_deep)));
+    }
+
+    private void setTimerError() {
+        View pill = findViewById(R.id.timer_pill);
+        pill.setBackgroundResource(R.drawable.bg_timer_error);
+        TextView tvTimer = findViewById(R.id.text_timer);
+        tvTimer.setTextColor(getColor(R.color.error));
+        ImageView imgTimer = findViewById(R.id.img_timer);
+        ImageViewCompat.setImageTintList(imgTimer,
+                ColorStateList.valueOf(getColor(R.color.error)));
     }
 
     private void setupCta() {
@@ -152,20 +181,28 @@ public class QuizActivity extends AppCompatActivity {
         if (selectedIdx == correctIdx) score++;
 
         for (int i = 0; i < OPTION_IDS.length; i++) {
-            MaterialCardView card   = findViewById(OPTION_IDS[i]);
-            TextView circle         = findViewById(CIRCLE_IDS[i]);
-            if (i == correctIdx) {
-                card.setCardBackgroundColor(getColor(R.color.success_soft));
-                card.setStrokeColor(getColor(R.color.success));
-                circle.setBackgroundColor(getColor(R.color.success));
-                circle.setTextColor(getColor(android.R.color.white));
+            MaterialCardView card = findViewById(OPTION_IDS[i]);
+            TextView circle       = findViewById(CIRCLE_IDS[i]);
+            boolean isCorrect     = (i == correctIdx);
+            boolean isWrong       = (i == selectedIdx && i != correctIdx);
+
+            if (isCorrect) {
+                card.setCardBackgroundColor(getColor(R.color.color_ok_soft));
+                card.setStrokeColor(getColor(R.color.color_ok));
+                card.setAlpha(1.0f);
+                circle.setBackground(ovalDrawable(getColor(R.color.color_ok)));
+                circle.setTextColor(Color.WHITE);
                 circle.setText("✓");
-            } else if (i == selectedIdx) {
+            } else if (isWrong) {
                 card.setCardBackgroundColor(getColor(R.color.error_soft));
                 card.setStrokeColor(getColor(R.color.error));
-                circle.setBackgroundColor(getColor(R.color.error));
-                circle.setTextColor(getColor(android.R.color.white));
+                card.setAlpha(1.0f);
+                circle.setBackground(ovalDrawable(getColor(R.color.error)));
+                circle.setTextColor(Color.WHITE);
                 circle.setText("✗");
+            } else {
+                // Dim non-involved options (design: opacity .48)
+                card.setAlpha(0.48f);
             }
         }
 
@@ -176,10 +213,10 @@ public class QuizActivity extends AppCompatActivity {
 
         if (selectedIdx == -1) {
             resultLabel.setText("TIME'S UP");
-            resultLabel.setTextColor(getColor(R.color.error));
+            resultLabel.setTextColor(getColor(R.color.brand_primary_deep));
         } else if (selectedIdx == correctIdx) {
             resultLabel.setText("CORRECT");
-            resultLabel.setTextColor(getColor(R.color.success));
+            resultLabel.setTextColor(getColor(R.color.color_ok));
         } else {
             resultLabel.setText("INCORRECT");
             resultLabel.setTextColor(getColor(R.color.error));
@@ -205,6 +242,13 @@ public class QuizActivity extends AppCompatActivity {
         i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
         startActivity(i);
         finish();
+    }
+
+    private static GradientDrawable ovalDrawable(int color) {
+        GradientDrawable d = new GradientDrawable();
+        d.setShape(GradientDrawable.OVAL);
+        d.setColor(color);
+        return d;
     }
 
     private static int subjectIcon(String subject) {
