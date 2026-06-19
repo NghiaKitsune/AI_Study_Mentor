@@ -18,9 +18,9 @@ Design bundle: `BonpCZVk9_BfLfOKdD0mEw` · File handoff: `Redesign Home & Profil
 
 | Activity | Trạng thái |
 |----------|-----------|
-| HistoryActivity | ⬜ Chưa làm |
-| QuizActivity | ⬜ Chưa làm |
-| QuizResultActivity | ⬜ Chưa làm |
+| HistoryActivity | ✅ Xong | session 7 / d442922 |
+| QuizActivity | ✅ Xong | session 7 / a20c044 |
+| QuizResultActivity | ✅ Xong | session 8 / ea91bc4 |
 
 ### Onboarding & Auth
 
@@ -39,8 +39,8 @@ Design bundle: `BonpCZVk9_BfLfOKdD0mEw` · File handoff: `Redesign Home & Profil
 | Activity | Trạng thái |
 |----------|-----------|
 | ChatActivity | ⬜ Chưa làm |
-| AnswerActivity | ⬜ Chưa làm |
-| AnswerTabbedActivity | ⬜ Chưa làm |
+| AnswerActivity | ✅ Xong | session 8 / d9167ee |
+| AnswerTabbedActivity | ✅ Xong | session 9 / 6613965 |
 | CameraActivity | ⬜ Chưa làm |
 | ScanPreviewActivity | ⬜ Chưa làm |
 
@@ -74,6 +74,10 @@ Thêm trong session 6 khi map giá trị từ Claude Design handoff sang Android
 | `avatar_xl` | dimens.xml | `84dp` | Avatar lớn trên Profile header — lớn hơn icon_button_lg (44dp), khác với mascot_md (72dp) |
 | `bottomnav_indicator_size` | dimens.xml | `30dp` | Indicator tròn (pill) của BottomNav theo design — thay thế 80×90dp cũ |
 | `progress_bar_height` | dimens.xml | `8dp` | Chiều cao XP progress bar nằm ngang — dùng chung Profile + Dashboard |
+| `color_ok` | colors.xml | `#4FA37A` | Trạng thái đúng/giải xong/pass — cùng hex subject_science nhưng ngữ nghĩa khác |
+| `color_ok_soft` | colors.xml | `#E1F0E8` | Nền nhạt cho trạng thái ok (quiz correct, SOLVED badge) |
+| `dark_header` | colors.xml | `#1C1710` | Header tối của AnswerTabbedActivity |
+| `text_score_hero` | dimens.xml | `62sp` | Số điểm lớn ở QuizResultActivity hero |
 
 ---
 
@@ -113,3 +117,6 @@ Không tạo token mới cho những giá trị này — làm tròn khi áp dụ
 | Session | Ngày | Màn hình hoàn thành | Ghi chú |
 |---------|------|---------------------|---------|
 | 6 | 2026-06-18 | HomeActivity, ProfileActivity | Redesign Home & Profile.html |
+| 7 | 2026-06-19 | HistoryActivity, QuizActivity | Phase 0 tokens + Phase 1 History + Phase 2 Quiz · df5bae5 / d442922 / a20c044 |
+| 8 | 2026-06-19 | QuizResultActivity | Phase 3: mascot hero + 3 stats cards + subject breakdown + real data · ea91bc4 |
+| 9 | 2026-06-19 | AnswerActivity, AnswerTabbedActivity | Phase 4: AnswerActivity custom appbar + hero gradient + follow-up chips; Phase 5: AnswerTabbedActivity dark_header + tab-ic circles + green SOLVED + full-width tab bar + styled content · d9167ee / 6613965 |

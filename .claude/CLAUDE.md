@@ -51,6 +51,7 @@ Multi-Activity (no Navigation Component)
 
 **Files quan trọng nhất (auto-load mỗi session):**
 
+@.claude/CURRENT_TASK.md
 @.claude/DESIGN_MIGRATION_LOG.md
 
 **Room DB entity fields:**
@@ -361,6 +362,45 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-06-19] Session 9 — Phase 4 & 5: AnswerActivity + AnswerTabbedActivity redesign (Design Migration completion)
+**Work done:**
+
+**Phase 4 — AnswerActivity redesign (commit d9167ee, previous session):**
+- Custom AppBar: `btn_back` IconButton (no Toolbar) + Space + `btn_bookmark` + `btn_share`
+- Question card: bordered `MaterialCardView` with "QUESTION" micro-label + `text_question` at 14sp
+- Answer hero: transparent card wrapping LinearLayout with `bg_hero_gradient`; "#A6FFFFFF" label + white bold `text_final_answer`
+- Steps: "Step by step" Text.H3 header + `rv_steps` RecyclerView
+- Follow-up CTA card: mascot + vertical title/subtitle + 3 follow-up chips
+- Common mistakes: Text.H3 + two `LinearLayout` alerts (`bg_mistake_error` / `bg_mistake_warning`) with `ic_info` + `text_mistake_1/2`
+- `item_answer_step.xml`: bordered card + step number oval (`bg_step_num`) + title + `ic_chevron_down`
+- `bg_step_num.xml` (new): oval with `brand_primary_soft` fill
+- `AnswerActivity.java`: removed Toolbar dependency; `btn_back.setOnClickListener(v -> finish())`
+
+**Phase 5 — AnswerTabbedActivity redesign (commit 6613965):**
+- `bg_tab_ic.xml` (new): 12% white oval (`#1FFFFFFF`) for dark-header icon button circles
+- `bg_solved_pill.xml` (new): `color_ok` (#4FA37A) rectangle with radius_pill for SOLVED badge
+- `bg_btn_primary_circle.xml` (new): `brand_primary` oval for send button
+- `activity_answer_tabbed.xml` full rewrite:
+  - Header: `@color/dark_header` (#1C1710) background
+  - Back/bookmark buttons: 36dp `FrameLayout` with `bg_tab_ic` + `Widget.Material3.Button.IconButton` inside
+  - SOLVED pill: 26dp `bg_solved_pill` container + white checkmark + white "SOLVED" 12sp
+  - Question text: 20sp/bold/white (was 18sp `Text.H3` + `@color/bg`)
+  - Meta row: `#80FFFFFF` text (50% white, was hardcoded cream)
+  - Tab bar: plain `LinearLayout match_parent` with 4 `layout_weight=1` vertical wrappers; each has a `TextView` + 2dp `View` indicator (id: `ind_solution/concept/practice/pitfalls`)
+  - 1dp `@color/border` divider below tab bar
+  - Content: `background="?android:colorBackground"` (was surface)
+  - Composer: mascot wrapped in 36dp `bg_blob_primary_tint` oval; send as 38dp `bg_btn_primary_circle` oval with `ic_send` inside
+- `AnswerTabbedActivity.java` updated:
+  - Added `View[] indicators` field; `switchTab()` sets `VISIBLE/GONE` per indicator
+  - `renderContent()` replaced single TextView with `addSection(title, body)` + `addBody(text)` helpers
+  - Section headers: 14sp/bold/`brand_primary_deep`; body: 14sp/`text_secondary`/lineSpacing 1.7
+  - Structured content for all 4 tabs (Solution steps, Concept formula, Practice MCQ, Pitfalls)
+- Temporarily set `android:exported="true"` for screenshot testing, reverted before commit
+
+**Build:** PASSED (1m 31s first, 24s incremental) | **Logcat:** CLEAN (no errors)
+**Screenshot:** `phase5_tabbed.png` — dark brown header, green SOLVED, white 20sp question, 4 equal tabs with Solution underlined, amber section headers in content, brand circle send button
+**Commits:** d9167ee (Phase 4 — carried from session 8) | 6613965 (Phase 5)
 
 ### [2026-06-12] Session 5 — Phase A–D: Data Wiring, Feature Completion, Technical Quality
 **Work done:**
