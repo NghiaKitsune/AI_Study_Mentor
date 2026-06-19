@@ -25,6 +25,8 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="@dimen/icon_button_md"
             android:layout_height="@dimen/icon_button_md"
+            android:background="@drawable/bg_circle_surf2"
+            app:backgroundTint="@null"
             app:icon="@drawable/ic_back"
             app:iconTint="@color/text_primary"
             android:contentDescription="@string/action_back" />
@@ -42,6 +44,8 @@
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="@dimen/icon_button_md"
             android:layout_height="@dimen/icon_button_md"
+            android:background="@drawable/bg_circle_surf2"
+            app:backgroundTint="@null"
             app:icon="@drawable/ic_settings"
             app:iconTint="@color/text_primary"
             android:contentDescription="@string/action_more" />
@@ -139,14 +143,14 @@
                         android:layout_marginEnd="@dimen/space_1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                             android:orientation="vertical" android:padding="@dimen/space_4">
-                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
-                                android:background="@drawable/bg_blob_primary_tint" android:gravity="center"
+                            <LinearLayout android:layout_width="38dp" android:layout_height="38dp"
+                                android:background="@drawable/bg_icon_sq" android:backgroundTint="@color/subject_math_soft" android:gravity="center"
                                 android:layout_marginBottom="@dimen/space_3">
-                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_sparkles" app:tint="#7C5CE6" android:contentDescription="@null" />
                             </LinearLayout>
                             <TextView android:id="@+id/text_stat_questions" android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" android:textSize="24sp" android:textStyle="bold"
+                                android:layout_height="wrap_content" android:textSize="@dimen/text_stat_value" android:textStyle="bold"
                                 android:textColor="@color/text_primary" android:text="247" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
@@ -159,14 +163,14 @@
                         android:layout_height="wrap_content" android:layout_marginEnd="@dimen/space_1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                             android:orientation="vertical" android:padding="@dimen/space_4">
-                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
-                                android:background="@drawable/bg_mistake_warning" android:gravity="center"
+                            <LinearLayout android:layout_width="38dp" android:layout_height="38dp"
+                                android:background="@drawable/bg_icon_sq" android:backgroundTint="@color/subject_science_soft" android:gravity="center"
                                 android:layout_marginBottom="@dimen/space_3">
-                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_target" app:tint="#4FA37A" android:contentDescription="@null" />
                             </LinearLayout>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="24sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_stat_value" android:textStyle="bold" android:textColor="@color/text_primary"
                                 android:text="92%" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
@@ -184,14 +188,14 @@
                         android:layout_marginStart="@dimen/space_1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                             android:orientation="vertical" android:padding="@dimen/space_4">
-                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
-                                android:background="@drawable/bg_composer" android:gravity="center"
+                            <LinearLayout android:layout_width="38dp" android:layout_height="38dp"
+                                android:background="@drawable/bg_icon_sq" android:backgroundTint="@color/brand_primary_soft" android:gravity="center"
                                 android:layout_marginBottom="@dimen/space_3">
-                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_zap" app:tint="@color/brand_primary" android:contentDescription="@null" />
                             </LinearLayout>
                             <TextView android:id="@+id/text_stat_xp" android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" android:textSize="24sp" android:textStyle="bold"
+                                android:layout_height="wrap_content" android:textSize="@dimen/text_stat_value" android:textStyle="bold"
                                 android:textColor="@color/text_primary" android:text="1,840" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
@@ -204,14 +208,14 @@
                         android:layout_height="wrap_content" android:layout_marginStart="@dimen/space_1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                             android:orientation="vertical" android:padding="@dimen/space_4">
-                            <LinearLayout android:layout_width="32dp" android:layout_height="32dp"
-                                android:background="@drawable/bg_scan_hint" android:gravity="center"
+                            <LinearLayout android:layout_width="38dp" android:layout_height="38dp"
+                                android:background="@drawable/bg_icon_sq" android:backgroundTint="@color/info_soft" android:gravity="center"
                                 android:layout_marginBottom="@dimen/space_3">
-                                <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_history" app:tint="@color/info" android:contentDescription="@null" />
                             </LinearLayout>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="24sp" android:textStyle="bold" android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_stat_value" android:textStyle="bold" android:textColor="@color/text_primary"
                                 android:text="24h" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
@@ -250,49 +254,49 @@
                     <!-- M -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="M" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- T -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- W -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- T -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- F -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="F" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- S (today - highlighted) -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textSize="10sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/brand_primary" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar_hi" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- S -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
-                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/surface_3" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
+                        <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </LinearLayout>

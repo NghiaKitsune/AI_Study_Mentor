@@ -56,10 +56,10 @@ public class DashboardActivity extends AppCompatActivity {
         int total        = Math.max(mathCount + codeCount + scienceCount + historyCount, 1);
 
         List<SubjectStat> subjects = Arrays.asList(
-            new SubjectStat("Math",      mathCount,    mathCount    * 100 / total, R.color.subject_math,     R.drawable.ic_sparkles),
-            new SubjectStat("Coding",    codeCount,    codeCount    * 100 / total, R.color.subject_code,     R.drawable.ic_settings),
-            new SubjectStat("Science",   scienceCount, scienceCount * 100 / total, R.color.subject_science,  R.drawable.ic_target),
-            new SubjectStat("Languages", historyCount, historyCount * 100 / total, R.color.subject_language, R.drawable.ic_book)
+            new SubjectStat("Math",      mathCount,    mathCount    * 100 / total, R.color.subject_math,     R.drawable.ic_sparkles, R.color.subject_math_soft),
+            new SubjectStat("Coding",    codeCount,    codeCount    * 100 / total, R.color.subject_code,     R.drawable.ic_settings, R.color.subject_code_soft),
+            new SubjectStat("Science",   scienceCount, scienceCount * 100 / total, R.color.subject_science,  R.drawable.ic_target,   R.color.subject_science_soft),
+            new SubjectStat("Languages", historyCount, historyCount * 100 / total, R.color.subject_language, R.drawable.ic_book,     R.color.subject_language_soft)
         );
 
         RecyclerView rv = findViewById(R.id.rv_subjects);
@@ -73,8 +73,9 @@ public class DashboardActivity extends AppCompatActivity {
         final int pct;
         final int colorRes;
         final int iconRes;
-        SubjectStat(String n, int c, int p, int cr, int ir) {
-            name = n; count = c; pct = p; colorRes = cr; iconRes = ir;
+        final int iconBgColorRes;
+        SubjectStat(String n, int c, int p, int cr, int ir, int ibcr) {
+            name = n; count = c; pct = p; colorRes = cr; iconRes = ir; iconBgColorRes = ibcr;
         }
     }
 
@@ -100,6 +101,8 @@ public class DashboardActivity extends AppCompatActivity {
                 h.itemView.getContext().getColor(s.colorRes)));
             h.icon.setImageResource(s.iconRes);
             h.icon.getDrawable().setTint(h.itemView.getContext().getColor(s.colorRes));
+            h.icon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    h.itemView.getContext().getColor(s.iconBgColorRes)));
         }
 
         @Override public int getItemCount() { return items.size(); }
