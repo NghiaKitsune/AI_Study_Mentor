@@ -27,6 +27,7 @@
     <!-- ============ Text sizes ============ -->
     <dimen name="text_score_hero">62sp</dimen>
     <dimen name="text_display">32sp</dimen>
+    <dimen name="text_stat_value">30sp</dimen>
     <dimen name="text_ring_value">28sp</dimen>
     <dimen name="text_h1">26sp</dimen>
     <dimen name="text_h2">22sp</dimen>
