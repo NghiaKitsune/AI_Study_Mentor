@@ -71,39 +71,39 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private List<NotifItem> buildItems() {
         return Arrays.asList(
-            new NotifItem("achievements", R.drawable.ic_medal, R.color.subject_math,
+            new NotifItem("achievements", R.drawable.ic_star, R.color.subject_math,
                 "New badge unlocked!",
                 "You earned \"Sharp Shooter\" — 10 perfect quizzes in a row.",
-                "10m ago", true),
+                "10m ago", true, R.color.subject_math_soft),
             new NotifItem("reminders", R.drawable.ic_bookmark, R.color.brand_primary,
                 "Review your bookmark",
                 "Solve: 2x² + 5x − 3 = 0 — saved 3 days ago. Quick refresher?",
-                "1h ago", true),
+                "1h ago", true, R.color.brand_primary_soft),
             new NotifItem("mistakes", R.drawable.ic_info, R.color.error,
                 "You keep mixing these up",
                 "Mitosis vs meiosis — you missed it 3 times this week. Want a quick visual?",
-                "2h ago", true),
+                "2h ago", true, R.color.error_soft),
             new NotifItem("reminders", R.drawable.ic_flame, R.color.brand_accent,
                 "Keep your streak alive",
                 "You're on day 7. Ask 1 question before midnight to make it 8.",
-                "5h ago", false),
-            new NotifItem("achievements", R.drawable.ic_sparkles, R.color.brand_primary,
+                "5h ago", false, 0),
+            new NotifItem("achievements", R.drawable.ic_star, R.color.brand_primary,
                 "Daily summary",
                 "Yesterday: 12 questions · 45 XP · Top subject was Math. Great work!",
-                "Yesterday", false),
+                "Yesterday", false, 0),
             new NotifItem("reminders", R.drawable.ic_target, R.color.subject_science,
                 "Weekly recap is ready",
                 "74 questions, 92% quiz accuracy. Tap to see what you mastered.",
-                "2d ago", false)
+                "2d ago", false, 0)
         );
     }
 
     static class NotifItem {
         final String type, title, body, time;
-        final int iconRes, colorRes;
+        final int iconRes, colorRes, iconBgColorRes;
         final boolean unread;
-        NotifItem(String t, int i, int c, String ti, String b, String tm, boolean u) {
-            type=t; iconRes=i; colorRes=c; title=ti; body=b; time=tm; unread=u;
+        NotifItem(String t, int i, int c, String ti, String b, String tm, boolean u, int ibcr) {
+            type=t; iconRes=i; colorRes=c; title=ti; body=b; time=tm; unread=u; iconBgColorRes=ibcr;
         }
     }
 
@@ -126,22 +126,37 @@ public class NotificationsActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull VH h, int pos) {
             NotifItem n = items.get(pos);
+            android.content.Context ctx = h.itemView.getContext();
             h.icon.setImageResource(n.iconRes);
-            int color = h.itemView.getContext().getColor(n.colorRes);
-            h.icon.getDrawable().setTint(color);
+            h.icon.getDrawable().setTint(ctx.getColor(n.colorRes));
             h.title.setText(n.title);
             h.body.setText(n.body);
             h.time.setText(n.time);
             h.unreadDot.setVisibility(n.unread ? View.VISIBLE : View.GONE);
 
-            int bg = h.itemView.getContext().getColor(n.unread ? R.color.surface : android.R.color.transparent);
-            h.itemView.setBackgroundColor(bg);
+            float d = ctx.getResources().getDisplayMetrics().density;
+            int dp14 = (int)(14 * d); int dp12 = (int)(12 * d);
+            if (n.unread) {
+                h.itemView.setBackground(ctx.getDrawable(R.drawable.bg_notif_card_unread));
+                h.itemView.setPadding(dp14, dp14, dp14, dp14);
+                h.divider.setVisibility(View.GONE);
+                if (n.iconBgColorRes != 0)
+                    h.iconBg.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ctx.getColor(n.iconBgColorRes)));
+                else
+                    h.iconBg.setBackgroundTintList(null);
+            } else {
+                h.itemView.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                h.itemView.setPadding(0, dp12, 0, dp12);
+                h.divider.setVisibility(View.VISIBLE);
+                h.iconBg.setBackgroundTintList(null);
+                h.iconBg.setBackground(null);
+            }
         }
 
         @Override public int getItemCount() { return items.size(); }
 
         static class VH extends RecyclerView.ViewHolder {
-            final ImageView icon; final TextView title, body, time; final View unreadDot;
+            final ImageView icon; final TextView title, body, time; final View unreadDot, iconBg, divider;
             VH(@NonNull View v) {
                 super(v);
                 icon = v.findViewById(R.id.notif_icon);
@@ -149,6 +164,8 @@ public class NotificationsActivity extends AppCompatActivity {
                 body = v.findViewById(R.id.notif_body);
                 time = v.findViewById(R.id.notif_time);
                 unreadDot = v.findViewById(R.id.unread_dot);
+                iconBg = v.findViewById(R.id.notif_icon_bg);
+                divider = v.findViewById(R.id.notif_divider);
             }
         }
     }
