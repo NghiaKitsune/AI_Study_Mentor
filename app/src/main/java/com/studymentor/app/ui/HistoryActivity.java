@@ -67,17 +67,13 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void bindSearch() {
-        View searchBar = findViewById(R.id.layout_search);
         EditText input = findViewById(R.id.input_search);
 
+        // Search bar is always visible; search button clears the query
         findViewById(R.id.btn_search).setOnClickListener(v -> {
-            boolean show = searchBar.getVisibility() != View.VISIBLE;
-            searchBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            if (!show) {
-                searchQuery = "";
-                input.setText("");
-                reload();
-            }
+            searchQuery = "";
+            input.setText("");
+            reload();
         });
 
         input.addTextChangedListener(new TextWatcher() {

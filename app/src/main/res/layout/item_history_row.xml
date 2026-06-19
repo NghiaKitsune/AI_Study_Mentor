@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Recent history row — used by Home + History -->
+<!-- History question row — used by HistoryAdapter -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,16 +10,17 @@
     android:orientation="horizontal"
     android:paddingVertical="@dimen/space_3">
 
+    <!-- Subject icon: rounded square 42×42dp, bg set programmatically -->
     <ImageView
-        android:id="@+id/img_subject_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_avatar_circle"
+        android:id="@+id/img_subject_icon"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:padding="9dp"
-        android:src="@drawable/ic_sparkles"
-        app:tint="@color/brand_primary_darker"
-        tools:ignore="ContentDescription" />
+        android:scaleType="centerInside"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_sparkles" />
 
+    <!-- Content column -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -28,28 +28,57 @@
         android:layout_marginStart="@dimen/space_3"
         android:orientation="vertical">
 
+        <!-- Meta row: subject chip + relative time -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <!-- Subject pill chip — background and text color set programmatically -->
+            <TextView
+                android:id="@+id/text_subject_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textSize="@dimen/text_label"
+                android:textStyle="bold"
+                tools:text="Math"
+                tools:textColor="@color/subject_math"
+                tools:background="@color/subject_math_soft" />
+
+            <TextView
+                android:id="@+id/text_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/text_tertiary"
+                android:textSize="11sp"
+                tools:text="5 min ago" />
+        </LinearLayout>
+
+        <!-- Question text -->
         <TextView
             android:id="@+id/text_question"
-            style="@style/Text.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="Solve 2x + 5 = 17" />
-
-        <TextView
-            android:id="@+id/text_meta"
-            style="@style/Text.Caption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            tools:text="Math · 2h ago" />
+            android:maxLines="2"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body_sm"
+            android:textStyle="normal"
+            tools:text="What is the quadratic formula?" />
     </LinearLayout>
 
+    <!-- Chevron right -->
     <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="@dimen/space_2"
         android:src="@drawable/ic_chevron_right"
         app:tint="@color/text_tertiary"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
 </LinearLayout>
