@@ -31,6 +31,9 @@
     <color name="border">#E5D9BC</color>
     <color name="border_strong">#D4C49E</color>
 
+    <!-- ============ Gamification ============ -->
+    <color name="medal_silver">#C4B9AB</color>
+
     <!-- ============ Semantic ============ -->
     <color name="success">#6FA84B</color>
     <color name="success_soft">#E4F0D7</color>
