@@ -80,7 +80,7 @@ public class LeaderboardActivity extends AppCompatActivity {
             final int idx = i;
             tabs[i].setOnClickListener(v -> {
                 for (int j = 0; j < tabs.length; j++) {
-                    tabs[j].setBackgroundColor(getColor(idx == j ? R.color.surface : android.R.color.transparent));
+                    tabs[j].setBackground(idx == j ? getDrawable(R.drawable.bg_tab_active) : null);
                     ((TextView) tabs[j]).setTextColor(getColor(idx == j ? R.color.text_primary : R.color.text_tertiary));
                 }
             });
