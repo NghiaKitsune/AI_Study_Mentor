@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,8 +44,7 @@ public class AnswerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_answer);
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
         long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
         question = qid > 0 ? StudyMentorApp.get().db().questionDao().byId(qid) : null;

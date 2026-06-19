@@ -1,64 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Single step item used in AnswerActivity rv_steps -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Card.Default"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="@dimen/space_1">
+    android:layout_marginBottom="@dimen/space_2"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="@dimen/radius_md"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/border">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/space_4">
+        android:orientation="vertical">
 
+        <!-- Step header row: num circle + title + chevron -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingVertical="@dimen/space_3">
 
             <TextView
                 android:id="@+id/text_step_index"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:background="@drawable/bg_avatar_circle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/bg_step_num"
                 android:gravity="center"
-                android:textColor="@color/brand_primary_darker"
-                android:textSize="@dimen/text_caption"
+                android:textColor="@color/brand_primary_deep"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="1" />
 
             <TextView
                 android:id="@+id/text_step_title"
-                style="@style/Text.Body"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/space_3"
+                android:textSize="@dimen/text_body_sm"
                 android:textStyle="bold"
-                tools:text="Subtract 5 from both sides" />
+                android:textColor="@color/text_primary"
+                tools:text="Identify the form" />
 
             <ImageView
                 android:id="@+id/img_step_chevron"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@drawable/ic_chevron_down"
                 app:tint="@color/text_tertiary"
-                tools:ignore="ContentDescription" />
+                android:contentDescription="@null" />
         </LinearLayout>
 
+        <!-- Step body (shown when expanded) -->
         <TextView
             android:id="@+id/text_step_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_3"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_body"
+            android:paddingStart="@dimen/space_4"
+            android:paddingEnd="@dimen/space_4"
+            android:paddingBottom="@dimen/space_3"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:lineSpacingMultiplier="1.55"
             android:visibility="visible"
-            tools:text="2x + 5 - 5 = 17 - 5\n2x = 12" />
+            tools:text="This is a quadratic: ax² + bx + c = 0 with a=2, b=5, c=−3." />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

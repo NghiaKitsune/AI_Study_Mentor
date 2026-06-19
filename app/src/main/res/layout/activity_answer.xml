@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    AnswerActivity — UC4
-    Toolbar with bookmark/share · question card · final answer card · steps list
--->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,60 +9,72 @@
     android:orientation="vertical"
     tools:context=".ui.AnswerActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- AppBar: back | spacer | bookmark + share -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/appbar_height"
-        android:background="?android:colorBackground"
-        app:navigationIcon="@drawable/ic_back"
-        app:navigationIconTint="@color/text_primary"
-        app:title="@string/answer_label"
-        app:titleTextAppearance="@style/Text.H3">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_2">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="end|center_vertical">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_back"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_back"
+            app:iconTint="@color/text_secondary"
+            android:contentDescription="@string/action_back" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_bookmark"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="@dimen/icon_button_md"
-                android:layout_height="@dimen/icon_button_md"
-                app:icon="@drawable/ic_bookmark"
-                app:iconTint="@color/text_primary"
-                android:contentDescription="@string/action_bookmark" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_share"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="@dimen/icon_button_md"
-                android:layout_height="@dimen/icon_button_md"
-                app:icon="@drawable/ic_share"
-                app:iconTint="@color/text_primary"
-                android:contentDescription="@string/action_share" />
-        </LinearLayout>
-    </com.google.android.material.appbar.MaterialToolbar>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bookmark"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_bookmark"
+            app:iconTint="@color/text_secondary"
+            android:contentDescription="@string/action_bookmark" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_share"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="@dimen/icon_button_md"
+            android:layout_height="@dimen/icon_button_md"
+            app:icon="@drawable/ic_share"
+            app:iconTint="@color/text_secondary"
+            android:contentDescription="@string/action_share" />
+    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:scrollbars="none"
         android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/space_5"
         android:paddingBottom="@dimen/space_8">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_4">
 
             <!-- Question card -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Card.Default"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_4">
+                android:layout_marginTop="@dimen/space_1"
+                android:layout_marginBottom="@dimen/space_3"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -75,29 +83,32 @@
                     android:padding="@dimen/space_4">
 
                     <TextView
-                        style="@style/Text.Caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_micro"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_tertiary"
                         android:letterSpacing="0.1"
+                        android:layout_marginBottom="5dp"
                         android:text="QUESTION" />
 
                     <TextView
                         android:id="@+id/text_question"
-                        style="@style/Text.Body"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
-                        tools:text="Solve 2x + 5 = 17 for x." />
+                        android:textSize="@dimen/text_body_sm"
+                        android:textColor="@color/text_primary"
+                        tools:text="Solve: 2x² + 5x − 3 = 0" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Final answer card (gradient) -->
+            <!-- Answer hero gradient card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_3"
+                android:layout_marginBottom="@dimen/space_4"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardCornerRadius="@dimen/radius_md"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -106,93 +117,127 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_hero_gradient"
                     android:orientation="vertical"
-                    android:padding="@dimen/space_5">
+                    android:paddingHorizontal="@dimen/space_4"
+                    android:paddingVertical="@dimen/space_5">
 
                     <TextView
-                        style="@style/Text.Caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.12"
-                        android:textColor="#80FFFFFF"
+                        android:textSize="@dimen/text_micro"
+                        android:textStyle="bold"
+                        android:textColor="#A6FFFFFF"
+                        android:letterSpacing="0.1"
+                        android:layout_marginBottom="@dimen/space_2"
                         android:text="@string/answer_label" />
 
                     <TextView
                         android:id="@+id/text_final_answer"
-                        style="@style/Text.Display"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_2"
+                        android:textSize="@dimen/text_h2"
+                        android:textStyle="bold"
                         android:textColor="#FFFFFF"
-                        tools:text="x = 6" />
+                        android:lineSpacingMultiplier="1.35"
+                        tools:text="Here's how to solve it step by step." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Steps -->
+            <!-- Steps section header -->
             <TextView
                 style="@style/Text.H3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginTop="@dimen/space_2"
+                android:layout_marginBottom="@dimen/space_3"
                 android:text="@string/section_steps" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_steps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_3"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Follow-ups — mascot + text + chips -->
+            <!-- Follow-up CTA card -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Card.Default"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_6">
+                android:layout_marginTop="@dimen/space_3"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/radius_md"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:padding="@dimen/space_4">
 
-                    <ImageView
-                        android:layout_width="@dimen/mascot_sm"
-                        android:layout_height="@dimen/mascot_sm"
-                        android:layout_marginEnd="@dimen/space_3"
-                        android:src="@drawable/ic_mascot_milo"
-                        android:contentDescription="@string/cd_mascot" />
-
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="@dimen/space_3">
 
-                        <TextView
-                            style="@style/Text.H3"
-                            android:layout_width="wrap_content"
+                        <ImageView
+                            android:layout_width="@dimen/mascot_sm"
+                            android:layout_height="@dimen/mascot_sm"
+                            android:layout_marginEnd="@dimen/space_3"
+                            android:src="@drawable/ic_mascot_milo"
+                            android:contentDescription="@string/cd_mascot" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/follow_up_title" />
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
-                        <TextView
-                            style="@style/Text.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_1"
-                            android:text="I can explain this differently, or quiz you on similar problems." />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/text_body_sm"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary"
+                                android:text="@string/follow_up_title" />
 
-                        <com.google.android.material.chip.ChipGroup
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_3"
-                            app:chipSpacing="@dimen/space_2">
-
-                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_simpler"  style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_simpler" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_another"  style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_another" />
-                            <com.google.android.material.chip.Chip android:id="@+id/chip_follow_practice" style="@style/Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/follow_up_practice" />
-                        </com.google.android.material.chip.ChipGroup>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/space_1"
+                                android:textSize="@dimen/text_caption"
+                                android:textColor="@color/text_tertiary"
+                                android:text="I can explain this differently, or quiz you on similar problems." />
+                        </LinearLayout>
                     </LinearLayout>
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:chipSpacing="@dimen/space_2">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_follow_simpler"
+                            style="@style/Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/follow_up_simpler" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_follow_another"
+                            style="@style/Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/follow_up_another" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_follow_practice"
+                            style="@style/Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/follow_up_practice" />
+                    </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -201,17 +246,17 @@
                 style="@style/Text.H3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginTop="@dimen/space_5"
+                android:layout_marginBottom="@dimen/space_3"
                 android:text="@string/section_mistakes" />
 
             <LinearLayout
                 android:id="@+id/layout_mistakes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_3"
                 android:orientation="vertical">
 
-                <!-- Mistake 1 — error (red) -->
+                <!-- Mistake 1 — error style -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -219,51 +264,60 @@
                     android:background="@drawable/bg_mistake_error"
                     android:gravity="top"
                     android:orientation="horizontal"
-                    android:padding="@dimen/space_3">
+                    android:paddingHorizontal="@dimen/space_3"
+                    android:paddingVertical="@dimen/space_3">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_marginEnd="@dimen/space_3"
+                        android:layout_marginTop="2dp"
                         android:src="@drawable/ic_info"
                         app:tint="@color/error"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/text_mistake_1"
-                        style="@style/Text.Body"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:lineSpacingMultiplier="1.5"
                         android:text="Watch out for sign errors — write parentheses around negative terms." />
                 </LinearLayout>
 
-                <!-- Mistake 2 — warning (amber) -->
+                <!-- Mistake 2 — tip/warning style -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_mistake_warning"
                     android:gravity="top"
                     android:orientation="horizontal"
-                    android:padding="@dimen/space_3">
+                    android:paddingHorizontal="@dimen/space_3"
+                    android:paddingVertical="@dimen/space_3">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_marginEnd="@dimen/space_3"
+                        android:layout_marginTop="2dp"
                         android:src="@drawable/ic_info"
                         app:tint="@color/brand_primary_darker"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/text_mistake_2"
-                        style="@style/Text.Body"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:lineSpacingMultiplier="1.5"
                         android:text="Tip: double-check your answer by substituting back into the original equation." />
                 </LinearLayout>
             </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
