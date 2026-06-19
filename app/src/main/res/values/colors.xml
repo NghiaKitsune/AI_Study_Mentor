@@ -40,6 +40,11 @@
     <color name="error_soft">#FAE0D8</color>
     <color name="info">#4A8BA8</color>
     <color name="info_soft">#DCEDF3</color>
+    <!-- color_ok: correct/solved/pass state (same hex as subject_science but distinct semantic) -->
+    <color name="color_ok">#4FA37A</color>
+    <color name="color_ok_soft">#E1F0E8</color>
+    <!-- dark header background used by AnswerTabbedActivity -->
+    <color name="dark_header">#1C1710</color>
 
     <!-- ============ Subject palette ============ -->
     <color name="subject_math">#7C5CE6</color>
