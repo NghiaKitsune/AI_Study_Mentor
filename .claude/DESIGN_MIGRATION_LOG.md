@@ -16,11 +16,13 @@ Design bundle: `BonpCZVk9_BfLfOKdD0mEw` · File handoff: `Redesign Home & Profil
 
 ### History & Practice
 
-| Activity | Trạng thái |
-|----------|-----------|
+| Activity | Trạng thái | Commit |
+|----------|-----------|--------|
 | HistoryActivity | ✅ Xong | session 7 / d442922 |
 | QuizActivity | ✅ Xong | session 7 / a20c044 |
 | QuizResultActivity | ✅ Xong | session 8 / ea91bc4 |
+| AnswerActivity | ✅ Xong | session 9 / d9167ee |
+| AnswerTabbedActivity | ✅ Xong | session 9 / 6613965 |
 
 ### Onboarding & Auth
 
@@ -39,8 +41,6 @@ Design bundle: `BonpCZVk9_BfLfOKdD0mEw` · File handoff: `Redesign Home & Profil
 | Activity | Trạng thái |
 |----------|-----------|
 | ChatActivity | ⬜ Chưa làm |
-| AnswerActivity | ✅ Xong | session 8 / d9167ee |
-| AnswerTabbedActivity | ✅ Xong | session 9 / 6613965 |
 | CameraActivity | ⬜ Chưa làm |
 | ScanPreviewActivity | ⬜ Chưa làm |
 
@@ -48,9 +48,9 @@ Design bundle: `BonpCZVk9_BfLfOKdD0mEw` · File handoff: `Redesign Home & Profil
 
 | Activity | Trạng thái |
 |----------|-----------|
-| DashboardActivity | ⬜ Chưa làm |
-| LeaderboardActivity | ⬜ Chưa làm |
-| NotificationsActivity | ⬜ Chưa làm |
+| DashboardActivity | ✅ Xong | session 10 / f39d310 |
+| LeaderboardActivity | ✅ Xong | session 10 / 57b324f |
+| NotificationsActivity | ✅ Xong | session 10 / da58b59 |
 
 ### Utility
 
@@ -120,3 +120,5 @@ Không tạo token mới cho những giá trị này — làm tròn khi áp dụ
 | 7 | 2026-06-19 | HistoryActivity, QuizActivity | Phase 0 tokens + Phase 1 History + Phase 2 Quiz · df5bae5 / d442922 / a20c044 |
 | 8 | 2026-06-19 | QuizResultActivity | Phase 3: mascot hero + 3 stats cards + subject breakdown + real data · ea91bc4 |
 | 9 | 2026-06-19 | AnswerActivity, AnswerTabbedActivity | Phase 4: AnswerActivity custom appbar + hero gradient + follow-up chips; Phase 5: AnswerTabbedActivity dark_header + tab-ic circles + green SOLVED + full-width tab bar + styled content · d9167ee / 6613965 |
+| 10 | 2026-06-19 | DashboardActivity, LeaderboardActivity, NotificationsActivity | Redesign Stats & Social.html: pre-token text_stat_value=30sp · 3b32259; Dashboard icon sq/chart bars/stat 30sp · f39d310; Leaderboard ic_crown rewrite + bar gold/silver/bronze + tab strip + you badge · 57b324f; Notifications 26sp title + unread card + icon bg + ic_star · da58b59 |
+| 10 (cont.) | 2026-06-20 | — (không thêm màn hình mới) | Phase 8A: release build verified — ProGuard fix Gson TypeToken (#1 Quiz empty-cache) + Retrofit residualsignature (#2 Chat crash), confirmed on Pixel6_API33. Stub #2 tách 2a (reads, MVP stub còn) / 2b (writes, RESOLVED): AnswerActivity bookmark + HistoryActivity delete đã wrap executor. Stub #3 (assembleRelease) RESOLVED. Stub #4 (Dashboard/Leaderboard unreachable) RESOLVED: 2 OutlinedButton.Icon thêm vào ProfileActivity. CLAUDE.md Colors/Dimensions bị stale (brand_primary ghi #5C6BC0 indigo thay vì #F5B544 amber) — rewrite toàn bộ 2 section từ colors.xml/dimens.xml thực tế, 57/57 color + 49/49 dimen đã sync · 0f3f3ae / 5dd3089. Investigation cụm Chat & Capture hoàn thành — xem .claude/design-ref/chat-capture-qa.md. |
