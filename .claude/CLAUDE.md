@@ -169,7 +169,7 @@ When a new design bundle is created, update the Bundle ID and URL above.
 
 ### Colors (`app/src/main/res/values/colors.xml`)
 ```
-brand_primary         #5C6BC0  (indigo)
+brand_primary         #F5B544  (amber)
 brand_primary_deep    #3949AB
 brand_primary_tint    #E8EAF6
 brand_accent          #FF8F00  (amber)
@@ -269,8 +269,10 @@ mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
 | # | Stub | Location | Priority | Notes |
 |---|------|----------|----------|-------|
 | 1 | LeaderboardActivity dữ liệu fake | LeaderboardActivity | Low | Cần backend API hoặc mock động |
-| 2 | `allowMainThreadQueries()` still enabled for reads | StudyMentorApp | Low | Writes already moved to executor; reads are small MVP queries |
-| 3 | assembleRelease not tested | build.gradle | Medium | ProGuard rules added but release APK not verified end-to-end |
+| 2a | `allowMainThreadQueries()` still enabled for reads | StudyMentorApp | Low | All DB reads run on main thread — acceptable MVP stub; queries are small |
+| 2b | ~~Room writes on main thread — AnswerActivity bookmark + HistoryActivity delete~~ | AnswerActivity / HistoryActivity | ✅ RESOLVED | (2026-06-20): both wrapped in `executor().execute()`; delete chains `runOnUiThread` for reload/bindStats |
+| 3 | ~~assembleRelease not tested~~ | build.gradle | ✅ RESOLVED | Phase 8A (2026-06-20): release APK verified on Pixel6_API33; ProGuard fixed for Gson TypeToken + Retrofit generics |
+| 4 | ~~Dashboard + Leaderboard unreachable~~ | ProfileActivity | ✅ RESOLVED | (2026-06-20): Dashboard + Leaderboard buttons added to ProfileActivity, commit b367b0c |
 
 ---
 
@@ -362,6 +364,55 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-06-20] Session 10 — Phase 8A: Release Build Test + ProGuard Fix
+**Work done:**
+
+**Pre-session housekeeping:**
+- Verified `git log` matches CLAUDE.md session log — all 5 recent design commits present (f39d310 dashboard, 57b324f notifications, da58b59 leaderboard, 40eb32f medal_silver token, 3b32259 text_stat_value)
+- Fixed DESIGN_MIGRATION_LOG.md: moved AnswerActivity + AnswerTabbedActivity into "History & Practice" cluster (5 screens, 6 commits Phase 0–5); added correct "Chat & Capture" row showing ChatActivity/CameraActivity/ScanPreviewActivity as ⬜ CHƯA LÀM (0/3)
+
+**Phase 8A — Release Build Test:**
+
+1. `assembleRelease` PASSED (47s). APK at `app/build/outputs/apk/release/app-release-unsigned.apk`
+2. Signed with debug keystore using `apksigner` (required — emulator rejects unsigned APK even in debug mode with INSTALL_PARSE_FAILED_NO_CERTIFICATES)
+3. Mock login injected: debug APK installed first → `run-as` copied SharedPreferences → reinstalled signed release APK with `-r` (preserves data directory since `adb root` blocked on google_play image)
+
+**Issue #1 — QuizActivity immediately finished() on launch:**
+- Root cause: Gson `TypeToken<List<QuizQuestion>>(){}` anonymous class's generic Signature attribute stripped by R8 full mode in release → `fromJson()` returned null → `cache = new ArrayList<>()` → `random()` returned empty → `finish()` on line 58
+- Confirmed via: `Log.e("QuizDataSource", "parse failed", e)` added to catch (zero output initially = silent exception was being swallowed before this log was added; after round-1 fix log produces no output = parse succeeds)
+- DEX inspection confirmed: all 6 QuizQuestion fields intact; `QuizDataSource$1` class preserved; assets file 9082 bytes present
+- Fix: Added `-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken` + `-keep class * extends com.google.gson.reflect.TypeToken` to `proguard-rules.pro`
+
+**Issue #2 — ChatActivity FATAL crash on send:**
+- Root cause: R8 obfuscated `retrofit2.Call` class → Signature attribute of `AiService.chat()` method was rewritten to `residualsignature` form with `Call` as opaque obfuscated name (e.g. `i3/h`), dropping generic `<ChatResponse>` → `IllegalArgumentException: Unable to create call adapter for interface i3.h`
+- Confirmed via: mapping.txt `residualsignature` entry on AiService.chat method showing `(Lcom/studymentor/app/api/ChatRequest;)Li3/h;` — `retrofit2.Call` obfuscated, generic stripped
+- Fix: Added `-keep class retrofit2.** { *; }` (prevents Retrofit library obfuscation, keeps Signature readable) + `-if interface * { @retrofit2.http.* <methods>; } -keep,allowobfuscation interface <1>` (official Retrofit conditional rule)
+- After fix: mapping.txt AiService section has no `residualsignature` — method signature intact
+
+**Final ProGuard state (proguard-rules.pro):** Includes `-keepattributes Signature/Annotation/Exception/InnerClasses/EnclosingMethod`, Retrofit full keep + conditional rule, app API keep, Room keep, Gson SerializedName keep, QuizQuestion full keep, TypeToken keep + subclass keep, WorkManager worker keep
+
+**Permanent code change — QuizDataSource.java:** `Log.e("QuizDataSource", "parse failed", e)` added permanently to catch block (user instruction: silent catch is a code quality issue; keep regardless of root cause being fixed)
+
+**Smoke test results (release APK, Pixel6_API33, final build):**
+| Screen | Result | Notes |
+|--------|--------|-------|
+| Home | ✅ CLEAN | Streak chip, XP bar, recent questions list |
+| QuizActivity → QuizResult | ✅ CLEAN | Real questions loaded (Math/Science/etc.), 24s timer, score calculated |
+| ChatActivity | ✅ CLEAN (graceful fail) | No crash; "I couldn't reach my brain right now. Try again in a sec!" shown — expected (API_BASE_URL is placeholder) |
+| History | ✅ CLEAN | 7 questions from DB, filter chips, search bar |
+| Profile | ✅ CLEAN | "Nghia Mentor", Beginner Level 1, 3-day streak, 70 XP, badge grid, activity feed |
+| Settings | ✅ CLEAN | Theme/Language/Notifications, Sign out |
+| Notifications | ✅ CLEAN | 3 new, filter chips (All/Reminders/Wins/Review), 6 notification cards |
+| Dashboard | ⚠️ NOT TESTED | No UI entry point — DashboardActivity not wired from any nav button |
+| Leaderboard | ⚠️ NOT TESTED | No UI entry point — LeaderboardActivity not wired from any nav button |
+
+**Known stub resolved:** #3 (assembleRelease not tested) → RESOLVED. Added stub #4: Dashboard + Leaderboard have no navigation entry point from any Activity.
+
+**Logcat (final check):** CLEAN — no FATAL EXCEPTION, no ClassNotFoundException, no NoSuchMethodException across all tested screens. PID 22646 stable throughout.
+
+**Build:** assembleRelease PASSED (47s) | **Logcat:** CLEAN
+**Commits this session:** none (proguard-rules.pro + QuizDataSource.java changes not yet committed)
 
 ### [2026-06-19] Session 9 — Phase 4 & 5: AnswerActivity + AnswerTabbedActivity redesign (Design Migration completion)
 **Work done:**
