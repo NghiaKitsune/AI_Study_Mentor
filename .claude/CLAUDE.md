@@ -169,29 +169,90 @@ When a new design bundle is created, update the Bundle ID and URL above.
 
 ### Colors (`app/src/main/res/values/colors.xml`)
 ```
-brand_primary         #F5B544  (amber)
-brand_primary_deep    #3949AB
-brand_primary_tint    #E8EAF6
-brand_accent          #FF8F00  (amber)
-brand_accent_soft     #FFF3E0
-text_primary          #1A1A2E
-text_secondary        #6B7080
-text_tertiary         #9CA3AF
-text_on_primary       #FFFFFF
-surface               #FFFFFF
-bg                    #F8F9FF
-border                #E5E7EB
-error_soft            #FFEBEE
-warning_soft          #FFF3E0
+— Brand —
+brand_primary              #F5B544   (amber)
+brand_primary_soft         #FCEDC0
+brand_primary_tint         #FEF8E7
+brand_primary_gradient_end #E89620
+brand_primary_deep         #C7800A
+brand_primary_darker       #8E5A06
+brand_accent               #E47B47
+brand_accent_soft          #FBE2D2
+
+— Neutrals —
+bg                         #FAF5EA
+surface                    #FFFFFF
+surface_2                  #F4ECD8
+surface_3                  #EDE3CB
+text_primary               #2A2418
+text_secondary             #6B5F47
+text_tertiary              #A39479
+text_on_primary            #FFFFFF
+border                     #E5D9BC
+border_strong              #D4C49E
+
+— Gamification —
+medal_silver               #C4B9AB
+
+— Semantic —
+success                    #6FA84B
+success_soft               #E4F0D7
+warning                    #E69D0F
+warning_soft               #FCEDC0
+error                      #D4624B
+error_soft                 #FAE0D8
+info                       #4A8BA8
+info_soft                  #DCEDF3
+color_ok                   #4FA37A
+color_ok_soft              #E1F0E8
+dark_header                #1C1710
+
+— Subject palette —
+subject_math               #7C5CE6   subject_math_soft      #EFEAFE
+subject_science            #4FA37A   subject_science_soft   #E1F0E8
+subject_code               #3A86D9   subject_code_soft      #DCEAF8
+subject_history            #D4624B   subject_history_soft   #FAE0D8
+subject_language           #E47B47   subject_language_soft  #FBE2D2
+subject_geo                #4A8BA8   subject_geo_soft       #DCEDF3
+
+— Material 3 mapping (aliases) —
+md_primary=brand_primary  md_on_primary=text_on_primary  md_primary_container=brand_primary_soft
+md_on_primary_container=brand_primary_darker  md_secondary=brand_accent  md_on_secondary=text_on_primary
+md_background=bg  md_on_background=text_primary  md_surface=surface  md_on_surface=text_primary
+md_surface_variant=surface_2  md_on_surface_variant=text_secondary  md_outline=border
+md_error=error  md_on_error=text_on_primary
 ```
 
 ### Dimensions (`app/src/main/res/values/dimens.xml`)
 ```
-space_2=4dp  space_3=8dp  space_4=12dp  space_6=20dp  space_8=28dp
-radius_sm=8dp  radius_md=12dp  radius_lg=20dp
-text_caption=11sp  text_body=14sp  text_h3=16sp  text_h2=18sp  text_h1=22sp  text_display=28sp
-button_height_md=48dp
-mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
+— Spacing (4dp grid) —
+space_1=4dp   space_2=8dp   space_3=12dp  space_4=16dp  space_5=20dp
+space_6=24dp  space_8=32dp  space_10=40dp space_12=48dp
+
+— Corner radius —
+radius_xs=6dp  radius_sm=10dp  radius_md=14dp  radius_lg=20dp  radius_xl=28dp  radius_pill=999dp
+
+— Text sizes —
+text_score_hero=62sp  text_display=32sp  text_stat_value=30sp  text_ring_value=28sp
+text_h1=26sp  text_h2=22sp  text_h3=18sp  text_body=15sp  text_body_sm=14sp
+text_caption=13sp  text_label=12sp  text_micro=11sp
+
+— Component heights —
+button_height_sm=36dp  button_height_md=48dp  button_height_lg=56dp
+input_height=52dp
+icon_button_sm=36dp  icon_button_md=40dp  icon_button_lg=44dp
+appbar_height=56dp  bottomnav_height=72dp  bottomnav_indicator_size=30dp
+m3_navigation_bar_item_label_padding_top=8dp
+touch_min=48dp  progress_bar_height=8dp
+
+— Elevation —
+elev_1=2dp  elev_2=6dp  elev_3=12dp
+
+— Mascot sizes —
+mascot_xs=28dp  mascot_sm=40dp  mascot_md=72dp  mascot_lg=120dp
+
+— Avatar & ring —
+avatar_xl=84dp  progress_ring_size=78dp
 ```
 
 ### Key drawables (already created)
