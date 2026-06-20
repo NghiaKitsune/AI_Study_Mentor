@@ -73,6 +73,8 @@
     <string name="section_privacy">Privacy &amp; data</string>
     <string name="section_about">About</string>
     <string name="btn_sign_out">Sign out</string>
+    <string name="btn_dashboard">Dashboard</string>
+    <string name="btn_leaderboard">Leaderboard</string>
 
     <!-- Subjects -->
     <string name="subject_math">Math</string>

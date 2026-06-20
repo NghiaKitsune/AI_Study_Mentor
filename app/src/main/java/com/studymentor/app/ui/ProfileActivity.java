@@ -43,6 +43,10 @@ public class ProfileActivity extends AppCompatActivity {
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
+        findViewById(R.id.btn_dashboard).setOnClickListener(v ->
+                startActivity(new Intent(this, DashboardActivity.class)));
+        findViewById(R.id.btn_leaderboard).setOnClickListener(v ->
+                startActivity(new Intent(this, LeaderboardActivity.class)));
         BottomNavHelper.setup(this, R.id.nav_profile);
     }
 
