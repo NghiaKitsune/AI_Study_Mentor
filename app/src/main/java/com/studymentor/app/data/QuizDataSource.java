@@ -45,6 +45,7 @@ public final class QuizDataSource {
             cache = new Gson().fromJson(reader, listType);
             if (cache == null) cache = new ArrayList<>();
         } catch (Exception e) {
+            android.util.Log.e("QuizDataSource", "parse failed", e);
             cache = new ArrayList<>();
         }
         return cache;

@@ -1,7 +1,20 @@
-# Standard rules
--keepattributes *Annotation*, Signature, Exception
+# Standard attributes
+-keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes Exception
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod
+-keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
 
-# Retrofit interfaces and Gson DTOs
+# Retrofit: keep library classes so generic signatures in method Signature attrs are readable
+-keep class retrofit2.** { *; }
+-dontwarn retrofit2.**
+
+# Retrofit: conditional rule — if an interface has @retrofit2.http.* methods, keep it with sigs
+-if interface * { @retrofit2.http.* <methods>; }
+-keep,allowobfuscation interface <1>
+
+# Keep app API interfaces and DTOs (already covers AiService, ChatRequest, ChatResponse)
 -keep class com.studymentor.app.api.** { *; }
 -keep interface com.studymentor.app.api.** { *; }
 
@@ -18,16 +31,15 @@
 }
 -keepclassmembers class com.studymentor.app.data.QuizQuestion { *; }
 
-# Retrofit: keep generic Response type parameters
--keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
--keepclassmembers,allowshrinking,allowobfuscation interface * {
-    @retrofit2.http.* <methods>;
-}
--dontwarn javax.annotation.**
--dontwarn kotlin.**
+# Gson TypeToken generic resolution
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
 
 # WorkManager workers
 -keep class * extends androidx.work.Worker
 -keep class * extends androidx.work.ListenableWorker {
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
+
+-dontwarn javax.annotation.**
+-dontwarn kotlin.**
