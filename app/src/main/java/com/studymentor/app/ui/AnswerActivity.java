@@ -157,7 +157,8 @@ public class AnswerActivity extends AppCompatActivity {
         btnBookmark.setOnClickListener(v -> {
             if (question == null) return;
             question.bookmarked = !question.bookmarked;
-            StudyMentorApp.get().db().questionDao().update(question);
+            StudyMentorApp.get().executor().execute(() ->
+                    StudyMentorApp.get().db().questionDao().update(question));
             refreshBookmarkIcon();
         });
     }

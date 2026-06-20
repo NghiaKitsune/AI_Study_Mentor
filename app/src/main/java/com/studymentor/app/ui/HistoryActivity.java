@@ -113,11 +113,11 @@ public class HistoryActivity extends AppCompatActivity {
                 .setTitle(R.string.dialog_delete_q_title)
                 .setMessage("“" + q.prompt + "”")
                 .setNegativeButton(R.string.action_cancel, null)
-                .setPositiveButton(R.string.dialog_delete_confirm, (d, w) -> {
-                    StudyMentorApp.get().db().questionDao().delete(q);
-                    reload();
-                    bindStats();
-                })
+                .setPositiveButton(R.string.dialog_delete_confirm, (d, w) ->
+                    StudyMentorApp.get().executor().execute(() -> {
+                        StudyMentorApp.get().db().questionDao().delete(q);
+                        runOnUiThread(() -> { reload(); bindStats(); });
+                    }))
                 .show();
     }
 
