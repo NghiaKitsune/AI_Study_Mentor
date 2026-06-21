@@ -3,6 +3,8 @@ package com.studymentor.app.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -220,17 +222,18 @@ public class CameraActivity extends AppCompatActivity {
         if (flashMode == ImageCapture.FLASH_MODE_OFF) {
             flashMode = ImageCapture.FLASH_MODE_AUTO;
             btnFlash.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_flash));
-            btnFlash.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(0xCCF5B544));
-            btnFlash.setIconTint(android.content.res.ColorStateList.valueOf(0xFF1A1610));
+            int amber = ContextCompat.getColor(this, R.color.brand_primary);
+            btnFlash.setBackgroundTintList(ColorStateList.valueOf(
+                    (0xCC << 24) | (amber & 0x00FFFFFF)));
+            btnFlash.setIconTint(ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.dark_header)));
         } else if (flashMode == ImageCapture.FLASH_MODE_AUTO) {
             flashMode = ImageCapture.FLASH_MODE_ON;
         } else {
             flashMode = ImageCapture.FLASH_MODE_OFF;
             btnFlash.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_flash_off));
-            btnFlash.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(0x80000000));
-            btnFlash.setIconTint(android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
+            btnFlash.setBackgroundTintList(ColorStateList.valueOf(0x80000000)); // camera overlay, no token
+            btnFlash.setIconTint(ColorStateList.valueOf(Color.WHITE));
         }
         if (imageCapture != null) imageCapture.setFlashMode(flashMode);
     }
