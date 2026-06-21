@@ -1,6 +1,7 @@
 package com.studymentor.app.ui;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -111,28 +112,20 @@ public class AnswerTabbedActivity extends AppCompatActivity {
     }
 
     private void addSection(LinearLayout container, String title, String body) {
-        TextView header = new TextView(this);
-        header.setText(title);
-        header.setTextColor(getColor(R.color.brand_primary_deep));
-        header.setTextSize(14f);
-        header.getPaint().setFakeBoldText(true);
-        LinearLayout.LayoutParams hp = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        hp.topMargin = dpToPx(14);
-        hp.bottomMargin = dpToPx(4);
-        container.addView(header, hp);
-
-        addBody(container, body);
+        View item = LayoutInflater.from(this).inflate(R.layout.item_answer_section, container, false);
+        TextView tvTitle = item.findViewById(R.id.text_section_title);
+        tvTitle.setText(title);
+        tvTitle.setVisibility(View.VISIBLE);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) item.getLayoutParams();
+        lp.topMargin = dpToPx(14);
+        ((TextView) item.findViewById(R.id.text_section_body)).setText(body);
+        container.addView(item);
     }
 
     private void addBody(LinearLayout container, String text) {
-        TextView tv = new TextView(this);
-        tv.setText(text);
-        tv.setTextColor(getColor(R.color.text_secondary));
-        tv.setTextSize(14f);
-        tv.setLineSpacing(0f, 1.7f);
-        container.addView(tv, new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        View item = LayoutInflater.from(this).inflate(R.layout.item_answer_section, container, false);
+        ((TextView) item.findViewById(R.id.text_section_body)).setText(text);
+        container.addView(item);
     }
 
     private int dpToPx(int dp) {
