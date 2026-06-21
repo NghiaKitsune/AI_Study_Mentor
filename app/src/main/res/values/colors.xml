@@ -48,6 +48,8 @@
     <color name="color_ok_soft">#E1F0E8</color>
     <!-- dark header background used by AnswerTabbedActivity -->
     <color name="dark_header">#1C1710</color>
+    <!-- overlay_dark_50: semi-transparent black scrim (camera controls, modal dimming) -->
+    <color name="overlay_dark_50">#80000000</color>
 
     <!-- ============ Subject palette ============ -->
     <color name="subject_math">#7C5CE6</color>

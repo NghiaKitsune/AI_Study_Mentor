@@ -232,7 +232,8 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             flashMode = ImageCapture.FLASH_MODE_OFF;
             btnFlash.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_flash_off));
-            btnFlash.setBackgroundTintList(ColorStateList.valueOf(0x80000000)); // camera overlay, no token
+            btnFlash.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.overlay_dark_50)));
             btnFlash.setIconTint(ColorStateList.valueOf(Color.WHITE));
         }
         if (imageCapture != null) imageCapture.setFlashMode(flashMode);
