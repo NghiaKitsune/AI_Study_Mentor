@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withReader('UTF-8') { reader -> localProps.load(reader) }
+}
+
 android {
     namespace 'com.studymentor.app'
     compileSdk 34
@@ -15,11 +21,13 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        buildConfigField "String", "GEMINI_API_KEY", "\"${localProps['GEMINI_API_KEY'] ?: ''}\""
+        buildConfigField "String", "GROQ_API_KEY",   "\"${localProps['GROQ_API_KEY']   ?: ''}\""
     }
 
     buildTypes {
         debug {
-            buildConfigField "boolean", "USE_MOCK_AI", "true"
+            buildConfigField "boolean", "USE_MOCK_AI", "false"
             buildConfigField "String",  "API_BASE_URL", "\"https://api.studymentor.example.com/\""
         }
         release {

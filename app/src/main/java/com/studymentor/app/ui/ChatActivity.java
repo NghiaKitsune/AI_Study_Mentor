@@ -154,20 +154,32 @@ public class ChatActivity extends AppCompatActivity {
         ApiClient.get().chat(req).enqueue(new Callback<ChatResponse>() {
             @Override public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
                 typing.setVisibility(View.GONE);
-                String reply = (response.body() != null && response.body().reply != null)
-                        ? response.body().reply
-                        : getString(R.string.chat_error_unreachable);
-                appendAssistant(reply);
-                if (response.body() != null && response.body().reply != null) {
-                    final long qid = questionId;
-                    StudyMentorApp.get().executor().execute(() ->
-                            StudyMentorApp.get().db().questionDao().updateAnswer(qid, reply));
-                    if (response.body().steps != null && !response.body().steps.isEmpty()) {
-                        lastStepsJson   = new Gson().toJson(response.body().steps);
-                        lastMistakesJson = response.body().commonMistakes != null
-                                ? new Gson().toJson(response.body().commonMistakes) : null;
-                        offerViewSteps();
-                    }
+                ChatResponse body = response.body();
+                if (body == null || body.reply == null) {
+                    appendAssistant(getString(R.string.chat_error_unreachable));
+                    return;
+                }
+
+                // Build display text: reply + final_answer on new line if present and not already in reply
+                String finalAns = (body.final_answer != null && !body.final_answer.trim().isEmpty())
+                        ? body.final_answer.trim() : null;
+                String displayText = body.reply;
+                if (finalAns != null && !body.reply.contains(finalAns)) {
+                    displayText = body.reply + "\n\n→ " + finalAns;
+                }
+
+                appendAssistant(displayText);
+
+                final long qid = questionId;
+                final String saved = displayText;
+                StudyMentorApp.get().executor().execute(() ->
+                        StudyMentorApp.get().db().questionDao().updateAnswer(qid, saved));
+
+                if (body.steps != null && !body.steps.isEmpty()) {
+                    lastStepsJson    = new Gson().toJson(body.steps);
+                    lastMistakesJson = body.commonMistakes != null
+                            ? new Gson().toJson(body.commonMistakes) : null;
+                    offerViewSteps();
                 }
             }
             @Override public void onFailure(Call<ChatResponse> call, Throwable t) {

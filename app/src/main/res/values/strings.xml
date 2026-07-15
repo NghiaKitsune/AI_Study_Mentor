@@ -194,7 +194,7 @@
 
     <!-- ============ Camera scan (UC2.5) ============ -->
     <string name="camera_title">Scan a problem</string>
-    <string name="camera_hint">Đặt bài tập trong khung</string>
+    <string name="camera_hint">Place your problem in the frame</string>
     <string name="camera_mode_photo">Photo</string>
     <string name="camera_mode_document">Document</string>
     <string name="camera_mode_math">Math</string>

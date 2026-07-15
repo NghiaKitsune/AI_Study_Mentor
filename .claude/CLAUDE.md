@@ -369,6 +369,19 @@ avatar_xl=84dp  progress_ring_size=78dp
 
 ---
 
+## Git Workflow
+
+1. **Never commit directly to `main`** — if current branch is `main`, create a feature branch first.
+2. **Branch naming:**
+   - `feature/<feature-name>` — new functionality
+   - `bugfix/<bug-name>` — bug fixes
+   - `refactor/<scope>` — refactoring / cleanup
+3. **Commit only to the feature branch** — never to `main`.
+4. **Push only the feature branch** — never push `main`.
+5. **After pushing**, tell the user to open a Pull Request on GitHub.
+
+---
+
 ## 🤖 Sub-Agent Protocol
 
 **After every Stop hook**, read `.claude/status/*.json` before doing anything else.
@@ -425,6 +438,42 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-06-21] Session 11 — Audit Close + Design-ref Screenshots
+**Work done:**
+
+**Audit closure (4 items flagged from earlier sessions):**
+1. **Back stack** — Confirmed ĐÃ LÀM: `BottomNavHelper` line 34 uses `FLAG_ACTIVITY_CLEAR_TOP|SINGLE_TOP`; `QuizActivity.openResult()` calls `finish()` before `startActivity()`. No loop scenario.
+2. **Security: backup_rules.xml + data_extraction_rules.xml** — Was WRONG: exclusion used `auth_token.xml` (non-existent file). Fixed to `com.studymentor.app_preferences` (actual file from `PreferenceManager.getDefaultSharedPreferences()`). Also added missing `<device-transfer>` exclude block. Commit `8369996`.
+3. **CameraActivity hex literals in `cycleFlash()`** — All 4 literals replaced with color resources. Added `overlay_dark_50=#80000000` token to colors.xml (Semantic section). Commits `f76f890` + `bdccae0`.
+4. **AnswerTabbedActivity `new TextView()` + `addView()`** — Refactored to `LayoutInflater.inflate(item_answer_section.xml)`. New layout: `text_section_title` (GONE by default) + `text_section_body`; `addSection()` sets title VISIBLE + topMargin 14dp; `addBody()` skips title. Commit `d056166`.
+
+**Flash cycle visual test (CameraActivity, Medium_Phone emulator):**
+- OFF→AUTO: dark overlay bg → amber (#CCF5B544) bg + filled bolt icon + dark_header tint ✅
+- AUTO→ON: no visual change (mode only) ✅
+- ON→OFF: amber bg → overlay_dark_50 bg + flash-off icon + white tint ✅
+- Logcat: CLEAN (CameraX D/ internals only, 0 errors)
+
+**AnswerTabbedActivity post-d056166 visual test:**
+- Solution tab: dark header, SOLVED pill, 3 steps with amber section headers, body text + spacing correct ✅
+- Practice tab: "Quick check" intro, Q1+Q2 with amber headers, 4 MCQ options each ✅
+- Logcat: CLEAN
+- Method: temporarily set `exported="true"` → build → test → revert → rebuild → reinstall
+
+**Git sync:** All 4 audit commits pushed to origin/main. `git log origin/main..HEAD` → empty.
+
+**Design-ref screenshots captured** (saved to `.claude/design-ref/screenshots/`, not committed — in .gitignore):
+| File | Content |
+|------|---------|
+| `chat_loading.png` | ChatActivity — "Milo is thinking…" visible below RecyclerView |
+| `chat_conversation.png` | ChatActivity — 2 user bubbles (amber/right) + 3 AI bubbles (left/Milo avatar) |
+| `camera_preview.png` | CameraActivity — live preview + all 5 controls (close, flash, gallery, shutter, flip) |
+| `scan_preview.png` | ScanPreviewActivity — captured photo + "92% match" green badge + OCR text + chips + Retake/Ask Milo |
+
+**Temp change during session:** MockAiService delay bumped 900ms→3000ms to reliably capture typing state screenshot; reverted to 900ms + reinstalled before session close.
+
+**Build:** assembleDebug PASSED (7s incremental) | **Logcat:** CLEAN
+**Commits this session:** none (all audit commits were from previous session; screenshots not committed)
 
 ### [2026-06-20] Session 10 — Phase 8A: Release Build Test + ProGuard Fix
 **Work done:**
