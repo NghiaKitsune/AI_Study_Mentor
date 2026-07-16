@@ -439,6 +439,51 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
 
+### [2026-07-16/17] Session 12 — Phase 0: XP System + Phase 1: AnswerTabbed Real Data
+**Work done:**
+
+**Context / Setup:**
+- Groq API integration already on branch `feature/groq-ai-integration`; API tested (TESTAPI.md): 5/5 HTTP 200, avg 1.4s
+- New branch `feature/api-expansion` created from `feature/groq-ai-integration`
+- Emulator AVD is `Medium_Phone` (not `Pixel6_API33` — was renamed)
+- Detailed test results saved to `TEST_PHASE_0_1.md` at project root
+
+**Phase 0 — XP System (commit `844053c`):**
+- `util/Session.java`: added `KEY_XP="xp_points"`, `KEY_XP_EARNED_IDS="xp_earned_ids"`; 5 new methods: `xp()`, `addXp(ctx, amount, qId)`, `hasEarnedXpFor()`, `levelNumber()`, `levelTitle()`
+- `ui/ChatActivity.java`: `Session.addXp(this, 50, questionId)` after each successful AI response
+- `ui/QuizActivity.java`: `Session.addXp(this, 500, System.currentTimeMillis())` in `openResult()`
+- `ui/ProfileActivity.java`: replaced `totalQuestions * 10` formula with `Session.xp()`; XP bar uses real level thresholds; removed dead `levelTitle(int)` static method; `Session.levelTitle()` used instead
+
+Level thresholds: Beginner(0–999) → Explorer(1000–2999) → Scholar(3000–5999) → Expert(6000–9999) → Master(10000+)  
+Anti-farming: same `questionId` earns XP only once (CSV tracked in `KEY_XP_EARNED_IDS`)
+
+**Emulator test Phase 0 (Pixel6_API33 / Medium_Phone, xp_points=0 baseline):**
+- Chat "What is 2+2?" → SharedPrefs `xp_points=50`, `xp_earned_ids=18` ✅
+- Same conversation again → `xp_points` still 50 (anti-farming works) ✅
+- Complete quiz (5 questions via Practice tab) → `xp_points=550` (+500) ✅
+- ProfileActivity: "Beginner · Level 1" / "550 XP" / "450 XP to next level" ✅
+
+**Phase 1 — AnswerTabbedActivity Real Data (commit `e38c737`):**
+- `api/TabbedResponse.java` (NEW): POJO — inner classes `SolutionStep`, `Concept`, `PracticeQuestion`
+- `api/GroqTabbedService.java` (NEW): OkHttp, `llama-3.3-70b-versatile`, JSON mode, specialized prompt for 4 tabs; tag `TabbedAI`; readTimeout=45s
+- `ui/AnswerTabbedActivity.java` (REFACTOR): accepts `EXTRA_QUESTION_ID`+`EXTRA_STEPS_JSON`, shows loading state, calls `GroqTabbedService.generate()`, renders real content per tab; graceful error fallback
+- `ui/AnswerActivity.java`: added `bindDeepDive()` → `btn_deep_dive` opens `AnswerTabbedActivity` with question data
+- `res/layout/activity_answer.xml`: `MaterialButton id=btn_deep_dive` (TonalButton + ic_sparkles) between follow-up chips and common mistakes
+- `res/values/strings.xml`: `answer_deep_dive`, `answer_tabbed_loading`, `answer_tabbed_error`
+
+Data flow: ChatActivity → AnswerActivity (Snackbar "View") → [Deep Dive] → AnswerTabbedActivity → GroqTabbedService
+
+**Emulator test Phase 1 ("What is Pythagoras theorem?"):**
+- Solution tab: 3 steps — Define variables, Apply theorem (a²+b²=c²), Solve for unknown ✅
+- Concept tab: formula `a^2 + b^2 = c^2` + 2-sentence explanation + fun fact ✅
+- Practice tab: 2 MCQ (3-4-5 triangle hypotenuse; rearrange formula for unknown side) ✅
+- Pitfalls tab: 3 mistakes — forget to square, wrong hypotenuse, wrong rearrangement ✅
+- Loading state: "Milo is preparing the full breakdown…" shown before data arrives ✅
+- TabbedAI logcat: HTTP 200, JSON parse OK
+
+**Build:** assembleDebug PASSED (26s incremental) | **Logcat:** CLEAN
+**Branch:** `feature/api-expansion` | **Commits:** `844053c` (Phase 0), `e38c737` (Phase 1)
+
 ### [2026-06-21] Session 11 — Audit Close + Design-ref Screenshots
 **Work done:**
 
