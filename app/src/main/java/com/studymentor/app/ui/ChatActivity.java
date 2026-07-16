@@ -15,6 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.studymentor.app.R;
 import com.studymentor.app.api.ApiClient;
+import com.studymentor.app.util.Session;
 import com.studymentor.app.api.ChatRequest;
 import com.studymentor.app.api.ChatResponse;
 import com.studymentor.app.data.Message;
@@ -169,6 +170,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
 
                 appendAssistant(displayText);
+                Session.addXp(ChatActivity.this, 50, questionId);
 
                 final long qid = questionId;
                 final String saved = displayText;

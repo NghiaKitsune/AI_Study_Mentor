@@ -28,6 +28,8 @@ public final class Session {
     private static final String KEY_STREAK         = "streak_days";
     private static final String KEY_LAST_OPEN_DATE  = "last_open_date"; // "yyyy-MM-dd"
     private static final String KEY_BEST_QUIZ_PCT   = "best_quiz_pct"; // 0–100
+    private static final String KEY_XP            = "xp_points";
+    private static final String KEY_XP_EARNED_IDS = "xp_earned_ids"; // CSV of questionIds already awarded XP
 
     private Session() {}
 
@@ -136,6 +138,49 @@ public final class Session {
         int pct = score * 100 / total;
         if (pct > bestQuizPct(c)) {
             p(c).edit().putInt(KEY_BEST_QUIZ_PCT, pct).apply();
+        }
+    }
+
+    // ---- XP & Level ------------------------------------------------
+
+    public static int xp(Context c) { return p(c).getInt(KEY_XP, 0); }
+
+    public static void addXp(Context c, int amount, long qId) {
+        if (hasEarnedXpFor(c, qId)) return;
+        String ids = p(c).getString(KEY_XP_EARNED_IDS, "");
+        String newIds = ids.isEmpty() ? String.valueOf(qId) : ids + "," + qId;
+        p(c).edit()
+                .putInt(KEY_XP, xp(c) + amount)
+                .putString(KEY_XP_EARNED_IDS, newIds)
+                .apply();
+    }
+
+    public static boolean hasEarnedXpFor(Context c, long qId) {
+        String ids = p(c).getString(KEY_XP_EARNED_IDS, "");
+        if (ids.isEmpty()) return false;
+        String target = String.valueOf(qId);
+        for (String id : ids.split(",")) {
+            if (id.equals(target)) return true;
+        }
+        return false;
+    }
+
+    public static int levelNumber(Context c) {
+        int xp = xp(c);
+        if (xp >= 10000) return 5;
+        if (xp >= 6000)  return 4;
+        if (xp >= 3000)  return 3;
+        if (xp >= 1000)  return 2;
+        return 1;
+    }
+
+    public static String levelTitle(Context c) {
+        switch (levelNumber(c)) {
+            case 5: return "Master";
+            case 4: return "Expert";
+            case 3: return "Scholar";
+            case 2: return "Explorer";
+            default: return "Beginner";
         }
     }
 

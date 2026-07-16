@@ -56,17 +56,27 @@ public class ProfileActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.text_profile_name)).setText(name);
 
         int totalQuestions = StudyMentorApp.get().db().questionDao().count();
-        int totalXp        = totalQuestions * 10;
-        int level          = Math.max(1, totalXp / 100 + 1);
-        int xpInLevel      = totalXp % 100;
-        int pct            = (int) ((xpInLevel / 100f) * 100);
+        int xp             = Session.xp(this);
+        int levelNum       = Session.levelNumber(this);
+        String lvTitle     = Session.levelTitle(this);
+
+        // XP progress within current level
+        int[] thresholds = {0, 1000, 3000, 6000, 10000};
+        int levelStart   = thresholds[levelNum - 1];
+        int levelEnd     = (levelNum < 5) ? thresholds[levelNum] : xp + 1;
+        int xpInLevel    = xp - levelStart;
+        int levelSpan    = levelEnd - levelStart;
+        int pct          = (levelNum == 5) ? 100
+                : Math.min(100, (int) ((xpInLevel / (float) levelSpan) * 100));
 
         ((TextView) findViewById(R.id.text_level_title))
-                .setText(levelTitle(level) + " · Level " + level);
+                .setText(lvTitle + " · Level " + levelNum);
         ((TextView) findViewById(R.id.text_xp_current))
                 .setText(xpInLevel + " XP");
         ((TextView) findViewById(R.id.text_xp_remaining))
-                .setText((100 - xpInLevel) + " XP to next level");
+                .setText(levelNum < 5
+                        ? (levelSpan - xpInLevel) + " XP to next level"
+                        : "Max level reached");
 
         ((LinearProgressIndicator) findViewById(R.id.progress_xp))
                 .setProgressCompat(pct, true);
@@ -77,7 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.text_stat_streak))
                 .setText(String.valueOf(Session.streak(this)));
         ((TextView) findViewById(R.id.text_stat_xp))
-                .setText(String.valueOf(totalXp));
+                .setText(String.valueOf(xp));
 
         int badgesUnlocked = countBadges(Session.streak(this), totalQuestions,
                 Session.bestQuizPct(this),
@@ -96,14 +106,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (mathCount >= 10)   count++;
         if (streak >= 30)      count++;
         return count; // Top10 and SpeedDemon badges are always locked
-    }
-
-    private static String levelTitle(int level) {
-        if (level >= 10) return "Master";
-        if (level >= 7)  return "Expert";
-        if (level >= 5)  return "Scholar";
-        if (level >= 3)  return "Explorer";
-        return "Beginner";
     }
 
     private void bindBadges() {

@@ -21,6 +21,7 @@ import com.studymentor.app.R;
 import com.studymentor.app.data.QuizDataSource;
 import com.studymentor.app.data.QuizQuestion;
 import com.studymentor.app.util.BottomNavHelper;
+import com.studymentor.app.util.Session;
 
 import java.util.List;
 import java.util.Locale;
@@ -255,6 +256,7 @@ public class QuizActivity extends AppCompatActivity {
         i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
         i.putExtra(QuizResultActivity.EXTRA_SUBJECTS_CSV, subjects.toString());
         i.putExtra(QuizResultActivity.EXTRA_CORRECT_CSV, corrects.toString());
+        Session.addXp(this, 500, System.currentTimeMillis());
         startActivity(i);
         finish();
     }
