@@ -241,6 +241,16 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Deep Dive CTA -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_deep_dive"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height_md"
+                android:layout_marginTop="@dimen/space_3"
+                app:icon="@drawable/ic_sparkles"
+                android:text="@string/answer_deep_dive" />
+
             <!-- Common mistakes -->
             <TextView
                 style="@style/Text.H3"

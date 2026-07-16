@@ -158,6 +158,9 @@
 
     <!-- Answer screen -->
     <string name="share_subject">Check out this answer from Milo</string>
+    <string name="answer_deep_dive">Deep Dive</string>
+    <string name="answer_tabbed_loading">Milo is preparing the full breakdown…</string>
+    <string name="answer_tabbed_error">Couldn\'t load the breakdown. Check your connection and try again.</string>
     <string name="open_in_chat_hint">Open this in Chat to get a step-by-step breakdown.</string>
 
     <!-- Onboarding carousel -->

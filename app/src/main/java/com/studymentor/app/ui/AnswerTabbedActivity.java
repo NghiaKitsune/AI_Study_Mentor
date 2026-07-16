@@ -7,10 +7,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.studymentor.app.R;
+import com.studymentor.app.StudyMentorApp;
+import com.studymentor.app.api.GroqTabbedService;
+import com.studymentor.app.api.TabbedResponse;
+import com.studymentor.app.data.Question;
 
 public class AnswerTabbedActivity extends AppCompatActivity {
+
+    public static final String EXTRA_QUESTION_ID = "extra_question_id";
+    public static final String EXTRA_STEPS_JSON  = "extra_steps_json";
 
     private static final int TAB_SOLUTION = 0;
     private static final int TAB_CONCEPT  = 1;
@@ -20,15 +28,27 @@ public class AnswerTabbedActivity extends AppCompatActivity {
     private int activeTab = TAB_SOLUTION;
     private TextView[] tabs;
     private View[]     indicators;
+    private TabbedResponse tabbedData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_answer_tabbed);
 
-        String question = getIntent().getStringExtra("extra_question");
-        if (question == null) question = "Why does the sky appear blue during the day but red at sunset?";
-        ((TextView) findViewById(R.id.text_question)).setText(question);
+        // Load question from DB
+        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        Question question = (qid > 0)
+                ? StudyMentorApp.get().db().questionDao().byId(qid)
+                : null;
+
+        String questionText = (question != null) ? question.prompt
+                : getIntent().getStringExtra("extra_question");
+        if (questionText == null) questionText = "";
+
+        String subject   = (question != null) ? question.subject : "general";
+        String stepsJson = getIntent().getStringExtra(EXTRA_STEPS_JSON);
+
+        ((TextView) findViewById(R.id.text_question)).setText(questionText);
 
         tabs = new TextView[]{
             findViewById(R.id.tab_solution),
@@ -48,13 +68,37 @@ public class AnswerTabbedActivity extends AppCompatActivity {
             tabs[i].setOnClickListener(v -> switchTab(idx));
         }
 
+        // Show loading state
         switchTab(TAB_SOLUTION);
+
+        // Call Groq API (skip if no API key / empty question)
+        if (!questionText.isEmpty()) {
+            fetchTabbedContent(questionText, subject, stepsJson);
+        }
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_send).setOnClickListener(v ->
-            android.widget.Toast.makeText(this, R.string.toast_coming_soon, android.widget.Toast.LENGTH_SHORT).show());
+            android.widget.Toast.makeText(this, R.string.toast_coming_soon,
+                    android.widget.Toast.LENGTH_SHORT).show());
         findViewById(R.id.btn_bookmark).setOnClickListener(v ->
-            android.widget.Toast.makeText(this, R.string.action_bookmark, android.widget.Toast.LENGTH_SHORT).show());
+            android.widget.Toast.makeText(this, R.string.action_bookmark,
+                    android.widget.Toast.LENGTH_SHORT).show());
+    }
+
+    private void fetchTabbedContent(String question, String subject, String stepsJson) {
+        new GroqTabbedService().generate(question, subject, stepsJson,
+                new GroqTabbedService.Callback() {
+                    @Override
+                    public void onSuccess(TabbedResponse response) {
+                        tabbedData = response;
+                        renderContent(activeTab);
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        showError();
+                    }
+                });
     }
 
     private void switchTab(int idx) {
@@ -71,44 +115,78 @@ public class AnswerTabbedActivity extends AppCompatActivity {
         LinearLayout container = findViewById(R.id.content_container);
         container.removeAllViews();
 
-        switch (idx) {
-            case TAB_SOLUTION:
-                addBody(container,
-                    "Sunlight scatters off air molecules. Blue light scatters more than red, so the sky looks blue. " +
-                    "At sunset, light travels through more atmosphere, blue gets scattered away, and what reaches you is red.");
-                addSection(container, "Step 1 — White light is a rainbow",
-                    "Sunlight is made of all visible colors (red → violet).");
-                addSection(container, "Step 2 — Rayleigh scattering",
-                    "Air molecules scatter short wavelengths much more than long ones. Blue gets bounced around the sky.");
-                addSection(container, "Step 3 — Why red at sunset",
-                    "Near the horizon, light passes through ~12× more atmosphere. By the time it reaches you, most blue is gone.");
-                break;
-
-            case TAB_CONCEPT:
-                addSection(container, "Rayleigh Scattering",
-                    "I ∝ 1 / λ⁴\n\nWhen light hits particles much smaller than its wavelength, scattering intensity is " +
-                    "inversely proportional to the 4th power of wavelength. Shorter wavelength (blue) = much more scattering.");
-                addSection(container, "Fun fact",
-                    "Why not violet? Violet scatters even more — but our eyes are less sensitive to it, so we perceive the sky as blue.");
-                break;
-
-            case TAB_PRACTICE:
-                addBody(container, "Quick check — earn +15 XP for getting them right:");
-                addSection(container, "Q1: Which color has the shortest wavelength?",
-                    "A. Red\nB. Green\nC. Violet ✓\nD. Yellow");
-                addSection(container, "Q2: Why is the sunset red?",
-                    "A. Light loses energy\nB. Blue is scattered away ✓\nC. Clouds absorb blue\nD. Sun emits more red");
-                break;
-
-            case TAB_PITFALLS:
-                addSection(container, "✗ Sky is blue because of water",
-                    "It's air molecules (mostly N₂ and O₂), not water vapor, that cause Rayleigh scattering.");
-                addSection(container, "✗ Sunset is red because light loses energy",
-                    "Light doesn't lose energy. Blue has already been scattered away before reaching you.");
-                addSection(container, "✗ More scattering = brighter sky",
-                    "Bright is about total light. The sky is bright AND blue because scattered blue reaches you from every direction.");
-                break;
+        if (tabbedData == null) {
+            addBody(container, getString(R.string.answer_tabbed_loading));
+            return;
         }
+
+        switch (idx) {
+            case TAB_SOLUTION: renderSolution(container); break;
+            case TAB_CONCEPT:  renderConcept(container);  break;
+            case TAB_PRACTICE: renderPractice(container); break;
+            case TAB_PITFALLS: renderPitfalls(container); break;
+        }
+    }
+
+    private void renderSolution(LinearLayout container) {
+        if (tabbedData.solution == null || tabbedData.solution.isEmpty()) {
+            addBody(container, "No solution steps available.");
+            return;
+        }
+        for (TabbedResponse.SolutionStep step : tabbedData.solution) {
+            addSection(container, step.title, step.body);
+        }
+    }
+
+    private void renderConcept(LinearLayout container) {
+        TabbedResponse.Concept c = tabbedData.concept;
+        if (c == null) { addBody(container, "No concept data."); return; }
+
+        if (c.formula != null && !c.formula.isEmpty()) {
+            addSection(container, "Key Formula / Concept", c.formula);
+        }
+        if (c.explanation != null && !c.explanation.isEmpty()) {
+            addSection(container, "Explanation", c.explanation);
+        }
+        if (c.funFact != null && !c.funFact.isEmpty()) {
+            addSection(container, "Fun Fact", c.funFact);
+        }
+    }
+
+    private void renderPractice(LinearLayout container) {
+        if (tabbedData.practice == null || tabbedData.practice.isEmpty()) {
+            addBody(container, "No practice questions available.");
+            return;
+        }
+        addBody(container, "Quick check — pick the correct answer:");
+        int num = 1;
+        for (TabbedResponse.PracticeQuestion pq : tabbedData.practice) {
+            StringBuilder sb = new StringBuilder();
+            if (pq.options != null) {
+                for (String opt : pq.options) sb.append(opt).append("\n");
+            }
+            if (pq.hint != null && !pq.hint.isEmpty()) {
+                sb.append("\nHint: ").append(pq.hint);
+            }
+            addSection(container, "Q" + num + ": " + pq.question, sb.toString().trim());
+            num++;
+        }
+    }
+
+    private void renderPitfalls(LinearLayout container) {
+        if (tabbedData.pitfalls == null || tabbedData.pitfalls.isEmpty()) {
+            addBody(container, "No pitfalls data.");
+            return;
+        }
+        for (String pitfall : tabbedData.pitfalls) {
+            addSection(container, "✗ Common Mistake", pitfall);
+        }
+    }
+
+    private void showError() {
+        LinearLayout container = findViewById(R.id.content_container);
+        container.removeAllViews();
+        addBody(container, getString(R.string.answer_tabbed_error));
     }
 
     private void addSection(LinearLayout container, String title, String body) {
