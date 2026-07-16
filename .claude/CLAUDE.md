@@ -439,6 +439,43 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
 
+### [2026-07-16] Session 14 — Phase 3: Dashboard Milo Insight via Groq
+**Work done:**
+
+**`api/GroqAiService.java` (EXTEND):**
+- Added `quickInsight(String statsSummary, InsightCallback cb)` + nested `InsightCallback { onSuccess(String), onError(String) }`
+- Reuses the class's existing `http`/`gson`/`main` fields — no new OkHttpClient instance
+- Unlike `chat()`, this request omits `response_format: json_object` — the model returns a plain 1-2 sentence string, not structured JSON
+- System prompt: "You are Milo... write exactly 1-2 short, warm, encouraging sentences (max 220 characters total) that reference a real pattern in the stats and suggest one concrete next step... plain text only"
+- `parseInsightResponse()` walks `choices[0].message.content` (same path as `parseGroqResponse`) and returns the trimmed string directly
+
+**`util/Session.java` (EXTEND):**
+- Added `KEY_CACHED_INSIGHT`, `KEY_INSIGHT_DATE`
+- `cachedInsight()`, `hasFreshInsight()` (compares `KEY_INSIGHT_DATE` to today's `yyyy-MM-dd`), `saveInsight()` — caches the AI insight once per calendar day per device
+
+**`ui/DashboardActivity.java` (EXTEND):**
+- New `bindMiloInsight()` called from `onCreate()` after `bindSubjects()`
+- If `Session.hasFreshInsight()` → set cached text immediately, no network call
+- Else → show `dashboard_insight_loading`, call `new GroqAiService().quickInsight(buildStatsSummary(), cb)`; on success caches + displays the sentence, on error shows `dashboard_insight_fallback`
+- Callback guards `isFinishing()/isDestroyed()` before touching views (Activity may be gone before the async response lands)
+- `buildStatsSummary()` — builds one line from `questionDao().count()`, `Session.streak/xp/levelTitle/bestQuizPct`, and per-subject counts (math/science/code/history) via `countBySubject()`
+
+**`res/layout/activity_dashboard.xml`:**
+- Gave the Milo-insight `TextView` `android:id="@+id/text_milo_insight"`
+- Replaced hardcoded "You ask a lot about algebraic equations…" with `@string/dashboard_insight_loading`
+
+**`res/values/strings.xml`:**
+- Added `dashboard_insight_loading` ("Milo is looking at your progress…") + `dashboard_insight_fallback`
+
+**Build/test:** Could NOT run in this session — it executed in a Claude Code remote sandbox with no Android SDK and no network access to `dl.google.com` / `services.gradle.org` (`./gradlew assembleDebug` can't even download the Gradle distribution, HTTP 403 on both hosts). Verified instead via: full read-through of every changed file, brace-balance count on the 3 Java files (all matched), and XML well-formedness check (`xml.dom.minidom`) on the layout + strings files. **Needs a real `assembleDebug` + emulator smoke test on the user's Windows machine** — see `TEST_PHASE_3.md` for the manual verification checklist.
+
+**Not touched (out of scope for Phase 3):** the two chips under the insight card ("Try calculus"/"Maybe later") stay hardcoded — PLANNING.md Phase 3 only covers the insight sentence.
+
+**Build:** ⚠️ NOT RUN (sandbox has no Android SDK/network — see above) | **Logcat:** not tested
+**Branch:** `feature/api-expansion` | **Commit:** `b20b37b`
+**Test report:** `TEST_PHASE_3.md` created at project root
+**Also created this session:** a daily 6:00 UTC Claude Code Remote routine (`AI Study Mentor — Daily Phase Implementation`) that spins up a fresh session each morning, reads `PLANNING.md`'s Tiến trình table, implements the next `⬜ CHƯA LÀM` phase, builds/tests, and pushes to `feature/api-expansion`.
+
 ### [2026-07-17] Session 13 — Phase 2A+2B: AI-Generated Quiz Questions via Groq
 **Work done:**
 

@@ -14,7 +14,7 @@
 | **1** | AnswerTabbedActivity — dữ liệu thật | ✅ Hoàn thành | 2026-07-17 | e38c737 |
 | **2A** | GroqQuizService — sinh câu hỏi AI | ✅ Hoàn thành | 2026-07-17 | 3c2354d |
 | **2B** | Wire Quiz AI vào QuizActivity UI | ✅ Hoàn thành | 2026-07-17 | 3c2354d |
-| **3** | Dashboard Milo Insight AI-generated | ⬜ CHƯA LÀM | — | — |
+| **3** | Dashboard Milo Insight AI-generated | ✅ Hoàn thành | 2026-07-16 | b20b37b |
 | **4** | Notifications DB-driven (không fake) | ⬜ CHƯA LÀM | — | — |
 | **5** | Leaderboard local simulation | ⬜ CHƯA LÀM | — | — |
 | **6A** | GeminiVisionService — OCR thật | ⬜ CHƯA LÀM | — | — |
@@ -117,7 +117,7 @@ ChatActivity → AnswerActivity → [View full breakdown] → AnswerTabbedActivi
 
 ---
 
-## Phase 3 — Dashboard Milo Insight (1 session) ⬜
+## Phase 3 — Dashboard Milo Insight (1 session) ✅
 
 **Mục tiêu:** Thay text cứng bằng 1-2 câu nhận xét AI dựa trên stats thật.
 
