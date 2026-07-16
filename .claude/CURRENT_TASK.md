@@ -6,7 +6,6 @@
 
 ## Trạng thái hiện tại
 
-**Phase:** — (tất cả 6 phase 0–5 đã hoàn thành)  
+**Phase:** — (Stats & Social redesign hoàn thành)  
 **Bước đang làm:** — (dừng lại, chờ user)  
-**Files đã sửa, chưa commit:** —  
 **Bước tiếp theo:** Chờ user quay lại
