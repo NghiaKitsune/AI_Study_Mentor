@@ -166,6 +166,10 @@
     <string name="answer_tabbed_error">Couldn\'t load the breakdown. Check your connection and try again.</string>
     <string name="open_in_chat_hint">Open this in Chat to get a step-by-step breakdown.</string>
 
+    <!-- Dashboard Milo insight -->
+    <string name="dashboard_insight_loading">Milo is looking at your progress…</string>
+    <string name="dashboard_insight_fallback">Keep it up! Every question you ask builds your streak — check back tomorrow for a fresh insight.</string>
+
     <!-- Onboarding carousel -->
     <string name="onboard_tag_0">WELCOME</string>
     <string name="onboard_title_0">Meet Milo, your AI mentor</string>

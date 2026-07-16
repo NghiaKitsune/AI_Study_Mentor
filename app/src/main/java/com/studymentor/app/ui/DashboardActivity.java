@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.studymentor.app.R;
 import com.studymentor.app.StudyMentorApp;
+import com.studymentor.app.api.GroqAiService;
+import com.studymentor.app.util.Session;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +34,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         bindLiveStats();
         bindSubjects();
+        bindMiloInsight();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_settings).setOnClickListener(v ->
@@ -65,6 +68,57 @@ public class DashboardActivity extends AppCompatActivity {
         RecyclerView rv = findViewById(R.id.rv_subjects);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(new SubjectAdapter(subjects));
+    }
+
+    /**
+     * Shows a cached insight if one was already generated today; otherwise
+     * asks Groq for a fresh 1-2 sentence take on the student's stats and
+     * caches it via {@link Session#saveInsight}. Falls back to a static
+     * string on network/parse failure so the card never looks broken.
+     */
+    private void bindMiloInsight() {
+        TextView tvInsight = findViewById(R.id.text_milo_insight);
+        if (tvInsight == null) return;
+
+        if (Session.hasFreshInsight(this)) {
+            tvInsight.setText(Session.cachedInsight(this));
+            return;
+        }
+
+        tvInsight.setText(R.string.dashboard_insight_loading);
+        new GroqAiService().quickInsight(buildStatsSummary(), new GroqAiService.InsightCallback() {
+            @Override
+            public void onSuccess(String insight) {
+                if (isFinishing() || isDestroyed()) return;
+                Session.saveInsight(DashboardActivity.this, insight);
+                tvInsight.setText(insight);
+            }
+
+            @Override
+            public void onError(String message) {
+                if (isFinishing() || isDestroyed()) return;
+                tvInsight.setText(R.string.dashboard_insight_fallback);
+            }
+        });
+    }
+
+    private String buildStatsSummary() {
+        int questionCount = StudyMentorApp.get().db().questionDao().count();
+        int streak         = Session.streak(this);
+        int xp              = Session.xp(this);
+        String levelTitle  = Session.levelTitle(this);
+        int bestQuizPct    = Session.bestQuizPct(this);
+        int mathCount      = StudyMentorApp.get().db().questionDao().countBySubject("math");
+        int codeCount      = StudyMentorApp.get().db().questionDao().countBySubject("code");
+        int scienceCount   = StudyMentorApp.get().db().questionDao().countBySubject("science");
+        int historyCount   = StudyMentorApp.get().db().questionDao().countBySubject("history");
+
+        return "Student stats — total questions asked: " + questionCount
+                + ", current streak: " + streak + " day(s)"
+                + ", XP: " + xp + " (" + levelTitle + " level)"
+                + ", best quiz score: " + bestQuizPct + "%"
+                + ", subject breakdown: math=" + mathCount + ", science=" + scienceCount
+                + ", code=" + codeCount + ", history=" + historyCount + ".";
     }
 
     static class SubjectStat {

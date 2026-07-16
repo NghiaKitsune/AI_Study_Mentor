@@ -30,6 +30,8 @@ public final class Session {
     private static final String KEY_BEST_QUIZ_PCT   = "best_quiz_pct"; // 0–100
     private static final String KEY_XP            = "xp_points";
     private static final String KEY_XP_EARNED_IDS = "xp_earned_ids"; // CSV of questionIds already awarded XP
+    private static final String KEY_CACHED_INSIGHT = "cached_insight";
+    private static final String KEY_INSIGHT_DATE   = "insight_date"; // "yyyy-MM-dd" — insight refreshes once/day
 
     private Session() {}
 
@@ -182,6 +184,26 @@ public final class Session {
             case 2: return "Explorer";
             default: return "Beginner";
         }
+    }
+
+    // ---- Dashboard Milo insight (AI-generated, cached 1x/day) ------
+
+    public static String cachedInsight(Context c) { return p(c).getString(KEY_CACHED_INSIGHT, ""); }
+
+    /** True when today already has a cached insight — skip the AI call. */
+    public static boolean hasFreshInsight(Context c) {
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        return today.equals(p(c).getString(KEY_INSIGHT_DATE, "")) && !cachedInsight(c).isEmpty();
+    }
+
+    public static void saveInsight(Context c, String text) {
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        p(c).edit()
+                .putString(KEY_CACHED_INSIGHT, text)
+                .putString(KEY_INSIGHT_DATE, today)
+                .apply();
     }
 
     // ---- Onboarding seen flag --------------------------------------
