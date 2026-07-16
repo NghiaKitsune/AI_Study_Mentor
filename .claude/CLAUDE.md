@@ -439,6 +439,43 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
 
+### [2026-07-17] Session 13 — Phase 2A+2B: AI-Generated Quiz Questions via Groq
+**Work done:**
+
+**Phase 2A — `api/GroqQuizService.java` (NEW):**
+- OkHttp service, same pattern as `GroqTabbedService`: `TAG="QuizAI"`, readTimeout=45s
+- `generate(subject, levelNumber, count, Callback)` — builds prompt with subject + level title (Beginner/Explorer/Scholar/Expert/Master) from `Session.levelNumber()`
+- System prompt enforces JSON schema: `{ "questions": [{question, subject, subjectTag, options[4], correctIndex, explanation}] }`
+- Parser validates each item: non-null `question` + `options.length==4` required; malformed items silently skipped
+- `onError(String)` callback signals fallback; `onSuccess(List<QuizQuestion>)` uses same POJO as static JSON
+
+**Phase 2B — `ui/QuizActivity.java` (REFACTOR):**
+- `onCreate()` now shows loading state first, then calls `GroqQuizService.generate(subject, levelNum, 5, cb)`
+- `onSuccess()` → `startQuiz(aiQuestions, subject)`; `onError()` → `startQuiz(QuizDataSource.random(ctx, subject, 5), subject)`
+- `startQuiz()` sets `questions`, `userAnswers`, calls `showLoading(false)`, `showQuestion(0)`, `startTimer()`, `setupCta()`
+- All quiz game logic (`showQuestion`, `selectOption`, `revealAnswer`, `advanceQuestion`, `openResult`) unchanged
+
+**Phase 2B — `res/layout/activity_quiz.xml` (LAYOUT):**
+- Added `layout_loading` (LinearLayout, weight=1): spinner + "Generating questions…" + subtitle
+- Added `android:id="layout_quiz_content"` to NestedScrollView + initial `visibility="gone"`
+- Both containers have `layout_height="0dp"` + `layout_weight="1"` — GONE element takes no space
+
+**Phase 2B — `res/values/strings.xml`:**
+- Added `quiz_generating` + `quiz_generating_sub`
+
+**Test results (Medium_Phone emulator, emulator-5554):**
+- TC-2-1: Loading state (spinner + text) visible at t=0.8s after tap ✅
+- TC-2-2: AI question "What is the largest planet in our solar system?" (NOT in static JSON) appeared ✅
+- TC-2-3: Logcat `QuizAI` — HTTP 200, full JSON parsed, 5 questions returned ✅
+- TC-2-4: Full quiz flow Q1→Q5→Result screen working correctly (1/5, 20%) ✅
+- TC-2-5: SharedPrefs `xp_points` went from 650 → 1150 (+500 from quiz completion) ✅
+
+**Build:** assembleDebug PASSED (1m 50s cold) | **Logcat:** CLEAN
+**Commit:** `3c2354d` on branch `feature/api-expansion`
+**Test report:** `TEST_PHASE_2.md` created at project root
+
+**Known issue noted:** Groq-returned `subjectTag` is mixed-case ("Science · Space · Multiple Choice") vs static JSON's ALL CAPS ("MATH · ALGEBRA · MULTIPLE CHOICE"). Cosmetic only — both display correctly.
+
 ### [2026-07-16/17] Session 12 — Phase 0: XP System + Phase 1: AnswerTabbed Real Data
 **Work done:**
 
