@@ -11,7 +11,7 @@
 | Phase | Tên | Trạng thái | Session | Commit |
 |-------|-----|-----------|---------|--------|
 | **0** | XP System (Chat +50, Quiz +500) | ✅ Hoàn thành | 2026-07-16 | 844053c |
-| **1** | AnswerTabbedActivity — dữ liệu thật | ⬜ CHƯA LÀM | — | — |
+| **1** | AnswerTabbedActivity — dữ liệu thật | ✅ Hoàn thành | 2026-07-17 | e38c737 |
 | **2A** | GroqQuizService — sinh câu hỏi AI | ⬜ CHƯA LÀM | — | — |
 | **2B** | Wire Quiz AI vào QuizActivity UI | ⬜ CHƯA LÀM | — | — |
 | **3** | Dashboard Milo Insight AI-generated | ⬜ CHƯA LÀM | — | — |
