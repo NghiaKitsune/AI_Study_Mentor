@@ -87,12 +87,48 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Scrollable body -->
-    <androidx.core.widget.NestedScrollView
+    <!-- Loading state (shown while GroqQuizService fetches questions) -->
+    <LinearLayout
+        android:id="@+id/layout_loading"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:scrollbars="none">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/brand_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:textSize="@dimen/text_body"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:text="@string/quiz_generating" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_1"
+            android:textSize="@dimen/text_caption"
+            android:textColor="@color/text_tertiary"
+            android:text="@string/quiz_generating_sub" />
+    </LinearLayout>
+
+    <!-- Scrollable body -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/layout_quiz_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
