@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.ChipGroup;
 import com.studymentor.app.R;
+import com.studymentor.app.StudyMentorApp;
+import com.studymentor.app.data.QuestionDao;
+import com.studymentor.app.util.Session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -70,32 +72,95 @@ public class NotificationsActivity extends AppCompatActivity {
     }
 
     private List<NotifItem> buildItems() {
-        return Arrays.asList(
-            new NotifItem("achievements", R.drawable.ic_star, R.color.subject_math,
-                "New badge unlocked!",
-                "You earned \"Sharp Shooter\" — 10 perfect quizzes in a row.",
-                "10m ago", true, R.color.subject_math_soft),
-            new NotifItem("reminders", R.drawable.ic_bookmark, R.color.brand_primary,
-                "Review your bookmark",
-                "Solve: 2x² + 5x − 3 = 0 — saved 3 days ago. Quick refresher?",
-                "1h ago", true, R.color.brand_primary_soft),
-            new NotifItem("mistakes", R.drawable.ic_info, R.color.error,
-                "You keep mixing these up",
-                "Mitosis vs meiosis — you missed it 3 times this week. Want a quick visual?",
-                "2h ago", true, R.color.error_soft),
-            new NotifItem("reminders", R.drawable.ic_flame, R.color.brand_accent,
+        List<NotifItem> items = new ArrayList<>();
+
+        QuestionDao dao = StudyMentorApp.get().db().questionDao();
+        int totalQ      = dao.count();
+        int bookmarks   = dao.bookmarkedCount();
+        int streak      = Session.streak(this);
+        int bestQuiz    = Session.bestQuizPct(this);
+        int mathCount   = dao.countBySubject("math");
+        int scienceCount= dao.countBySubject("science");
+        int codeCount   = dao.countBySubject("code");
+        int historyCount= dao.countBySubject("history");
+
+        // Streak — low streak: urgent reminder; high streak: achievement
+        if (streak >= 7) {
+            items.add(new NotifItem("achievements", R.drawable.ic_star, R.color.brand_primary,
+                streak + "-day streak!",
+                "You've been studying " + streak + " days in a row — incredible consistency!",
+                "Today", true, R.color.brand_primary_soft));
+        } else if (streak >= 1) {
+            items.add(new NotifItem("reminders", R.drawable.ic_flame, R.color.brand_accent,
                 "Keep your streak alive",
-                "You're on day 7. Ask 1 question before midnight to make it 8.",
-                "5h ago", false, 0),
-            new NotifItem("achievements", R.drawable.ic_star, R.color.brand_primary,
-                "Daily summary",
-                "Yesterday: 12 questions · 45 XP · Top subject was Math. Great work!",
-                "Yesterday", false, 0),
-            new NotifItem("reminders", R.drawable.ic_target, R.color.subject_science,
-                "Weekly recap is ready",
-                "74 questions, 92% quiz accuracy. Tap to see what you mastered.",
-                "2d ago", false, 0)
-        );
+                "You're on day " + streak + ". Ask 1 question before midnight to make it " + (streak + 1) + ".",
+                "Today", true, R.color.brand_accent_soft));
+        }
+
+        // Bookmarks to review
+        if (bookmarks >= 1) {
+            String body = bookmarks == 1
+                ? "You have 1 bookmarked problem waiting for review. Tap to revisit it."
+                : "You have " + bookmarks + " bookmarked problems saved. Time for a review session?";
+            items.add(new NotifItem("mistakes", R.drawable.ic_bookmark, R.color.brand_primary,
+                "Review your bookmarks",
+                body, "Today", bookmarks >= 2, bookmarks >= 2 ? R.color.brand_primary_soft : 0));
+        }
+
+        // Quiz achievement
+        if (bestQuiz >= 80) {
+            items.add(new NotifItem("achievements", R.drawable.ic_star, R.color.subject_math,
+                "Sharp Shooter material!",
+                "You scored " + bestQuiz + "% on your best quiz. Challenge yourself to beat it!",
+                "Recent", false, 0));
+        }
+
+        // Question count milestones
+        if (totalQ >= 10) {
+            items.add(new NotifItem("achievements", R.drawable.ic_star, R.color.success,
+                totalQ + " questions asked!",
+                "You've asked " + totalQ + " questions total — building great study habits.",
+                "Recent", false, 0));
+        } else if (totalQ == 0) {
+            items.add(new NotifItem("reminders", R.drawable.ic_flame, R.color.brand_primary,
+                "Ask your first question",
+                "Ask Milo anything — math, science, coding, or history. Tap Home to start!",
+                "Now", true, R.color.brand_primary_soft));
+        }
+
+        // Subject exploration tips (only if user has asked at least 1 question)
+        if (totalQ > 0) {
+            if (mathCount == 0)
+                items.add(new NotifItem("reminders", R.drawable.ic_target, R.color.subject_math,
+                    "Explore Math",
+                    "You haven't tried Math yet. Ask a math question to unlock the Math badge!",
+                    "Tip", false, 0));
+            if (scienceCount == 0)
+                items.add(new NotifItem("reminders", R.drawable.ic_target, R.color.subject_science,
+                    "Explore Science",
+                    "No science questions yet — try asking about biology, chemistry, or physics!",
+                    "Tip", false, 0));
+            if (codeCount == 0)
+                items.add(new NotifItem("reminders", R.drawable.ic_target, R.color.subject_code,
+                    "Explore Coding",
+                    "Ask about Python, algorithms, or data structures to unlock the Code badge!",
+                    "Tip", false, 0));
+            if (historyCount == 0)
+                items.add(new NotifItem("reminders", R.drawable.ic_target, R.color.subject_history,
+                    "Explore History",
+                    "You haven't explored History yet. Ask Milo about any historical event!",
+                    "Tip", false, 0));
+        }
+
+        // Fallback if nothing applies yet
+        if (items.isEmpty()) {
+            items.add(new NotifItem("reminders", R.drawable.ic_flame, R.color.brand_primary,
+                "Welcome to AI Study Mentor!",
+                "Your progress and achievements will appear here as you study with Milo.",
+                "Now", false, 0));
+        }
+
+        return items;
     }
 
     static class NotifItem {
