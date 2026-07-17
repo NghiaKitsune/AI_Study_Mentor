@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputEditText;
 import com.studymentor.app.R;
+import com.studymentor.app.api.GeminiVisionService;
 import com.studymentor.app.api.MockOcrService;
 
 /**
@@ -104,7 +105,7 @@ public class ScanPreviewActivity extends AppCompatActivity {
     }
 
     private void runMockOcr() {
-        MockOcrService.recognize(imageUri, new MockOcrService.Listener() {
+        GeminiVisionService.recognize(this, imageUri, new MockOcrService.Listener() {
             @Override
             public void onSuccess(@androidx.annotation.NonNull MockOcrService.Result r) {
                 ocrResult = r;
