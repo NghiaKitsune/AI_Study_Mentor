@@ -439,6 +439,46 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
 
+### [2026-07-17] Session 15 — Phase 6 OCR: Groq Vision thay thế Gemini
+**Work done:**
+
+**Vấn đề Gemini API:**
+- Key 1: HTTP 429 `free_tier_requests limit: 0` (free tier bị khóa cứng)
+- Key 2: HTTP 429 `prepayment credits depleted` (paid project hết credit)
+- Quyết định: chuyển sang Groq Vision dùng `GROQ_API_KEY` đã có sẵn
+
+**`api/GroqVisionService.java` (NEW — thay thế GeminiVisionService):**
+- Static method `recognize(Context, Uri, MockOcrService.Listener)` — cùng signature với Gemini
+- Model: `meta-llama/llama-4-scout-17b-16e-instruct` (Llama 4 Scout, free tier Groq)
+- Request format: OpenAI-compatible multipart content — `image_url` với `data:<mime>;base64,<b64>`
+- `parse()`: đọc `choices[0].message.content`, strip markdown fences, parse JSON `{text, subject, language}`; nếu model trả plain text → dùng trực tiếp làm `text` (không crash)
+- Fallback: `MockOcrService.recognize()` khi bất kỳ exception nào
+- Timeout: 15s connect / 45s read (vision chậm hơn text)
+
+**`ui/ScanPreviewActivity.java` (MODIFY):**
+- Đổi import `GeminiVisionService` → `GroqVisionService`
+- `runMockOcr()`: `GeminiVisionService.recognize()` → `GroqVisionService.recognize()`
+
+**`GeminiVisionService.java`:** Giữ nguyên trong codebase, không còn được gọi.
+
+**Model bị decommission:**
+- Thử `llama-3.2-11b-vision-preview` → HTTP 400 `model_decommissioned`
+- Chuyển sang `meta-llama/llama-4-scout-17b-16e-instruct` → HTTP 200 ✅
+
+**Test kết quả (Medium_Phone emulator):**
+- TC-6-1: Camera emulator (phòng khách ảo) → HTTP 200, text="" (đúng — không có chữ) ✅
+- TC-6-2: Ảnh test tạo bằng .NET System.Drawing (chứa "2x + 5 = 17", "A = pi * r^2"):
+  - HTTP 200, recognized text đầy đủ và chính xác ✅
+  - subject=math, language=en auto-detected ✅
+  - UI: "90% match" badge, RECOGNIZED TEXT card, chip Math+Step-by-step tự check ✅
+- TC-6-3: Fallback hoạt động đúng khi API lỗi ✅
+
+**Build:** assembleDebug PASSED (6s incremental) | **Logcat:** CLEAN
+**Branch:** `feature/api-expansion` | **Commits:** `b24c6cd` (GroqVisionService)
+**Test report:** `TEST_PHASE_6_OCR.md`
+
+**Tất cả 9 phases (0 → 6B) đã hoàn thành và tested. Branch sẵn sàng PR.**
+
 ### [2026-07-16] Session 14 — Phase 3: Dashboard Milo Insight via Groq
 **Work done:**
 

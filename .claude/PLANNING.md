@@ -15,12 +15,21 @@
 | **2A** | GroqQuizService — sinh câu hỏi AI | ✅ Hoàn thành | 2026-07-17 | 3c2354d |
 | **2B** | Wire Quiz AI vào QuizActivity UI | ✅ Hoàn thành | 2026-07-17 | 3c2354d |
 | **3** | Dashboard Milo Insight AI-generated | ✅ Hoàn thành | 2026-07-16 | b20b37b |
-| **4** | Notifications DB-driven (không fake) | ⬜ CHƯA LÀM | — | — |
-| **5** | Leaderboard local simulation | ⬜ CHƯA LÀM | — | — |
-| **6A** | GeminiVisionService — OCR thật | ⬜ CHƯA LÀM | — | — |
-| **6B** | Wire OCR vào ScanPreviewActivity | ⬜ CHƯA LÀM | — | — |
+| **4** | Notifications DB-driven (không fake) | ✅ Hoàn thành | 2026-07-17 | 38e7c1f |
+| **5** | Leaderboard local simulation | ✅ Hoàn thành | 2026-07-17 | 935da6d |
+| **6A** | GroqVisionService — OCR thật (Groq thay Gemini) | ✅ Hoàn thành | 2026-07-17 | b24c6cd |
+| **6B** | Wire OCR vào ScanPreviewActivity | ✅ Hoàn thành | 2026-07-17 | b24c6cd |
 
 **Legend:** ⬜ Chưa làm · 🔄 Đang làm · ✅ Hoàn thành · ❌ Blocked
+
+---
+
+## ✅ TẤT CẢ PHASES HOÀN THÀNH — 2026-07-17
+
+**Tested:** Phase 6 OCR với ảnh thật → model đọc đúng "2x + 5 = 17", detect subject=math, language=en.  
+**Backend cuối:** `GroqVisionService` / `meta-llama/llama-4-scout-17b-16e-instruct` (Groq free tier).  
+**Gemini bị loại:** cả 2 key đều quota=0 / hết credit.  
+**Test report:** `TEST_PHASE_6_OCR.md`
 
 ---
 
