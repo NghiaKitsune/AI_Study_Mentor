@@ -2,11 +2,6 @@ package com.studymentor.app.api;
 
 import com.studymentor.app.BuildConfig;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 /**
  * Single entry-point for getting an {@link AiService}.
  * <p>
@@ -37,20 +32,6 @@ public final class ApiClient {
         if (BuildConfig.USE_MOCK_AI) {
             return new MockAiService();
         }
-        HttpLoggingInterceptor log = new HttpLoggingInterceptor();
-        log.setLevel(BuildConfig.DEBUG
-                ? HttpLoggingInterceptor.Level.BODY
-                : HttpLoggingInterceptor.Level.NONE);
-
-        OkHttpClient ok = new OkHttpClient.Builder()
-                .addInterceptor(log)
-                .build();
-
-        return new Retrofit.Builder()
-                .baseUrl(BuildConfig.API_BASE_URL)
-                .client(ok)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(AiService.class);
+        return new GroqAiService();
     }
 }
