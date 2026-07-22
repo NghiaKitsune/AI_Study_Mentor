@@ -19,6 +19,7 @@
 | **5** | Leaderboard local simulation | ✅ Hoàn thành | 2026-07-17 | 935da6d |
 | **6A** | GroqVisionService — OCR thật (Groq thay Gemini) | ✅ Hoàn thành | 2026-07-17 | b24c6cd |
 | **6B** | Wire OCR vào ScanPreviewActivity | ✅ Hoàn thành | 2026-07-17 | b24c6cd |
+| **A** | Database Threading — bỏ `allowMainThreadQueries` | ✅ Hoàn thành | 2026-07-22 | (xem bên dưới) |
 
 **Legend:** ⬜ Chưa làm · 🔄 Đang làm · ✅ Hoàn thành · ❌ Blocked
 
@@ -30,6 +31,60 @@
 **Backend cuối:** `GroqVisionService` / `meta-llama/llama-4-scout-17b-16e-instruct` (Groq free tier).  
 **Gemini bị loại:** cả 2 key đều quota=0 / hết credit.  
 **Test report:** `TEST_PHASE_6_OCR.md`
+
+---
+
+## Nhóm A — Database Threading (bỏ `allowMainThreadQueries`) ✅ HOÀN THÀNH — 2026-07-22
+
+> **Tạo ngày:** 2026-07-20 | Mục tiêu: chuẩn hoá DB access cho app chạy lâu dài (production-ready).
+> Giải quyết Known Stub #2a (CLAUDE.md). Không đổi schema (đó là Nhóm B).
+
+### Bối cảnh
+`StudyMentorApp` đang khởi tạo Room với `allowMainThreadQueries()` → **mọi lệnh đọc DB chạy trên UI thread**. Data nhỏ thì không thấy vấn đề, nhưng khi câu hỏi/tin nhắn tăng → block UI thread → giật lag → ANR. Nhóm A chuyển toàn bộ reads sang `executor()`, cập nhật UI qua `runOnUiThread()`, rồi gỡ `allowMainThreadQueries()`.
+
+### Bản đồ call site đọc DB (đã grep xác nhận)
+
+| Activity | Dòng | Lệnh đọc | Ghi chú |
+|----------|------|----------|---------|
+| HomeActivity | 110, 156 | `recent(5)` | `bindRecent()` + `onResume()` |
+| HistoryActivity | 62,63,101,135,174 | `count`,`bookmarkedCount`,`all` | stats + list + reload + miloNoticed |
+| ChatActivity | 77 | `forQuestion(id)` | nạp hội thoại cũ |
+| ChatActivity | 139,143 | `insert(q)` trả id, `insert(userMsg)` | ⚠️ write đọc-sau-ghi trên main thread |
+| ProfileActivity | 58,94,95,113-115 | `count`,`bookmarkedCount`,`countBySubject` | stats + badges |
+| AnswerActivity | 50 | `byId(qid)` | bind text/steps ngay sau |
+| AnswerTabbedActivity | 41 | `byId(qid)` | nạp câu hỏi |
+| DashboardActivity | 45,55-58,106,111-114 | `count`, 4× `countBySubject` | liveStats + subjects |
+| NotificationsActivity | 77-85 | `count`,`bookmarkedCount`,4× `countBySubject` | buildItems |
+
+**Đã đúng chuẩn (không sửa):** HistoryActivity delete, ChatActivity updateAnswer + appendAssistant, AnswerActivity bookmark — đã bọc `executor().execute()`.
+
+### Thiết kế — helper chuẩn hoá
+Thêm method tĩnh vào `StudyMentorApp`:
+```java
+public static <T> void query(Activity host, Callable<T> work, Consumer<T> onUi) {
+    get().executor().execute(() -> {
+        final T result;
+        try { result = work.call(); } catch (Exception e) { Log.e("Db","query failed",e); return; }
+        host.runOnUiThread(() -> { if (!host.isFinishing() && !host.isDestroyed()) onUi.accept(result); });
+    });
+}
+```
+- Màn 1 giá trị → `StudyMentorApp.query(...)`.
+- Màn nhiều giá trị (Dashboard/Profile/Notifications/History stats) → raw `executor().execute()` gom hết read trong 1 lượt, `runOnUiThread` bind + guard `isFinishing()/isDestroyed()`.
+- Adapter khởi tạo list rỗng trước, set vào RecyclerView, rồi async `setItems()`.
+
+### Các Phase
+- **A0 — Helper hạ tầng:** thêm `query(...)` vào `StudyMentorApp.java` + build check.
+- **A1 — Màn chỉ đọc (làm trước, rủi ro thấp):** Home → History → Profile → Dashboard → Notifications → Answer → AnswerTabbed. Mỗi màn build + smoke test riêng.
+- **A2 — ChatActivity (phức tạp đọc-sau-ghi):** onCreate `forQuestion` async; `sendCurrent()` tái cấu trúc optimistic UI + insert trong executor (capture id, gán field trên UI thread) → `callAi`.
+- **A3 — Gỡ flag + StrictMode:** xoá `.allowMainThreadQueries()`; bật `StrictMode` ở debug; fix call site sót (ném `Cannot access database on the main thread`).
+- **A4 — Build & Test:** `assembleDebug` + smoke test 8 màn trên `Medium_Phone`; logcat CLEAN, không ANR; cập nhật CLAUDE.md (Stub #2a → RESOLVED).
+
+### Files sẽ sửa
+`StudyMentorApp.java` (helper + bỏ flag + StrictMode) · 8 Activity: Home, History, Chat, Profile, Answer, AnswerTabbed, Dashboard, Notifications. **Không đụng DAO/entity/schema** (Nhóm B).
+
+### Verification
+Build PASS · smoke test 8 màn không crash/ANR · regression: History delete/search/filter, Chat gửi + reload hội thoại cũ, Answer bookmark vẫn chạy · logcat không có `IllegalStateException` DB main-thread.
 
 ---
 

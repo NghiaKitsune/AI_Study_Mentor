@@ -35,12 +35,7 @@ public class NotificationsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
 
-        allItems = buildItems();
-
-        int unread = 0;
-        for (NotifItem n : allItems) if (n.unread) unread++;
-        TextView tvCount = findViewById(R.id.text_unread_count);
-        tvCount.setText(unread > 0 ? unread + " new" : "All caught up");
+        allItems = new ArrayList<>();
 
         RecyclerView rv = findViewById(R.id.rv_notifications);
         rv.setLayoutManager(new LinearLayoutManager(this));
@@ -48,6 +43,7 @@ public class NotificationsActivity extends AppCompatActivity {
         rv.setAdapter(adapter);
 
         setupFilter();
+        loadItemsAsync();
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_settings).setOnClickListener(v ->
                 startActivity(new android.content.Intent(this, SettingsActivity.class)));
@@ -71,18 +67,37 @@ public class NotificationsActivity extends AppCompatActivity {
         });
     }
 
-    private List<NotifItem> buildItems() {
-        List<NotifItem> items = new ArrayList<>();
+    private void loadItemsAsync() {
+        final int streak   = Session.streak(this);
+        final int bestQuiz = Session.bestQuizPct(this);
 
-        QuestionDao dao = StudyMentorApp.get().db().questionDao();
-        int totalQ      = dao.count();
-        int bookmarks   = dao.bookmarkedCount();
-        int streak      = Session.streak(this);
-        int bestQuiz    = Session.bestQuizPct(this);
-        int mathCount   = dao.countBySubject("math");
-        int scienceCount= dao.countBySubject("science");
-        int codeCount   = dao.countBySubject("code");
-        int historyCount= dao.countBySubject("history");
+        StudyMentorApp.get().executor().execute(() -> {
+            QuestionDao dao  = StudyMentorApp.get().db().questionDao();
+            int totalQ       = dao.count();
+            int bookmarks    = dao.bookmarkedCount();
+            int mathCount    = dao.countBySubject("math");
+            int scienceCount = dao.countBySubject("science");
+            int codeCount    = dao.countBySubject("code");
+            int historyCount = dao.countBySubject("history");
+            List<NotifItem> built = buildItems(totalQ, bookmarks, streak, bestQuiz,
+                    mathCount, scienceCount, codeCount, historyCount);
+
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                allItems.clear();
+                allItems.addAll(built);
+                adapter.setItems(allItems);
+                int unread = 0;
+                for (NotifItem n : allItems) if (n.unread) unread++;
+                TextView tvCount = findViewById(R.id.text_unread_count);
+                tvCount.setText(unread > 0 ? unread + " new" : "All caught up");
+            });
+        });
+    }
+
+    private List<NotifItem> buildItems(int totalQ, int bookmarks, int streak, int bestQuiz,
+                                        int mathCount, int scienceCount, int codeCount, int historyCount) {
+        List<NotifItem> items = new ArrayList<>();
 
         // Streak — low streak: urgent reminder; high streak: achievement
         if (streak >= 7) {

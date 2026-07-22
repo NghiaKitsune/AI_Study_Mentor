@@ -46,22 +46,29 @@ public class AnswerActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
-        question = qid > 0 ? StudyMentorApp.get().db().questionDao().byId(qid) : null;
-
-        ((TextView) findViewById(R.id.text_question))
-                .setText(question != null ? question.prompt : "—");
-        ((TextView) findViewById(R.id.text_final_answer))
-                .setText(question != null && question.answer != null
-                        ? extractFinalAnswer(question.answer)
-                        : getString(R.string.open_in_chat_hint));
-
+        // Wire up non-DB bindings immediately
         bindSteps();
         bindMistakes();
         bindFollowUps();
         bindBookmark();
         bindShare();
         bindDeepDive();
+
+        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        if (qid > 0) {
+            StudyMentorApp.query(this,
+                    () -> StudyMentorApp.get().db().questionDao().byId(qid),
+                    q -> {
+                        question = q;
+                        ((TextView) findViewById(R.id.text_question))
+                                .setText(q != null ? q.prompt : "—");
+                        ((TextView) findViewById(R.id.text_final_answer))
+                                .setText(q != null && q.answer != null
+                                        ? extractFinalAnswer(q.answer)
+                                        : getString(R.string.open_in_chat_hint));
+                        refreshBookmarkIcon();
+                    });
+        }
     }
 
     /** Picks the last sentence-like fragment as the "final answer" tag. */

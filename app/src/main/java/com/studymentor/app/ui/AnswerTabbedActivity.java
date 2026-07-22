@@ -35,20 +35,26 @@ public class AnswerTabbedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_answer_tabbed);
 
-        // Load question from DB
-        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
-        Question question = (qid > 0)
-                ? StudyMentorApp.get().db().questionDao().byId(qid)
-                : null;
-
-        String questionText = (question != null) ? question.prompt
-                : getIntent().getStringExtra("extra_question");
-        if (questionText == null) questionText = "";
-
-        String subject   = (question != null) ? question.subject : "general";
         String stepsJson = getIntent().getStringExtra(EXTRA_STEPS_JSON);
 
-        ((TextView) findViewById(R.id.text_question)).setText(questionText);
+        // Load question from DB async, then kick off Groq fetch
+        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        if (qid > 0) {
+            StudyMentorApp.query(this,
+                    () -> StudyMentorApp.get().db().questionDao().byId(qid),
+                    q -> {
+                        String qt = (q != null) ? q.prompt : getIntent().getStringExtra("extra_question");
+                        if (qt == null) qt = "";
+                        String subj = (q != null && q.subject != null) ? q.subject : "general";
+                        ((TextView) findViewById(R.id.text_question)).setText(qt);
+                        if (!qt.isEmpty()) fetchTabbedContent(qt, subj, stepsJson);
+                    });
+        } else {
+            String qt = getIntent().getStringExtra("extra_question");
+            if (qt == null) qt = "";
+            ((TextView) findViewById(R.id.text_question)).setText(qt);
+            if (!qt.isEmpty()) fetchTabbedContent(qt, "general", stepsJson);
+        }
 
         tabs = new TextView[]{
             findViewById(R.id.tab_solution),
@@ -70,11 +76,6 @@ public class AnswerTabbedActivity extends AppCompatActivity {
 
         // Show loading state
         switchTab(TAB_SOLUTION);
-
-        // Call Groq API (skip if no API key / empty question)
-        if (!questionText.isEmpty()) {
-            fetchTabbedContent(questionText, subject, stepsJson);
-        }
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_send).setOnClickListener(v ->

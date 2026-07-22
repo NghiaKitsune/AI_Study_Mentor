@@ -59,11 +59,16 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void bindStats() {
-        int count     = StudyMentorApp.get().db().questionDao().count();
-        int bookmarks = StudyMentorApp.get().db().questionDao().bookmarkedCount();
-        setStat(R.id.stat_questions, String.valueOf(count),     getString(R.string.stat_questions));
-        setStat(R.id.stat_bookmarks, String.valueOf(bookmarks), getString(R.string.stat_bookmarks));
-        setStat(R.id.stat_accuracy,  "—",                       getString(R.string.stat_accuracy));
+        StudyMentorApp.get().executor().execute(() -> {
+            int count     = StudyMentorApp.get().db().questionDao().count();
+            int bookmarks = StudyMentorApp.get().db().questionDao().bookmarkedCount();
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                setStat(R.id.stat_questions, String.valueOf(count),     getString(R.string.stat_questions));
+                setStat(R.id.stat_bookmarks, String.valueOf(bookmarks), getString(R.string.stat_bookmarks));
+                setStat(R.id.stat_accuracy,  "—",                       getString(R.string.stat_accuracy));
+            });
+        });
     }
 
     private void bindSearch() {
@@ -98,7 +103,7 @@ public class HistoryActivity extends AppCompatActivity {
 
     private void bindList() {
         rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new HistoryAdapter(StudyMentorApp.get().db().questionDao().all(), q -> {
+        adapter = new HistoryAdapter(new ArrayList<>(), q -> {
             Intent i = new Intent(this, AnswerActivity.class);
             i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, q.id);
             startActivity(i);
@@ -132,15 +137,28 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void reload() {
-        List<Question> all   = StudyMentorApp.get().db().questionDao().all();
-        List<Question> items = applyFilter(applySearch(all));
-        adapter.setItems(items);
-        toggleEmpty(items.isEmpty());
+        // Capture UI-thread state before dispatching to background
+        final String query  = searchQuery;
+        final int chipId    = chips.getCheckedChipId();
+        final Chip chip     = (chipId != View.NO_ID && chipId != R.id.chip_all
+                                && chipId != R.id.chip_bookmarks)
+                              ? (Chip) findViewById(chipId) : null;
+        final String chipLabel = chip != null ? chip.getText().toString().toLowerCase() : null;
+
+        StudyMentorApp.get().executor().execute(() -> {
+            List<Question> all   = StudyMentorApp.get().db().questionDao().all();
+            List<Question> items = applyFilter(applySearch(all, query), chipId, chipLabel);
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                adapter.setItems(items);
+                toggleEmpty(items.isEmpty());
+            });
+        });
     }
 
-    private List<Question> applySearch(List<Question> all) {
-        if (searchQuery == null || searchQuery.trim().isEmpty()) return all;
-        String lq = searchQuery.trim().toLowerCase();
+    private List<Question> applySearch(List<Question> all, String query) {
+        if (query == null || query.trim().isEmpty()) return all;
+        String lq = query.trim().toLowerCase();
         List<Question> out = new ArrayList<>();
         for (Question q : all) {
             if (q.prompt != null && q.prompt.toLowerCase().contains(lq)) out.add(q);
@@ -148,22 +166,18 @@ public class HistoryActivity extends AppCompatActivity {
         return out;
     }
 
-    private List<Question> applyFilter(List<Question> all) {
-        int checkedId = chips.getCheckedChipId();
-        if (checkedId == View.NO_ID || checkedId == R.id.chip_all) return all;
+    private List<Question> applyFilter(List<Question> all, int chipId, String chipLabel) {
+        if (chipId == View.NO_ID || chipId == R.id.chip_all) return all;
 
-        if (checkedId == R.id.chip_bookmarks) {
-            java.util.List<Question> out = new java.util.ArrayList<>();
+        if (chipId == R.id.chip_bookmarks) {
+            List<Question> out = new ArrayList<>();
             for (Question q : all) if (q.bookmarked) out.add(q);
             return out;
         }
-        // Subject chip — match the chip's text against question.subject (case-insensitive)
-        Chip chip = findViewById(checkedId);
-        if (chip == null) return all;
-        String label = chip.getText().toString().toLowerCase();
-        java.util.List<Question> out = new java.util.ArrayList<>();
+        if (chipLabel == null) return all;
+        List<Question> out = new ArrayList<>();
         for (Question q : all) {
-            if (q.subject != null && q.subject.toLowerCase().contains(label)) out.add(q);
+            if (q.subject != null && q.subject.toLowerCase().contains(chipLabel)) out.add(q);
         }
         return out;
     }
@@ -171,14 +185,17 @@ public class HistoryActivity extends AppCompatActivity {
     private void bindMiloNoticed() {
         View card = findViewById(R.id.card_milo_noticed);
         if (card == null) return;
-        int count = StudyMentorApp.get().db().questionDao().count();
-        if (count >= 5) {
-            card.setVisibility(View.VISIBLE);
-            TextView tv = card.findViewById(R.id.text_milo_noticed);
-            tv.setText("You've asked " + count + " questions. Want a quick review quiz?");
-        }
         card.findViewById(R.id.btn_milo_review).setOnClickListener(v ->
                 startActivity(new Intent(this, QuizActivity.class)));
+        StudyMentorApp.query(this,
+                () -> StudyMentorApp.get().db().questionDao().count(),
+                count -> {
+                    if (count >= 5) {
+                        card.setVisibility(View.VISIBLE);
+                        ((TextView) card.findViewById(R.id.text_milo_noticed))
+                                .setText("You've asked " + count + " questions. Want a quick review quiz?");
+                    }
+                });
     }
 
     private void toggleEmpty(boolean empty) {

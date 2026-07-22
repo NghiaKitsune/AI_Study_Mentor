@@ -32,39 +32,58 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        bindLiveStats();
-        bindSubjects();
-        bindMiloInsight();
+        loadDbAndBind();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_settings).setOnClickListener(v ->
                 startActivity(new android.content.Intent(this, SettingsActivity.class)));
     }
 
-    private void bindLiveStats() {
-        int questionCount = StudyMentorApp.get().db().questionDao().count();
+    /** One background pass for all DB reads; drives bindLiveStats, bindSubjects, bindMiloInsight. */
+    private void loadDbAndBind() {
+        final int streak      = Session.streak(this);
+        final int xp          = Session.xp(this);
+        final String lvTitle  = Session.levelTitle(this);
+        final int bestQuizPct = Session.bestQuizPct(this);
+
+        StudyMentorApp.get().executor().execute(() -> {
+            int questionCount = StudyMentorApp.get().db().questionDao().count();
+            int mathCount     = StudyMentorApp.get().db().questionDao().countBySubject("math");
+            int codeCount     = StudyMentorApp.get().db().questionDao().countBySubject("code");
+            int scienceCount  = StudyMentorApp.get().db().questionDao().countBySubject("science");
+            int historyCount  = StudyMentorApp.get().db().questionDao().countBySubject("history");
+
+            String summary = "Student stats — total questions asked: " + questionCount
+                    + ", current streak: " + streak + " day(s)"
+                    + ", XP: " + xp + " (" + lvTitle + " level)"
+                    + ", best quiz score: " + bestQuizPct + "%"
+                    + ", subject breakdown: math=" + mathCount + ", science=" + scienceCount
+                    + ", code=" + codeCount + ", history=" + historyCount + ".";
+
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                bindLiveStats(questionCount, streak);
+                bindSubjects(mathCount, codeCount, scienceCount, historyCount);
+                bindMiloInsight(summary);
+            });
+        });
+    }
+
+    private void bindLiveStats(int questionCount, int streak) {
         TextView tvQ = findViewById(R.id.text_stat_questions);
         if (tvQ != null) tvQ.setText(String.valueOf(questionCount));
-
-        int streak = com.studymentor.app.util.Session.streak(this);
         TextView tvStreak = findViewById(R.id.text_streak);
         if (tvStreak != null) tvStreak.setText(String.valueOf(streak));
     }
 
-    private void bindSubjects() {
-        int mathCount    = StudyMentorApp.get().db().questionDao().countBySubject("math");
-        int codeCount    = StudyMentorApp.get().db().questionDao().countBySubject("code");
-        int scienceCount = StudyMentorApp.get().db().questionDao().countBySubject("science");
-        int historyCount = StudyMentorApp.get().db().questionDao().countBySubject("history");
-        int total        = Math.max(mathCount + codeCount + scienceCount + historyCount, 1);
-
+    private void bindSubjects(int mathCount, int codeCount, int scienceCount, int historyCount) {
+        int total = Math.max(mathCount + codeCount + scienceCount + historyCount, 1);
         List<SubjectStat> subjects = Arrays.asList(
             new SubjectStat("Math",      mathCount,    mathCount    * 100 / total, R.color.subject_math,     R.drawable.ic_sparkles, R.color.subject_math_soft),
             new SubjectStat("Coding",    codeCount,    codeCount    * 100 / total, R.color.subject_code,     R.drawable.ic_settings, R.color.subject_code_soft),
             new SubjectStat("Science",   scienceCount, scienceCount * 100 / total, R.color.subject_science,  R.drawable.ic_target,   R.color.subject_science_soft),
             new SubjectStat("Languages", historyCount, historyCount * 100 / total, R.color.subject_language, R.drawable.ic_book,     R.color.subject_language_soft)
         );
-
         RecyclerView rv = findViewById(R.id.rv_subjects);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(new SubjectAdapter(subjects));
@@ -76,7 +95,7 @@ public class DashboardActivity extends AppCompatActivity {
      * caches it via {@link Session#saveInsight}. Falls back to a static
      * string on network/parse failure so the card never looks broken.
      */
-    private void bindMiloInsight() {
+    private void bindMiloInsight(String statsSummary) {
         TextView tvInsight = findViewById(R.id.text_milo_insight);
         if (tvInsight == null) return;
 
@@ -86,7 +105,7 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         tvInsight.setText(R.string.dashboard_insight_loading);
-        new GroqAiService().quickInsight(buildStatsSummary(), new GroqAiService.InsightCallback() {
+        new GroqAiService().quickInsight(statsSummary, new GroqAiService.InsightCallback() {
             @Override
             public void onSuccess(String insight) {
                 if (isFinishing() || isDestroyed()) return;
@@ -102,24 +121,6 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private String buildStatsSummary() {
-        int questionCount = StudyMentorApp.get().db().questionDao().count();
-        int streak         = Session.streak(this);
-        int xp              = Session.xp(this);
-        String levelTitle  = Session.levelTitle(this);
-        int bestQuizPct    = Session.bestQuizPct(this);
-        int mathCount      = StudyMentorApp.get().db().questionDao().countBySubject("math");
-        int codeCount      = StudyMentorApp.get().db().questionDao().countBySubject("code");
-        int scienceCount   = StudyMentorApp.get().db().questionDao().countBySubject("science");
-        int historyCount   = StudyMentorApp.get().db().questionDao().countBySubject("history");
-
-        return "Student stats — total questions asked: " + questionCount
-                + ", current streak: " + streak + " day(s)"
-                + ", XP: " + xp + " (" + levelTitle + " level)"
-                + ", best quiz score: " + bestQuizPct + "%"
-                + ", subject breakdown: math=" + mathCount + ", science=" + scienceCount
-                + ", code=" + codeCount + ", history=" + historyCount + ".";
-    }
 
     static class SubjectStat {
         final String name;

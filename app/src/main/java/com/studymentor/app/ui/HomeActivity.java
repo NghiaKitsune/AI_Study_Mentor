@@ -23,6 +23,7 @@ import com.studymentor.app.ui.adapter.RecentQuestionAdapter;
 import com.studymentor.app.util.BottomNavHelper;
 import com.studymentor.app.util.Session;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -107,13 +108,15 @@ public class HomeActivity extends AppCompatActivity {
     private void bindRecent() {
         RecyclerView rv = findViewById(R.id.rv_recent);
         rv.setLayoutManager(new LinearLayoutManager(this));
-        List<Question> recent = StudyMentorApp.get().db().questionDao().recent(5);
-        recentAdapter = new RecentQuestionAdapter(recent, q -> {
+        recentAdapter = new RecentQuestionAdapter(new ArrayList<>(), q -> {
             Intent i = new Intent(this, AnswerActivity.class);
             i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, q.id);
             startActivity(i);
         });
         rv.setAdapter(recentAdapter);
+        StudyMentorApp.query(this,
+                () -> StudyMentorApp.get().db().questionDao().recent(5),
+                recentAdapter::setItems);
     }
 
     private void bindComposer() {
@@ -153,7 +156,9 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (recentAdapter != null) {
-            recentAdapter.setItems(StudyMentorApp.get().db().questionDao().recent(5));
+            StudyMentorApp.query(this,
+                    () -> StudyMentorApp.get().db().questionDao().recent(5),
+                    recentAdapter::setItems);
         }
     }
 }

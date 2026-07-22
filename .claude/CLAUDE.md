@@ -67,6 +67,14 @@ Use `Message.user(questionId, text)` / `Message.assistant(questionId, text)` fac
 - `ChatRequest` fields: `request_id` (UUID String), `conversation_id` (Long, null for new), `message` (String), `context.{user_level, subject, locale}`
 - `ChatResponse` fields: `reply`, `final_answer`, `steps` (List<Step{index,title,body}>), `follow_ups` (List<String>), `commonMistakes` (List<String>, max 2), `error` (nullable ErrorInfo{code,message})
 
+**Groq services (live AI — `BuildConfig.GROQ_API_KEY` from `local.properties`):**
+- `GroqAiService` — implements `AiService`; model `llama-3.3-70b-versatile`; also has `quickInsight(statsSummary, InsightCallback)` for DashboardActivity
+- `GroqTabbedService` — `generate(subject, level, Callback<TabbedResponse>)` → 4-tab breakdown (solution/concept/practice/pitfalls); model `llama-3.3-70b-versatile`; `TabbedResponse.java` is its POJO
+- `GroqQuizService` — `generate(subject, levelNumber, count, Callback)` → `List<QuizQuestion>`; falls back to `QuizDataSource` on error
+- `GroqVisionService` — `recognize(ctx, uri, MockOcrService.Listener)`; model `meta-llama/llama-4-scout-17b-16e-instruct`; base64-encodes image → Groq vision API; parses `{text, subject, language}` JSON; falls back to `MockOcrService` on any exception
+- `GeminiAiService` — **deleted** (dead code, replaced by GroqAiService)
+- `GeminiVisionService` — **deleted** (quota exhausted; replaced by GroqVisionService)
+
 **Key Intent extras (inter-Activity contracts):**
 - `ChatActivity`: `EXTRA_PROMPT` (String, prefill composer), `EXTRA_QUESTION_ID` (long, load existing conversation)
 - `AnswerActivity`: `EXTRA_QUESTION_ID` (long), `EXTRA_STEPS_JSON` (String, Gson list of `ChatResponse.Step`), `EXTRA_MISTAKES_JSON` (String, Gson `List<String>`)
@@ -304,6 +312,15 @@ avatar_xl=84dp  progress_ring_size=78dp
 - **Session.java**: `streak()`, `hasSeenOnboarding()`, `markOnboardingSeen()`
 - **SplashActivity + MainActivity**: routing updated for onboarding flow
 
+### Group A — Database Threading ✅ (2026-07-20)
+- **`StudyMentorApp.query()` helper**: static `<T> void query(Activity, Callable<T>, Consumer<T>)` — dispatches DB read to `executor()`, delivers result to UI thread with `isFinishing()/isDestroyed()` guard
+- **8 Activities migrated** to background reads: HomeActivity, HistoryActivity, ProfileActivity, DashboardActivity, NotificationsActivity, AnswerActivity, AnswerTabbedActivity, ChatActivity
+- **ChatActivity optimistic UI**: user bubble shown immediately (before DB write); `insert(q)` + `insert(userMsg)` in executor; `callAi()` fired from `runOnUiThread` after persist
+- **`allowMainThreadQueries()` removed**: Room now enforces background-only DB access at the framework level
+- **StrictMode added** (`detectDiskReads().penaltyLog()` in DEBUG) placed after SharedPrefs init to avoid false positives
+- **Dead code deleted**: `GeminiAiService.java`, `GeminiVisionService.java`, `MainActivity.java`, `activity_main.xml`, AndroidManifest MainActivity entry
+- **Tests**: `TEST_PHASE_A1.md` (7 Activities, PASS), `TEST_PHASE_A2.md` (optimistic send, PASS), `TEST_PHASE_A3.md` (0 violations 8 screens, PASS)
+
 ### Phase 4 — Data Wiring + Technical Quality ✅ (2026-06-12)
 - **Quiz real data**: `QuizDataSource` reads `assets/quiz_questions.json` (25 questions: 5×math/science/code/history/general) via Gson; `QuizActivity` uses live questions + 24s countdown timer + reveal logic
 - **Quiz→Result score pass**: `QuizActivity.openResult()` passes `EXTRA_SCORE` + `EXTRA_TOTAL`; `QuizResultActivity` reads and displays real pct
@@ -329,8 +346,8 @@ avatar_xl=84dp  progress_ring_size=78dp
 
 | # | Stub | Location | Priority | Notes |
 |---|------|----------|----------|-------|
-| 1 | LeaderboardActivity dữ liệu fake | LeaderboardActivity | Low | Cần backend API hoặc mock động |
-| 2a | `allowMainThreadQueries()` still enabled for reads | StudyMentorApp | Low | All DB reads run on main thread — acceptable MVP stub; queries are small |
+| 1 | ~~LeaderboardActivity dữ liệu fake~~ | LeaderboardActivity | ✅ RESOLVED | (2026-07-17): LeaderboardSimulator uses real XP + seeded opponents, Phase 5, commit 935da6d |
+| 2a | ~~`allowMainThreadQueries()` still enabled for reads~~ | StudyMentorApp | ✅ RESOLVED | (2026-07-20): all 8 Activities migrated to `StudyMentorApp.query()` / executor; flag removed; StrictMode added in DEBUG |
 | 2b | ~~Room writes on main thread — AnswerActivity bookmark + HistoryActivity delete~~ | AnswerActivity / HistoryActivity | ✅ RESOLVED | (2026-06-20): both wrapped in `executor().execute()`; delete chains `runOnUiThread` for reload/bindStats |
 | 3 | ~~assembleRelease not tested~~ | build.gradle | ✅ RESOLVED | Phase 8A (2026-06-20): release APK verified on Pixel6_API33; ProGuard fixed for Gson TypeToken + Retrofit generics |
 | 4 | ~~Dashboard + Leaderboard unreachable~~ | ProfileActivity | ✅ RESOLVED | (2026-06-20): Dashboard + Leaderboard buttons added to ProfileActivity, commit b367b0c |
@@ -361,7 +378,7 @@ avatar_xl=84dp  progress_ring_size=78dp
 5. **Material 3** — always use `Widget.Material3.*` styles, never raw Android styles
 6. **No hardcoded strings in Java** — use `R.string.*`
 7. **No hardcoded colors in Java** — use `ContextCompat.getColor(this, R.color.*)`
-8. **Room threading** — DB **writes** must go on `StudyMentorApp.get().executor().execute()`; DB **reads** currently run on the main thread via `allowMainThreadQueries()` (known MVP stub — see Known Stubs #2)
+8. **Room threading** — ALL DB access (reads + writes) must run on `StudyMentorApp.get().executor()`. Use `StudyMentorApp.query(activity, callable, consumer)` for single-value reads (delivers result to UI thread with `isFinishing` guard). Use raw `executor().execute(() -> { /* multi-read */ runOnUiThread(...); })` when batching multiple reads in one pass. `allowMainThreadQueries()` has been removed — Room will throw `IllegalStateException` on any main-thread DB call.
 9. **ViewBinding** — use generated binding classes (e.g. `ActivityHomeBinding`) instead of `findViewById`; inflate with `ActivityXxxBinding.inflate(getLayoutInflater())`
 10. **SplashScreen API** — `SplashScreen.installSplashScreen(this)` MUST be before `super.onCreate()` in SplashActivity
 11. **DB schema changes** — `AppDatabase` uses `fallbackToDestructiveMigration()`; bumping `version` wipes all user data. Only do this intentionally.
@@ -438,6 +455,46 @@ After cycle 2 fails → stop, set build_status.json {status:"NEEDS_MANUAL_FIX"},
 ## Session Log
 
 > Auto-appended by Agent-2 after each session. Newest entry at top.
+
+### [2026-07-22] Session 16 — Group A: Database Threading (bỏ `allowMainThreadQueries`)
+**Work done:**
+
+**Mục tiêu:** Chuyển toàn bộ DB reads sang background thread, gỡ bỏ `allowMainThreadQueries()`, bổ sung StrictMode để enforce chuẩn production.
+
+**Phase A0 — `StudyMentorApp.query()` helper (session trước):**
+- Static generic method `<T> void query(Activity host, Callable<T> work, Consumer<T> onUi)` — dispatch DB read to `executor()`, deliver to UI thread với `isFinishing()/isDestroyed()` guard
+
+**Phase A1 — 7 Activities → background reads:**
+- `HomeActivity`: `bindRecent()` + `onResume()` → async `recent(5)` → `setItems()`
+- `HistoryActivity`: gom `count`+`bookmarkedCount`+`all()` trong executor; `reload()` + `bindMiloNoticed()` async
+- `ProfileActivity`: gom 3 reads (`count`, `bookmarkedCount`, `countBySubject("math")`) trong 1 executor block
+- `DashboardActivity`: gom 5 reads (`count` + 4×`countBySubject`) trong 1 executor block
+- `NotificationsActivity`: đọc 6 giá trị trong executor → dựng `List<NotifItem>` → `runOnUiThread` → `adapter.setItems()`
+- `AnswerActivity`: `byId(qid)` async → toàn bộ chuỗi bind trong callback
+- `AnswerTabbedActivity`: `byId(qid)` async → render tabs trong callback
+
+**Phase A2 — ChatActivity: optimistic send + async conversation load:**
+- `onCreate`: `forQuestion(questionId)` → `StudyMentorApp.query()` → async
+- `sendCurrent()`: hiển thị user bubble **ngay lập tức** (optimistic), sau đó executor: `insert(q)` → lấy id thật → `insert(userMsg)` → `runOnUiThread` → cập nhật `questionId` → `callAi(text)`
+- Tránh data race: `questionId` là field — capture local trước executor, gán lại trên UI thread sau
+
+**Phase A3 — Gỡ flag + StrictMode:**
+- Xóa `.allowMainThreadQueries()` khỏi `Room.databaseBuilder()`
+- Thêm `StrictMode.detectDiskReads().penaltyLog()` trong DEBUG — AFTER `Session.themeMode()` + `Room.build()` để tránh false positive từ SharedPrefs init
+- Vòng 1 false positive: 3 `DiskReadViolation` tại `Session.p()` → fix bằng cách move StrictMode xuống sau init
+
+**Phase A4 — Build, dead code removal, commit:**
+- Dead code deleted: `GeminiAiService.java`, `GeminiVisionService.java`, `MainActivity.java`, `activity_main.xml`, AndroidManifest entry
+- CLAUDE.md: Stub #2a → RESOLVED, Stub #1 → RESOLVED, Rule #8 updated, Group A entry added
+- PLANNING.md: Group A → ✅
+
+**Test results:**
+- `TEST_PHASE_A1.md`: 7/7 Activities PASS, 0 DB violations
+- `TEST_PHASE_A2.md`: Optimistic send PASS, Groq AI response confirmed
+- `TEST_PHASE_A3.md`: 8 screens, 0 StrictMode violations, 0 `Cannot access database` errors
+
+**Build:** assembleDebug PASSED (1m 24s) | **Logcat:** CLEAN
+**Branch:** `feature/api-expansion` | **Known Stubs:** #1, #2a → RESOLVED
 
 ### [2026-07-17] Session 15 — Phase 6 OCR: Groq Vision thay thế Gemini
 **Work done:**
