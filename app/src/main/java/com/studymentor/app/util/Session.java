@@ -28,6 +28,10 @@ public final class Session {
     private static final String KEY_STREAK         = "streak_days";
     private static final String KEY_LAST_OPEN_DATE  = "last_open_date"; // "yyyy-MM-dd"
     private static final String KEY_BEST_QUIZ_PCT   = "best_quiz_pct"; // 0–100
+    private static final String KEY_XP            = "xp_points";
+    private static final String KEY_XP_EARNED_IDS = "xp_earned_ids"; // CSV of questionIds already awarded XP
+    private static final String KEY_CACHED_INSIGHT = "cached_insight";
+    private static final String KEY_INSIGHT_DATE   = "insight_date"; // "yyyy-MM-dd" — insight refreshes once/day
 
     private Session() {}
 
@@ -137,6 +141,69 @@ public final class Session {
         if (pct > bestQuizPct(c)) {
             p(c).edit().putInt(KEY_BEST_QUIZ_PCT, pct).apply();
         }
+    }
+
+    // ---- XP & Level ------------------------------------------------
+
+    public static int xp(Context c) { return p(c).getInt(KEY_XP, 0); }
+
+    public static void addXp(Context c, int amount, long qId) {
+        if (hasEarnedXpFor(c, qId)) return;
+        String ids = p(c).getString(KEY_XP_EARNED_IDS, "");
+        String newIds = ids.isEmpty() ? String.valueOf(qId) : ids + "," + qId;
+        p(c).edit()
+                .putInt(KEY_XP, xp(c) + amount)
+                .putString(KEY_XP_EARNED_IDS, newIds)
+                .apply();
+    }
+
+    public static boolean hasEarnedXpFor(Context c, long qId) {
+        String ids = p(c).getString(KEY_XP_EARNED_IDS, "");
+        if (ids.isEmpty()) return false;
+        String target = String.valueOf(qId);
+        for (String id : ids.split(",")) {
+            if (id.equals(target)) return true;
+        }
+        return false;
+    }
+
+    public static int levelNumber(Context c) {
+        int xp = xp(c);
+        if (xp >= 10000) return 5;
+        if (xp >= 6000)  return 4;
+        if (xp >= 3000)  return 3;
+        if (xp >= 1000)  return 2;
+        return 1;
+    }
+
+    public static String levelTitle(Context c) {
+        switch (levelNumber(c)) {
+            case 5: return "Master";
+            case 4: return "Expert";
+            case 3: return "Scholar";
+            case 2: return "Explorer";
+            default: return "Beginner";
+        }
+    }
+
+    // ---- Dashboard Milo insight (AI-generated, cached 1x/day) ------
+
+    public static String cachedInsight(Context c) { return p(c).getString(KEY_CACHED_INSIGHT, ""); }
+
+    /** True when today already has a cached insight — skip the AI call. */
+    public static boolean hasFreshInsight(Context c) {
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        return today.equals(p(c).getString(KEY_INSIGHT_DATE, "")) && !cachedInsight(c).isEmpty();
+    }
+
+    public static void saveInsight(Context c, String text) {
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+        p(c).edit()
+                .putString(KEY_CACHED_INSIGHT, text)
+                .putString(KEY_INSIGHT_DATE, today)
+                .apply();
     }
 
     // ---- Onboarding seen flag --------------------------------------

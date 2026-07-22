@@ -15,6 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.studymentor.app.R;
 import com.studymentor.app.api.ApiClient;
+import com.studymentor.app.util.Session;
 import com.studymentor.app.api.ChatRequest;
 import com.studymentor.app.api.ChatResponse;
 import com.studymentor.app.data.Message;
@@ -73,9 +74,15 @@ public class ChatActivity extends AppCompatActivity {
 
         questionId = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
         if (questionId > 0) {
-            messages.addAll(StudyMentorApp.get().db().messageDao().forQuestion(questionId));
-            adapter.notifyDataSetChanged();
-            layoutSuggestions.setVisibility(View.GONE);
+            final long qid = questionId;
+            StudyMentorApp.query(this,
+                    () -> StudyMentorApp.get().db().messageDao().forQuestion(qid),
+                    loaded -> {
+                        messages.addAll(loaded);
+                        adapter.notifyDataSetChanged();
+                        layoutSuggestions.setVisibility(View.GONE);
+                        scrollToBottom();
+                    });
         } else {
             // First-time greeting
             messages.add(Message.assistant(0L, getString(R.string.chat_first_greeting)));
@@ -129,22 +136,33 @@ public class ChatActivity extends AppCompatActivity {
         input.setText("");
         layoutSuggestions.setVisibility(View.GONE);
 
-        // Persist the question on first user turn
-        if (questionId <= 0) {
-            Question q = new Question();
-            q.prompt = text;
-            q.subject = detectSubject(text);
-            q.createdAt = System.currentTimeMillis();
-            questionId = StudyMentorApp.get().db().questionDao().insert(q);
-        }
-
+        // Optimistic UI: show user bubble immediately before DB write completes
         Message userMsg = Message.user(questionId, text);
-        StudyMentorApp.get().db().messageDao().insert(userMsg);
         messages.add(userMsg);
         adapter.notifyItemInserted(messages.size() - 1);
         scrollToBottom();
 
-        callAi(text);
+        // Persist question + message in background, then fire AI on UI thread
+        final boolean isNew = (questionId <= 0);
+        final String subject = detectSubject(text);
+        StudyMentorApp.get().executor().execute(() -> {
+            long qid = questionId;
+            if (isNew) {
+                Question q = new Question();
+                q.prompt = text;
+                q.subject = subject;
+                q.createdAt = System.currentTimeMillis();
+                qid = StudyMentorApp.get().db().questionDao().insert(q);
+                userMsg.questionId = qid;
+            }
+            StudyMentorApp.get().db().messageDao().insert(userMsg);
+            final long finalQid = qid;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                questionId = finalQid;
+                callAi(text);
+            });
+        });
     }
 
     private void callAi(String prompt) {
@@ -169,6 +187,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
 
                 appendAssistant(displayText);
+                Session.addXp(ChatActivity.this, 50, questionId);
 
                 final long qid = questionId;
                 final String saved = displayText;

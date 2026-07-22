@@ -36,9 +36,8 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        bindProfile();
-        bindBadges();
         bindActivity();
+        loadDbAndBind();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_settings).setOnClickListener(v ->
@@ -50,41 +49,57 @@ public class ProfileActivity extends AppCompatActivity {
         BottomNavHelper.setup(this, R.id.nav_profile);
     }
 
-    private void bindProfile() {
-        String name = Session.name(this);
-        if (name == null || name.isEmpty() || name.equals("Friend")) name = "Nghia Mentor";
+    /** Single background pass for all DB reads; binds Profile + Badges together. */
+    private void loadDbAndBind() {
+        // Capture Session values on UI thread (SharedPreferences reads are fast/safe here)
+        final String name0     = Session.name(this);
+        final int xp           = Session.xp(this);
+        final int levelNum     = Session.levelNumber(this);
+        final String lvTitle   = Session.levelTitle(this);
+        final int streak       = Session.streak(this);
+        final int bestQuizPct  = Session.bestQuizPct(this);
+
+        StudyMentorApp.get().executor().execute(() -> {
+            int totalQ    = StudyMentorApp.get().db().questionDao().count();
+            int bookmarks = StudyMentorApp.get().db().questionDao().bookmarkedCount();
+            int mathCount = StudyMentorApp.get().db().questionDao().countBySubject("math");
+
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                bindProfile(name0, xp, levelNum, lvTitle, streak, bestQuizPct, totalQ, bookmarks, mathCount);
+                bindBadges(streak, totalQ, bestQuizPct, bookmarks, mathCount);
+            });
+        });
+    }
+
+    private void bindProfile(String rawName, int xp, int levelNum, String lvTitle,
+                              int streak, int bestQuizPct, int totalQ, int bookmarks, int mathCount) {
+        String name = (rawName == null || rawName.isEmpty() || rawName.equals("Friend"))
+                ? "Nghia Mentor" : rawName;
         ((TextView) findViewById(R.id.text_profile_name)).setText(name);
 
-        int totalQuestions = StudyMentorApp.get().db().questionDao().count();
-        int totalXp        = totalQuestions * 10;
-        int level          = Math.max(1, totalXp / 100 + 1);
-        int xpInLevel      = totalXp % 100;
-        int pct            = (int) ((xpInLevel / 100f) * 100);
+        int[] thresholds = {0, 1000, 3000, 6000, 10000};
+        int levelStart   = thresholds[levelNum - 1];
+        int levelEnd     = (levelNum < 5) ? thresholds[levelNum] : xp + 1;
+        int xpInLevel    = xp - levelStart;
+        int levelSpan    = levelEnd - levelStart;
+        int pct          = (levelNum == 5) ? 100
+                : Math.min(100, (int) ((xpInLevel / (float) levelSpan) * 100));
 
         ((TextView) findViewById(R.id.text_level_title))
-                .setText(levelTitle(level) + " · Level " + level);
-        ((TextView) findViewById(R.id.text_xp_current))
-                .setText(xpInLevel + " XP");
+                .setText(lvTitle + " · Level " + levelNum);
+        ((TextView) findViewById(R.id.text_xp_current)).setText(xpInLevel + " XP");
         ((TextView) findViewById(R.id.text_xp_remaining))
-                .setText((100 - xpInLevel) + " XP to next level");
+                .setText(levelNum < 5
+                        ? (levelSpan - xpInLevel) + " XP to next level"
+                        : "Max level reached");
+        ((LinearProgressIndicator) findViewById(R.id.progress_xp)).setProgressCompat(pct, true);
+        ((CircularProgressIndicator) findViewById(R.id.progress_ring_xp)).setProgressCompat(pct, true);
 
-        ((LinearProgressIndicator) findViewById(R.id.progress_xp))
-                .setProgressCompat(pct, true);
-        ((CircularProgressIndicator) findViewById(R.id.progress_ring_xp))
-                .setProgressCompat(pct, true);
-
-        // Stats row
-        ((TextView) findViewById(R.id.text_stat_streak))
-                .setText(String.valueOf(Session.streak(this)));
-        ((TextView) findViewById(R.id.text_stat_xp))
-                .setText(String.valueOf(totalXp));
-
-        int badgesUnlocked = countBadges(Session.streak(this), totalQuestions,
-                Session.bestQuizPct(this),
-                StudyMentorApp.get().db().questionDao().bookmarkedCount(),
-                StudyMentorApp.get().db().questionDao().countBySubject("math"));
+        ((TextView) findViewById(R.id.text_stat_streak)).setText(String.valueOf(streak));
+        ((TextView) findViewById(R.id.text_stat_xp)).setText(String.valueOf(xp));
         ((TextView) findViewById(R.id.text_stat_badges))
-                .setText(badgesUnlocked + "/8");
+                .setText(countBadges(streak, totalQ, bestQuizPct, bookmarks, mathCount) + "/8");
     }
 
     private int countBadges(int streak, int qCount, int bestQuizPct, int bookmarks, int mathCount) {
@@ -98,20 +113,7 @@ public class ProfileActivity extends AppCompatActivity {
         return count; // Top10 and SpeedDemon badges are always locked
     }
 
-    private static String levelTitle(int level) {
-        if (level >= 10) return "Master";
-        if (level >= 7)  return "Expert";
-        if (level >= 5)  return "Scholar";
-        if (level >= 3)  return "Explorer";
-        return "Beginner";
-    }
-
-    private void bindBadges() {
-        int streak       = Session.streak(this);
-        int qCount       = StudyMentorApp.get().db().questionDao().count();
-        int bookmarks    = StudyMentorApp.get().db().questionDao().bookmarkedCount();
-        int mathCount    = StudyMentorApp.get().db().questionDao().countBySubject("math");
-        int bestQuizPct  = Session.bestQuizPct(this);
+    private void bindBadges(int streak, int qCount, int bestQuizPct, int bookmarks, int mathCount) {
 
         List<BadgeItem> badges = Arrays.asList(
             new BadgeItem(R.drawable.ic_flame,    "Week Warrior",  "7-day streak",        streak >= 7,        R.color.brand_accent),

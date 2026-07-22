@@ -54,6 +54,78 @@ public class GroqAiService implements AiService {
         return new GroqCall(request);
     }
 
+    // ── Dashboard "Milo's insight" (short plain-text summary) ─────────────────
+
+    public interface InsightCallback {
+        void onSuccess(String insight);
+        void onError(String message);
+    }
+
+    /**
+     * Asks Milo for a 1-2 sentence encouraging observation about the
+     * student's stats. {@code statsSummary} is a plain-English line describing
+     * streak/XP/subject counts/best quiz score — see DashboardActivity.
+     */
+    public void quickInsight(String statsSummary, InsightCallback cb) {
+        RequestBody rb = RequestBody.create(buildInsightBodyJson(statsSummary), JSON_TYPE);
+        Request req = new Request.Builder()
+                .url(GROQ_URL)
+                .header("Authorization", "Bearer " + BuildConfig.GROQ_API_KEY)
+                .header("Content-Type", "application/json")
+                .post(rb)
+                .build();
+
+        http.newCall(req).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                Log.e(TAG, "Insight HTTP failure: " + e.getMessage(), e);
+                main.post(() -> cb.onError(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull Response r) {
+                try {
+                    String raw = r.body() != null ? r.body().string() : "";
+                    String insight = parseInsightResponse(raw);
+                    main.post(() -> cb.onSuccess(insight));
+                } catch (Exception e) {
+                    Log.e(TAG, "Insight parse error: " + e.getMessage(), e);
+                    main.post(() -> cb.onError(e.getMessage()));
+                } finally {
+                    r.close();
+                }
+            }
+        });
+    }
+
+    private String buildInsightBodyJson(String statsSummary) {
+        String system = "You are Milo, a friendly AI study mentor mascot. "
+            + "Given a student's study stats, write exactly 1-2 short, warm, encouraging "
+            + "sentences (max 220 characters total) that reference a real pattern in the "
+            + "stats and suggest one concrete next step. "
+            + "Respond in ENGLISH with plain text only — no JSON, no markdown, no quotes.";
+        return "{"
+            + "\"model\":\"" + MODEL + "\","
+            + "\"temperature\":0.7,"
+            + "\"messages\":["
+            +   "{\"role\":\"system\",\"content\":" + gson.toJson(system) + "},"
+            +   "{\"role\":\"user\",\"content\":" + gson.toJson(statsSummary) + "}"
+            + "]"
+            + "}";
+    }
+
+    private String parseInsightResponse(String rawBody) throws Exception {
+        com.google.gson.JsonObject root = gson.fromJson(rawBody, com.google.gson.JsonObject.class);
+        if (root.has("error")) {
+            throw new Exception(root.getAsJsonObject("error").get("message").getAsString());
+        }
+        String content = root.getAsJsonArray("choices")
+                .get(0).getAsJsonObject()
+                .getAsJsonObject("message")
+                .get("content").getAsString();
+        return content.trim();
+    }
+
     // ── Inner Call wrapper ────────────────────────────────────────────────────
 
     private class GroqCall implements Call<ChatResponse> {

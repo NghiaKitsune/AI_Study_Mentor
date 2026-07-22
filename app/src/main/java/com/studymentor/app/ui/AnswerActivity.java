@@ -46,21 +46,29 @@ public class AnswerActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
-        question = qid > 0 ? StudyMentorApp.get().db().questionDao().byId(qid) : null;
-
-        ((TextView) findViewById(R.id.text_question))
-                .setText(question != null ? question.prompt : "—");
-        ((TextView) findViewById(R.id.text_final_answer))
-                .setText(question != null && question.answer != null
-                        ? extractFinalAnswer(question.answer)
-                        : getString(R.string.open_in_chat_hint));
-
+        // Wire up non-DB bindings immediately
         bindSteps();
         bindMistakes();
         bindFollowUps();
         bindBookmark();
         bindShare();
+        bindDeepDive();
+
+        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        if (qid > 0) {
+            StudyMentorApp.query(this,
+                    () -> StudyMentorApp.get().db().questionDao().byId(qid),
+                    q -> {
+                        question = q;
+                        ((TextView) findViewById(R.id.text_question))
+                                .setText(q != null ? q.prompt : "—");
+                        ((TextView) findViewById(R.id.text_final_answer))
+                                .setText(q != null && q.answer != null
+                                        ? extractFinalAnswer(q.answer)
+                                        : getString(R.string.open_in_chat_hint));
+                        refreshBookmarkIcon();
+                    });
+        }
     }
 
     /** Picks the last sentence-like fragment as the "final answer" tag. */
@@ -167,6 +175,22 @@ public class AnswerActivity extends AppCompatActivity {
         boolean on = question != null && question.bookmarked;
         btnBookmark.setIconResource(on ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
         btnBookmark.setIconTintResource(on ? R.color.brand_primary : R.color.text_primary);
+    }
+
+    private void bindDeepDive() {
+        View btn = findViewById(R.id.btn_deep_dive);
+        if (btn == null) return;
+        btn.setOnClickListener(v -> {
+            Intent i = new Intent(this, AnswerTabbedActivity.class);
+            if (question != null) {
+                i.putExtra(AnswerTabbedActivity.EXTRA_QUESTION_ID, question.id);
+            }
+            String stepsJson = getIntent().getStringExtra(EXTRA_STEPS_JSON);
+            if (stepsJson != null) {
+                i.putExtra(AnswerTabbedActivity.EXTRA_STEPS_JSON, stepsJson);
+            }
+            startActivity(i);
+        });
     }
 
     private void bindShare() {

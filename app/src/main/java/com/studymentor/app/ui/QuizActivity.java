@@ -12,24 +12,25 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.studymentor.app.R;
+import com.studymentor.app.api.GroqQuizService;
 import com.studymentor.app.data.QuizDataSource;
 import com.studymentor.app.data.QuizQuestion;
 import com.studymentor.app.util.BottomNavHelper;
+import com.studymentor.app.util.Session;
 
 import java.util.List;
 import java.util.Locale;
 
 /**
  * UC6 — Quiz active screen.
- * Loads 5 questions from QuizDataSource (assets/quiz_questions.json),
- * optionally filtered by EXTRA_SUBJECT. Tracks score across all questions
- * and passes it to QuizResultActivity.
+ * Loads 5 questions from GroqQuizService (AI-generated) with fallback to
+ * QuizDataSource (assets/quiz_questions.json). Shows a loading state while
+ * Groq is generating, then renders the quiz once questions arrive.
  */
 public class QuizActivity extends AppCompatActivity {
 
@@ -48,24 +49,59 @@ public class QuizActivity extends AppCompatActivity {
     private int score = 0;
     private CountDownTimer timer;
 
+    private View layoutLoading;
+    private View layoutQuizContent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        layoutLoading    = findViewById(R.id.layout_loading);
+        layoutQuizContent = findViewById(R.id.layout_quiz_content);
+
         String subject = getIntent().getStringExtra(EXTRA_SUBJECT);
-        questions = QuizDataSource.random(this, subject, 5);
-        if (questions.isEmpty()) { finish(); return; }
 
-        userAnswers = new int[questions.size()];
-        java.util.Arrays.fill(userAnswers, -1);
-
-        showQuestion(0);
-        startTimer();
-        setupCta();
+        // Show loading, then fetch AI questions
+        showLoading(true);
+        int levelNum = Session.levelNumber(this);
+        new GroqQuizService().generate(subject, levelNum, 5,
+                new GroqQuizService.Callback() {
+                    @Override
+                    public void onSuccess(List<QuizQuestion> aiQuestions) {
+                        startQuiz(aiQuestions, subject);
+                    }
+                    @Override
+                    public void onError(String message) {
+                        // Fallback to static JSON
+                        List<QuizQuestion> fallback = QuizDataSource.random(QuizActivity.this, subject, 5);
+                        startQuiz(fallback, subject);
+                    }
+                });
 
         findViewById(R.id.btn_close).setOnClickListener(v -> finish());
         BottomNavHelper.setup(this, R.id.nav_practice);
+    }
+
+    private void showLoading(boolean loading) {
+        layoutLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
+        layoutQuizContent.setVisibility(loading ? View.GONE : View.VISIBLE);
+    }
+
+    private void startQuiz(List<QuizQuestion> loadedQuestions, String subject) {
+        if (loadedQuestions == null || loadedQuestions.isEmpty()) {
+            // Last resort: show close button, nothing to quiz
+            finish();
+            return;
+        }
+        questions = loadedQuestions;
+        userAnswers = new int[questions.size()];
+        java.util.Arrays.fill(userAnswers, -1);
+
+        showLoading(false);
+        showQuestion(0);
+        startTimer();
+        setupCta();
     }
 
     private void showQuestion(int idx) {
@@ -127,7 +163,6 @@ public class QuizActivity extends AppCompatActivity {
 
     private void startTimer() {
         if (timer != null) timer.cancel();
-        // Reset to normal state
         setTimerNormal();
         TextView tvTimer = findViewById(R.id.text_timer);
         timer = new CountDownTimer(24_000, 1_000) {
@@ -206,7 +241,6 @@ public class QuizActivity extends AppCompatActivity {
                 circle.setTextColor(Color.WHITE);
                 circle.setText("✗");
             } else {
-                // Dim non-involved options (design: opacity .48)
                 card.setAlpha(0.48f);
             }
         }
@@ -255,6 +289,7 @@ public class QuizActivity extends AppCompatActivity {
         i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
         i.putExtra(QuizResultActivity.EXTRA_SUBJECTS_CSV, subjects.toString());
         i.putExtra(QuizResultActivity.EXTRA_CORRECT_CSV, corrects.toString());
+        Session.addXp(this, 500, System.currentTimeMillis());
         startActivity(i);
         finish();
     }
