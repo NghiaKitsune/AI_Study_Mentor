@@ -1,33 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Assistant message — mascot + surface bubble (left-aligned) -->
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="start|bottom"
-    android:orientation="horizontal"
     android:paddingVertical="@dimen/space_2">
 
     <ImageView
+        android:id="@+id/img_assistant_avatar"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:layout_marginEnd="@dimen/space_2"
         android:background="@drawable/bg_avatar_circle"
         android:padding="2dp"
         android:src="@drawable/ic_mascot_milo"
-        android:contentDescription="@string/cd_mascot" />
+        android:contentDescription="@string/cd_mascot"
+        app:layout_constraintBottom_toBottomOf="@id/text_bubble"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/text_bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_2"
         android:layout_marginEnd="40dp"
         android:background="@drawable/bg_bubble_assistant"
         android:paddingHorizontal="@dimen/space_4"
         android:paddingVertical="@dimen/space_3"
         android:textColor="@color/text_primary"
         android:textSize="@dimen/text_body"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img_assistant_avatar"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="Mình giúp bạn nhé! Trước tiên, hãy nhớ rằng √(a·b) = √a · √b. Áp dụng vào √12, ta có: √12 = √(4·3) = 2√3." />
-</LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_view_details"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_height_md"
+        android:layout_marginTop="@dimen/space_1"
+        android:text="@string/chat_view_details"
+        android:textAllCaps="false"
+        android:textColor="@color/brand_primary_darker"
+        android:textSize="@dimen/text_caption"
+        android:visibility="gone"
+        app:backgroundTint="@color/brand_primary_tint"
+        app:cornerRadius="@dimen/radius_pill"
+        app:icon="@drawable/ic_arrow_right"
+        app:iconGravity="textEnd"
+        app:iconPadding="@dimen/space_1"
+        app:iconSize="16dp"
+        app:iconTint="@color/brand_primary_darker"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/text_bubble"
+        app:layout_constraintTop_toBottomOf="@id/text_bubble"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>

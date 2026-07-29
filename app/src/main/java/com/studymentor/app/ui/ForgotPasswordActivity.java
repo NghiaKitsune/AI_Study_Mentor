@@ -1,5 +1,7 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityForgotPasswordBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -14,10 +16,10 @@ import com.studymentor.app.R;
 
 /**
  * UC1 — Forgot password.
- * Single Activity, two stacked sub-views (form / success). Mock backend.
- * Replace `mockSendResetLink()` with a real API call when wiring a backend.
+ * Password reset requires a trusted backend and is never simulated locally.
  */
 public class ForgotPasswordActivity extends AppCompatActivity {
+    private ActivityForgotPasswordBinding binding;
 
     private View viewForm, viewSuccess;
     private TextInputLayout   tilEmail;
@@ -27,17 +29,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_password);
+        binding = ActivityForgotPasswordBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        viewForm        = findViewById(R.id.view_form);
-        viewSuccess     = findViewById(R.id.view_success);
-        tilEmail        = findViewById(R.id.til_email);
-        inputEmail      = findViewById(R.id.input_email);
-        textSuccessBody = findViewById(R.id.text_success_body);
+        viewForm        = binding.viewForm;
+        viewSuccess     = binding.viewSuccess;
+        tilEmail        = binding.tilEmail;
+        inputEmail      = binding.inputEmail;
+        textSuccessBody = binding.textSuccessBody;
 
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-        findViewById(R.id.btn_send).setOnClickListener(v -> attemptSend());
-        findViewById(R.id.btn_back_to_login).setOnClickListener(v -> {
+        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnSend.setOnClickListener(v -> attemptSend());
+        binding.btnBackToLogin.setOnClickListener(v -> {
             Intent i = new Intent(this, LoginActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(i);
@@ -53,18 +56,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }
         tilEmail.setError(null);
 
-        mockSendResetLink(email);
-        showSuccess(email);
-    }
-
-    /** Real implementation would POST to /api/auth/forgot-password. */
-    private void mockSendResetLink(String email) {
-        // no-op for MVP
-    }
-
-    private void showSuccess(String email) {
-        textSuccessBody.setText(getString(R.string.forgot_success_body, email));
-        viewForm.setVisibility(View.GONE);
-        viewSuccess.setVisibility(View.VISIBLE);
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.local_account_limit_title)
+                .setMessage(R.string.forgot_local_limit)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 }

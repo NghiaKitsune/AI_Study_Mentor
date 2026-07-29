@@ -89,7 +89,7 @@
                             android:id="@+id/text_confidence"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="94% MATCH"
+                            android:text="@string/scan_preview_value_94_match"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -236,7 +236,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Milo recognized 94% — fix any wrong characters before sending."
+                            android:text="@string/scan_preview_milo_recognized_94_fix_any_wrong_characters"
                             android:textColor="@color/brand_primary_darker"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -296,7 +296,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
-                            android:text="Step-by-step"
+                            android:text="@string/scan_preview_step_by_step"
                             app:chipIcon="@drawable/ic_target"
                             app:chipIconTint="@color/text_primary" />
 
@@ -305,7 +305,7 @@
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Vietnamese"
+                            android:text="@string/scan_preview_vietnamese"
                             app:chipIcon="@drawable/ic_book"
                             app:chipIconTint="@color/text_primary" />
                     </com.google.android.material.chip.ChipGroup>

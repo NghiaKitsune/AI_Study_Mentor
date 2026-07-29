@@ -3,22 +3,27 @@ package com.studymentor.app.data;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-/**
- * One turn in a chat conversation. {@code role} is either
- * {@link #ROLE_USER} or {@link #ROLE_ASSISTANT}.
- */
-@Entity(tableName = "messages")
+@Entity(
+        tableName = "messages",
+        foreignKeys = @ForeignKey(
+                entity = Question.class,
+                parentColumns = "id",
+                childColumns = "question_id",
+                onDelete = ForeignKey.CASCADE
+        ),
+        indices = {@Index("question_id"), @Index("sent_at")}
+)
 public class Message {
-
     public static final String ROLE_USER = "user";
     public static final String ROLE_ASSISTANT = "assistant";
 
     @PrimaryKey(autoGenerate = true)
     public long id;
 
-    /** Foreign key onto {@link Question#id}. */
     @ColumnInfo(name = "question_id")
     public long questionId;
 
@@ -31,25 +36,21 @@ public class Message {
     public String text = "";
 
     @ColumnInfo(name = "sent_at")
-    public long sentAt;
-
-    public Message() {
-        this.sentAt = System.currentTimeMillis();
-    }
+    public long sentAt = System.currentTimeMillis();
 
     public static Message user(long questionId, String text) {
-        Message m = new Message();
-        m.role = ROLE_USER;
-        m.text = text;
-        m.questionId = questionId;
-        return m;
+        Message message = new Message();
+        message.questionId = questionId;
+        message.role = ROLE_USER;
+        message.text = text == null ? "" : text;
+        return message;
     }
 
     public static Message assistant(long questionId, String text) {
-        Message m = new Message();
-        m.role = ROLE_ASSISTANT;
-        m.text = text;
-        m.questionId = questionId;
-        return m;
+        Message message = new Message();
+        message.questionId = questionId;
+        message.role = ROLE_ASSISTANT;
+        message.text = text == null ? "" : text;
+        return message;
     }
 }

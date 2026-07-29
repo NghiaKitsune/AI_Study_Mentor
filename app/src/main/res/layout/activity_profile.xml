@@ -53,7 +53,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="@dimen/space_2"
-                        android:text="Profile"
+                        android:text="@string/nav_profile"
                         android:textColor="#FFFFFF"
                         android:textSize="@dimen/text_h3"
                         android:textStyle="bold" />

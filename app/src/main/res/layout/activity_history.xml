@@ -166,7 +166,7 @@
                                 android:letterSpacing="0.06"
                                 android:textColor="@color/brand_primary_darker"
                                 android:textStyle="bold"
-                                android:text="MILO NOTICED" />
+                                android:text="@string/history_milo_noticed" />
 
                             <TextView
                                 android:id="@+id/text_milo_noticed"
@@ -174,7 +174,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/space_1"
-                                android:text="You\'ve been asking lots of questions. Want a quick review quiz?" />
+                                android:text="@string/history_you_ve_been_asking_lots_of_questions" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_milo_review"
@@ -182,7 +182,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="@dimen/button_height_sm"
                                 android:layout_marginTop="@dimen/space_3"
-                                android:text="Start review"
+                                android:text="@string/history_start_review"
                                 android:textSize="@dimen/text_caption" />
                         </LinearLayout>
                     </LinearLayout>
@@ -190,7 +190,9 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <include layout="@layout/view_empty_state" />
+        <include
+            android:id="@+id/empty_state_include"
+            layout="@layout/view_empty_state" />
     </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

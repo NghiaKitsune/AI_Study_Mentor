@@ -1,5 +1,7 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityCameraBinding;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -53,6 +55,7 @@ import java.util.concurrent.Executor;
  *     permission required on Android 13+ when using the Photo Picker.
  */
 public class CameraActivity extends AppCompatActivity {
+    private ActivityCameraBinding binding;
 
     /** Optional extra — passes through to ChatActivity so we can return to the right place. */
     public static final String EXTRA_SOURCE = "extra_source"; // "home" | "chat"
@@ -86,22 +89,23 @@ public class CameraActivity extends AppCompatActivity {
         // Keep screen on while scanning — students often spend a few seconds aiming
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        setContentView(R.layout.activity_camera);
+        binding = ActivityCameraBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        preview = findViewById(R.id.camera_preview);
-        permEmpty = findViewById(R.id.perm_empty);
-        processingOverlay = findViewById(R.id.processing_overlay);
-        btnFlash = findViewById(R.id.btn_flash);
+        preview = binding.cameraPreview;
+        permEmpty = binding.permEmpty;
+        processingOverlay = binding.processingOverlay;
+        btnFlash = binding.btnFlash;
 
-        findViewById(R.id.btn_close).setOnClickListener(v -> finish());
-        findViewById(R.id.btn_shutter).setOnClickListener(v -> takePhoto());
-        findViewById(R.id.btn_gallery).setOnClickListener(v -> openGallery());
-        findViewById(R.id.btn_flip).setOnClickListener(v -> flipCamera());
+        binding.btnClose.setOnClickListener(v -> finish());
+        binding.btnShutter.setOnClickListener(v -> takePhoto());
+        binding.btnGallery.setOnClickListener(v -> openGallery());
+        binding.btnFlip.setOnClickListener(v -> flipCamera());
         btnFlash.setOnClickListener(v -> cycleFlash());
 
-        findViewById(R.id.btn_grant_perm).setOnClickListener(v ->
+        binding.btnGrantPerm.setOnClickListener(v ->
                 cameraPermLauncher.launch(Manifest.permission.CAMERA));
-        findViewById(R.id.btn_open_settings).setOnClickListener(v -> openAppSettings());
+        binding.btnOpenSettings.setOnClickListener(v -> openAppSettings());
 
         if (hasCameraPermission()) {
             showPermEmpty(false);
@@ -199,7 +203,9 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private File newCacheFile() {
-        File dir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
+        File base = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
+        File dir = new File(base, "scans");
+        if (!dir.exists()) dir.mkdirs();
         String name = "scan_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
                 .format(new Date()) + ".jpg";
         return new File(dir, name);

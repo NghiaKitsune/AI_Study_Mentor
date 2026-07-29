@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.studymentor.app.R;
 import com.studymentor.app.data.Message;
 
@@ -22,8 +23,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
     private static final int TYPE_ASSISTANT = 2;
 
     private final List<Message> items;
+    private final OnViewDetailsClickListener detailsClickListener;
 
-    public MessageAdapter(List<Message> items) { this.items = items; }
+    public MessageAdapter(List<Message> items) { this(items, null); }
+
+    public MessageAdapter(List<Message> items,
+                          OnViewDetailsClickListener detailsClickListener) {
+        this.items = items;
+        this.detailsClickListener = detailsClickListener;
+    }
+
+    public void setItems(List<Message> messages) {
+        items.clear();
+        if (messages != null) items.addAll(messages);
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -39,16 +53,32 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.VH> {
 
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
-        h.bubble.setText(items.get(position).text);
+        Message message = items.get(position);
+        h.bubble.setText(message.text);
+        if (h.viewDetails != null) {
+            boolean canOpenDetails = Message.ROLE_ASSISTANT.equals(message.role)
+                    && message.questionId > 0
+                    && detailsClickListener != null;
+            h.viewDetails.setVisibility(canOpenDetails ? View.VISIBLE : View.GONE);
+            h.viewDetails.setOnClickListener(canOpenDetails
+                    ? v -> detailsClickListener.onViewDetails(message.questionId)
+                    : null);
+        }
     }
 
     @Override public int getItemCount() { return items.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
         final TextView bubble;
+        final MaterialButton viewDetails;
         VH(View v) {
             super(v);
             bubble = v.findViewById(R.id.text_bubble);
+            viewDetails = v.findViewById(R.id.btn_view_details);
         }
+    }
+
+    public interface OnViewDetailsClickListener {
+        void onViewDetails(long questionId);
     }
 }

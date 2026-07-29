@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Quiz complete" />
+            android:text="@string/quiz_result_quiz_complete" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_share"
@@ -149,7 +149,7 @@
                             android:textColor="@color/color_ok" tools:text="4" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:textSize="@dimen/text_micro" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:text="Correct" />
+                            android:layout_marginTop="3dp" android:text="@string/quiz_result_correct_label" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -168,7 +168,7 @@
                             android:textColor="@color/error" tools:text="1" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:textSize="@dimen/text_micro" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:text="Incorrect" />
+                            android:layout_marginTop="3dp" android:text="@string/quiz_result_incorrect_label" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -187,7 +187,7 @@
                             android:textColor="@color/text_primary" tools:text="80%" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:textSize="@dimen/text_micro" android:textColor="@color/text_tertiary"
-                            android:layout_marginTop="3dp" android:text="Accuracy" />
+                            android:layout_marginTop="3dp" android:text="@string/quiz_result_accuracy_label" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -218,7 +218,7 @@
                         android:textStyle="bold"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true"
-                        android:text="By subject" />
+                        android:text="@string/quiz_result_by_subject" />
 
                     <LinearLayout
                         android:id="@+id/container_breakdown"
@@ -248,7 +248,7 @@
             android:layout_height="@dimen/button_height_md"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/space_2"
-            android:text="Try again" />
+            android:text="@string/action_try_again" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_home"
@@ -257,7 +257,7 @@
             android:layout_height="@dimen/button_height_md"
             android:layout_weight="1"
             android:layout_marginStart="@dimen/space_2"
-            android:text="Back to home" />
+            android:text="@string/quiz_back_to_home" />
     </LinearLayout>
 
 </LinearLayout>

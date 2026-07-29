@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_2"
-                    android:text="7 days"
+                    android:text="@string/home_value_7_days"
                     android:textColor="@color/brand_accent"
                     android:textSize="@dimen/text_caption"
                     app:chipBackgroundColor="@color/brand_accent_soft"
@@ -178,9 +178,9 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="#FFFFFF"
-                                    android:textSize="@dimen/text_ring_value"
+                                    android:textSize="22sp"
                                     android:textStyle="bold"
-                                    android:text="0" />
+                                    android:text="@string/home_value_0" />
 
                                 <TextView
                                     android:id="@+id/text_ring_denom"
@@ -188,7 +188,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="1dp"
                                     android:textColor="#A6FFFFFF"
-                                    android:textSize="@dimen/text_label"
+                                    android:textSize="9sp"
                                     android:text="@string/ring_challenge_total" />
                             </LinearLayout>
 
@@ -197,7 +197,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="#8CFFFFFF"
-                                android:textSize="@dimen/text_micro"
+                                android:textSize="9sp"
                                 android:text="@string/ring_challenge_period" />
                         </LinearLayout>
                     </FrameLayout>

@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_h1"
-                android:text="Notifications" />
+                android:text="@string/section_notifications" />
 
             <TextView
                 android:id="@+id/text_unread_count"
@@ -80,19 +80,19 @@
 
             <com.google.android.material.chip.Chip style="@style/Chip.Filter"
                 android:id="@+id/chip_all" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="All" android:checked="true" />
+                android:layout_height="wrap_content" android:text="@string/filter_all" android:checked="true" />
 
             <com.google.android.material.chip.Chip style="@style/Chip.Filter"
                 android:id="@+id/chip_reminders" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Reminders" />
+                android:layout_height="wrap_content" android:text="@string/notifications_reminders" />
 
             <com.google.android.material.chip.Chip style="@style/Chip.Filter"
                 android:id="@+id/chip_wins" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Wins" />
+                android:layout_height="wrap_content" android:text="@string/notifications_wins" />
 
             <com.google.android.material.chip.Chip style="@style/Chip.Filter"
                 android:id="@+id/chip_review" android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Review" />
+                android:layout_height="wrap_content" android:text="@string/action_review" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
