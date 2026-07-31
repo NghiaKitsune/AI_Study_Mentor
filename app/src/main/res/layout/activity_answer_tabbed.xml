@@ -68,7 +68,7 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"
-                        android:text="SOLVED" />
+                        android:text="@string/answer_tabbed_solved" />
                 </LinearLayout>
             </FrameLayout>
 
@@ -105,7 +105,7 @@
                 android:textColor="@color/brand_primary"
                 android:letterSpacing="0.1"
                 android:layout_marginBottom="@dimen/space_2"
-                android:text="QUESTION" />
+                android:text="@string/answer_question" />
 
             <TextView
                 android:id="@+id/text_question"
@@ -139,7 +139,7 @@
                     android:textColor="#80FFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:text="Physics · Optics" />
+                    android:text="@string/answer_tabbed_physics_optics" />
 
                 <View
                     android:layout_width="3dp"
@@ -152,7 +152,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#80FFFFFF"
                     android:textSize="12sp"
-                    android:text="Asked 2 min ago" />
+                    android:text="@string/answer_tabbed_asked_2_min_ago" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -181,7 +181,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:text="Solution" />
+                android:text="@string/answer_tabbed_solution" />
 
             <View
                 android:id="@+id/ind_solution"
@@ -208,7 +208,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_tertiary"
-                android:text="Concept" />
+                android:text="@string/answer_tabbed_concept" />
 
             <View
                 android:id="@+id/ind_concept"
@@ -235,7 +235,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_tertiary"
-                android:text="Practice" />
+                android:text="@string/nav_practice" />
 
             <View
                 android:id="@+id/ind_practice"
@@ -262,7 +262,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_tertiary"
-                android:text="Pitfalls" />
+                android:text="@string/answer_tabbed_pitfalls" />
 
             <View
                 android:id="@+id/ind_pitfalls"
@@ -332,7 +332,7 @@
             android:layout_weight="1"
             android:textColor="@color/text_tertiary"
             android:textSize="14sp"
-            android:text="Ask a follow-up..." />
+            android:text="@string/answer_tabbed_ask_a_follow_up" />
 
         <!-- Send button: 38dp brand circle -->
         <FrameLayout

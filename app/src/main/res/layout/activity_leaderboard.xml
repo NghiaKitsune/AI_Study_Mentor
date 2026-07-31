@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="@dimen/space_2"
-            android:text="Leaderboard" />
+            android:text="@string/btn_leaderboard" />
 
         <!-- Timer countdown pill -->
         <LinearLayout
@@ -49,7 +49,7 @@
                 android:contentDescription="@null" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginStart="4dp" android:textColor="@color/text_secondary"
-                android:textSize="11sp" android:textStyle="bold" android:text="4d 12h" />
+                android:textSize="11sp" android:textStyle="bold" android:text="@string/leaderboard_value_4d_12h" />
         </LinearLayout>
     </LinearLayout>
 
@@ -74,7 +74,7 @@
             android:textStyle="bold"
             android:textColor="@color/text_primary"
             android:background="@drawable/bg_tab_active"
-            android:text="Global" />
+            android:text="@string/leaderboard_global" />
 
         <TextView
             android:id="@+id/tab_friends"
@@ -86,7 +86,7 @@
             android:textStyle="bold"
             android:textColor="@color/text_tertiary"
             android:background="@android:color/transparent"
-            android:text="Friends" />
+            android:text="@string/leaderboard_friends" />
 
         <TextView
             android:id="@+id/tab_week"
@@ -98,7 +98,7 @@
             android:textStyle="bold"
             android:textColor="@color/text_tertiary"
             android:background="@android:color/transparent"
-            android:text="This week" />
+            android:text="@string/leaderboard_this_week" />
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -164,7 +164,7 @@
                                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_gravity="top|center_horizontal" android:paddingTop="8dp"
                                     android:textSize="24sp" android:textStyle="bold"
-                                    android:textColor="@color/text_primary" android:text="2" />
+                                    android:textColor="@color/text_primary" android:text="@string/leaderboard_value_2" />
                             </FrameLayout>
                         </LinearLayout>
 
@@ -198,7 +198,7 @@
                                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_gravity="top|center_horizontal" android:paddingTop="8dp"
                                     android:textSize="24sp" android:textStyle="bold"
-                                    android:textColor="@color/text_primary" android:text="1" />
+                                    android:textColor="@color/text_primary" android:text="@string/leaderboard_value_1" />
                             </FrameLayout>
                         </LinearLayout>
 
@@ -229,7 +229,7 @@
                                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_gravity="top|center_horizontal" android:paddingTop="8dp"
                                     android:textSize="24sp" android:textStyle="bold"
-                                    android:textColor="@color/text_primary" android:text="3" />
+                                    android:textColor="@color/text_primary" android:text="@string/leaderboard_value_3" />
                             </FrameLayout>
                         </LinearLayout>
                     </LinearLayout>

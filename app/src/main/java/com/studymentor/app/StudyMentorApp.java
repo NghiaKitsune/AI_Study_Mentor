@@ -2,6 +2,8 @@ package com.studymentor.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -9,6 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.room.Room;
 
 import com.studymentor.app.data.AppDatabase;
+import com.studymentor.app.data.DatabaseMigrations;
 import com.studymentor.app.util.Session;
 
 import java.util.concurrent.Callable;
@@ -29,16 +32,18 @@ public class StudyMentorApp extends Application {
 
     private AppDatabase db;
     private ExecutorService executor;
+    private Handler mainHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newFixedThreadPool(4);
+        mainHandler = new Handler(Looper.getMainLooper());
         // Re-apply saved theme before any Activity is created
         AppCompatDelegate.setDefaultNightMode(Session.themeMode(this));
         db = Room.databaseBuilder(this, AppDatabase.class, "studymentor.db")
-                .fallbackToDestructiveMigration()
+                .addMigrations(DatabaseMigrations.MIGRATION_1_2)
                 .build();
         // Enable StrictMode AFTER one-time init (SharedPrefs first-access triggers disk check)
         if (com.studymentor.app.BuildConfig.DEBUG) {
@@ -57,9 +62,13 @@ public class StudyMentorApp extends Application {
         return db;
     }
 
-    /** Single-threaded executor for background DB write operations. */
+    /** Shared bounded executor for repositories, Room and local crypto work. */
     public ExecutorService executor() {
         return executor;
+    }
+
+    public void postToMain(Runnable action) {
+        mainHandler.post(action);
     }
 
     /**

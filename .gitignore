@@ -57,6 +57,8 @@ lint/tmp/
 Thumbs.db
 
 # Claude Code — local/runtime artifacts (not for version control)
+.claude/
+.codex/
 .claude/screenshots/
 .claude/status/
 .claude/backups/

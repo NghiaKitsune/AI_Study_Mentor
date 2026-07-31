@@ -1,209 +1,175 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityAnswerBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import java.util.List;
 import com.studymentor.app.R;
-import com.studymentor.app.StudyMentorApp;
 import com.studymentor.app.api.ChatResponse;
+import com.studymentor.app.data.AnswerDetail;
 import com.studymentor.app.data.Question;
+import com.studymentor.app.repository.HistoryRepository;
 import com.studymentor.app.ui.adapter.StepAdapter;
+import com.studymentor.app.util.Session;
+import com.studymentor.app.viewmodel.AnswerViewModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * UC4 — Answer detail.
- *   Reads a Question from Room. Renders prompt + final answer + step-by-step list.
- *   Steps come from EXTRA_STEPS_JSON (passed by Chat) — falls back to a friendly hint when missing.
- *   Bookmark toggles persist to Room. Share emits a standard ACTION_SEND intent.
- */
 public class AnswerActivity extends AppCompatActivity {
-
-    public static final String EXTRA_QUESTION_ID  = "extra_question_id";
-    public static final String EXTRA_STEPS_JSON   = "extra_steps_json";
+    private ActivityAnswerBinding binding;
+    public static final String EXTRA_QUESTION_ID = "extra_question_id";
+    public static final String EXTRA_STEPS_JSON = "extra_steps_json";
     public static final String EXTRA_MISTAKES_JSON = "extra_mistakes_json";
 
+    private final Gson gson = new Gson();
+    private AnswerViewModel viewModel;
     private Question question;
-    private MaterialButton btnBookmark;
+    private MaterialButton bookmark;
+    private long reviewStartedAt;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_answer);
+        if (!Session.isLoggedIn(this)) { finish(); return; }
+        binding = ActivityAnswerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        binding.btnBack.setOnClickListener(v -> finish());
+        bookmark = binding.btnBookmark;
+        bookmark.setOnClickListener(v -> viewModel.toggleBookmark());
+        binding.btnShare.setOnClickListener(v -> share());
+        viewModel = new ViewModelProvider(this).get(AnswerViewModel.class);
+        viewModel.detail().observe(this, this::bind);
+        viewModel.error().observe(this, message ->
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+        long id = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        if (id <= 0) {
+            Toast.makeText(this, R.string.answer_question_missing, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        viewModel.load(Session.userId(this), id);
+    }
 
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+    @Override protected void onStart() {
+        super.onStart();
+        reviewStartedAt = System.currentTimeMillis();
+    }
 
-        // Wire up non-DB bindings immediately
-        bindSteps();
-        bindMistakes();
-        bindFollowUps();
+    @Override protected void onStop() {
+        if (reviewStartedAt > 0 && viewModel != null) {
+            long seconds = Math.max(0,
+                    (System.currentTimeMillis() - reviewStartedAt) / 1000L);
+            viewModel.recordReviewDuration(seconds);
+            reviewStartedAt = 0;
+        }
+        super.onStop();
+    }
+
+    private void bind(HistoryRepository.QuestionDetail value) {
+        question = value.question;
+        ((TextView) binding.textQuestion).setText(question.prompt);
+        ((TextView) binding.textFinalAnswer).setText(
+                question.answer == null || question.answer.trim().isEmpty()
+                        ? getString(R.string.answer_not_saved) : question.answer);
         bindBookmark();
-        bindShare();
-        bindDeepDive();
-
-        long qid = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
-        if (qid > 0) {
-            StudyMentorApp.query(this,
-                    () -> StudyMentorApp.get().db().questionDao().byId(qid),
-                    q -> {
-                        question = q;
-                        ((TextView) findViewById(R.id.text_question))
-                                .setText(q != null ? q.prompt : "—");
-                        ((TextView) findViewById(R.id.text_final_answer))
-                                .setText(q != null && q.answer != null
-                                        ? extractFinalAnswer(q.answer)
-                                        : getString(R.string.open_in_chat_hint));
-                        refreshBookmarkIcon();
-                    });
-        }
+        bindDetail(value.detail);
     }
 
-    /** Picks the last sentence-like fragment as the "final answer" tag. */
-    private String extractFinalAnswer(String full) {
-        if (full == null) return "—";
-        // Look for "= X" pattern
-        int eq = full.lastIndexOf('=');
-        if (eq != -1 && eq < full.length() - 1) {
-            String tail = full.substring(eq).trim();
-            if (tail.length() < 40) return tail;
-        }
-        return full.length() > 80 ? full.substring(0, 80) + "…" : full;
+    private void bindDetail(AnswerDetail detail) {
+        List<ChatResponse.Step> steps = parseSteps(detail == null ? null : detail.stepsJson);
+        RecyclerView recycler = binding.rvSteps;
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setNestedScrollingEnabled(false);
+        recycler.setAdapter(new StepAdapter(steps));
+        recycler.setVisibility(steps.isEmpty() ? View.GONE : View.VISIBLE);
+        binding.textStepsHeading.setVisibility(
+                steps.isEmpty() ? View.GONE : View.VISIBLE);
+
+        List<String> mistakes = parseStrings(
+                detail == null ? null : detail.commonMistakesJson);
+        binding.layoutMistakes.setVisibility(
+                mistakes.isEmpty() ? View.GONE : View.VISIBLE);
+        binding.textMistakesHeading.setVisibility(
+                mistakes.isEmpty() ? View.GONE : View.VISIBLE);
+        if (!mistakes.isEmpty())
+            ((TextView) binding.textMistake1).setText(mistakes.get(0));
+        TextView second = binding.textMistake2;
+        second.setVisibility(mistakes.size() > 1 ? View.VISIBLE : View.GONE);
+        if (mistakes.size() > 1) second.setText(mistakes.get(1));
+
+        List<String> followUps = parseStrings(detail == null ? null : detail.followUpsJson);
+        bindFollowUp(binding.chipFollowSimpler, followUps, 0);
+        bindFollowUp(binding.chipFollowAnother, followUps, 1);
+        Chip practice = binding.chipFollowPractice;
+        if (followUps.size() > 2) practice.setText(followUps.get(2));
+        practice.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QuizActivity.class);
+            intent.putExtra(QuizActivity.EXTRA_SUBJECT, question.subject);
+            startActivity(intent);
+        });
     }
 
-    private void bindSteps() {
-        RecyclerView rv = findViewById(R.id.rv_steps);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setNestedScrollingEnabled(false);
-
-        String json = getIntent().getStringExtra(EXTRA_STEPS_JSON);
-        List<ChatResponse.Step> steps = parseSteps(json);
-        rv.setAdapter(new StepAdapter(steps));
+    private void bindFollowUp(Chip chip, List<String> followUps, int index) {
+        if (index >= followUps.size()) {
+            chip.setVisibility(View.GONE);
+            return;
+        }
+        String prompt = followUps.get(index);
+        chip.setVisibility(View.VISIBLE);
+        chip.setText(prompt);
+        chip.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra(ChatActivity.EXTRA_PROMPT, prompt);
+            startActivity(intent);
+        });
     }
 
     private List<ChatResponse.Step> parseSteps(String json) {
-        if (json == null || json.isEmpty()) return fallbackSteps();
+        if (json == null || json.trim().isEmpty()) return new ArrayList<>();
         try {
-            Type listType = new TypeToken<List<ChatResponse.Step>>(){}.getType();
-            List<ChatResponse.Step> parsed = new Gson().fromJson(json, listType);
-            return parsed != null && !parsed.isEmpty() ? parsed : fallbackSteps();
-        } catch (Exception e) {
-            return fallbackSteps();
-        }
+            Type type = new TypeToken<List<ChatResponse.Step>>() {}.getType();
+            List<ChatResponse.Step> parsed = gson.fromJson(json, type);
+            return parsed == null ? new ArrayList<>() : parsed;
+        } catch (Exception ignored) { return new ArrayList<>(); }
     }
 
-    /** Friendly placeholder shown when there are no real steps yet. */
-    private List<ChatResponse.Step> fallbackSteps() {
-        ChatResponse.Step s = new ChatResponse.Step();
-        s.index = 1;
-        s.title = "Full answer";
-        s.body  = question != null && question.answer != null
-                ? question.answer
-                : getString(R.string.open_in_chat_hint);
-        List<ChatResponse.Step> list = new ArrayList<>();
-        list.add(s);
-        return list;
-    }
-
-    private void bindFollowUps() {
-        String prompt  = question != null ? question.prompt  : "";
-        String subject = question != null ? question.subject : "general";
-
-        findViewById(R.id.chip_follow_simpler).setOnClickListener(v ->
-                openChat("Explain this more simply: " + prompt));
-
-        findViewById(R.id.chip_follow_another).setOnClickListener(v ->
-                openChat("Show me another method to solve: " + prompt));
-
-        findViewById(R.id.chip_follow_practice).setOnClickListener(v -> {
-            Intent i = new Intent(this, QuizActivity.class);
-            if (subject != null && !subject.equals("general"))
-                i.putExtra(QuizActivity.EXTRA_SUBJECT, subject);
-            startActivity(i);
-        });
-    }
-
-    private void openChat(String prefill) {
-        Intent i = new Intent(this, ChatActivity.class);
-        i.putExtra(ChatActivity.EXTRA_PROMPT, prefill);
-        startActivity(i);
-    }
-
-    private void bindMistakes() {
-        String json = getIntent().getStringExtra(EXTRA_MISTAKES_JSON);
-        if (json == null || json.isEmpty()) return;
+    private List<String> parseStrings(String json) {
+        if (json == null || json.trim().isEmpty()) return new ArrayList<>();
         try {
-            Type listType = new TypeToken<List<String>>() {}.getType();
-            List<String> mistakes = new Gson().fromJson(json, listType);
-            if (mistakes == null || mistakes.isEmpty()) return;
-            if (mistakes.size() >= 1) {
-                TextView tv = findViewById(R.id.text_mistake_1);
-                if (tv != null) tv.setText(mistakes.get(0));
-            }
-            if (mistakes.size() >= 2) {
-                TextView tv = findViewById(R.id.text_mistake_2);
-                if (tv != null) tv.setText(mistakes.get(1));
-            }
-        } catch (Exception ignored) {}
+            Type type = new TypeToken<List<String>>() {}.getType();
+            List<String> values = gson.fromJson(json, type);
+            return values == null ? new ArrayList<>() : values;
+        } catch (Exception ignored) { return new ArrayList<>(); }
     }
 
     private void bindBookmark() {
-        btnBookmark = findViewById(R.id.btn_bookmark);
-        refreshBookmarkIcon();
-        btnBookmark.setOnClickListener(v -> {
-            if (question == null) return;
-            question.bookmarked = !question.bookmarked;
-            StudyMentorApp.get().executor().execute(() ->
-                    StudyMentorApp.get().db().questionDao().update(question));
-            refreshBookmarkIcon();
-        });
+        boolean enabled = question != null && question.bookmarked;
+        bookmark.setIconResource(enabled
+                ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
+        bookmark.setIconTintResource(enabled
+                ? R.color.brand_primary : R.color.text_primary);
     }
 
-    private void refreshBookmarkIcon() {
-        boolean on = question != null && question.bookmarked;
-        btnBookmark.setIconResource(on ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
-        btnBookmark.setIconTintResource(on ? R.color.brand_primary : R.color.text_primary);
-    }
-
-    private void bindDeepDive() {
-        View btn = findViewById(R.id.btn_deep_dive);
-        if (btn == null) return;
-        btn.setOnClickListener(v -> {
-            Intent i = new Intent(this, AnswerTabbedActivity.class);
-            if (question != null) {
-                i.putExtra(AnswerTabbedActivity.EXTRA_QUESTION_ID, question.id);
-            }
-            String stepsJson = getIntent().getStringExtra(EXTRA_STEPS_JSON);
-            if (stepsJson != null) {
-                i.putExtra(AnswerTabbedActivity.EXTRA_STEPS_JSON, stepsJson);
-            }
-            startActivity(i);
-        });
-    }
-
-    private void bindShare() {
-        findViewById(R.id.btn_share).setOnClickListener(v -> {
-            if (question == null) return;
-            String body = "Q: " + question.prompt + "\n\nA: " +
-                    (question.answer != null ? question.answer : "—") +
-                    "\n\n— shared from AI Study Mentor";
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("text/plain");
-            share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
-            share.putExtra(Intent.EXTRA_TEXT, body);
-            startActivity(Intent.createChooser(share, getString(R.string.action_share)));
-        });
+    private void share() {
+        if (question == null) return;
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.answer_share_body,
+                question.prompt, question.answer == null ? "" : question.answer));
+        startActivity(Intent.createChooser(intent, getString(R.string.action_share)));
     }
 }

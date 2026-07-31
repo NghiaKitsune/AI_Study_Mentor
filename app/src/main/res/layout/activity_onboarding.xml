@@ -24,7 +24,7 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Skip"
+            android:text="@string/action_skip"
             android:textColor="@color/text_tertiary"
             android:textStyle="bold" />
     </LinearLayout>
@@ -69,7 +69,7 @@
             android:letterSpacing="0.12"
             android:textColor="@color/brand_primary_deep"
             android:textStyle="bold"
-            android:text="WELCOME" />
+            android:text="@string/onboard_tag_0" />
 
         <!-- Title -->
         <TextView
@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_3"
-            android:text="Meet Milo, your AI mentor" />
+            android:text="@string/onboard_title_0" />
 
         <!-- Body -->
         <TextView
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_2"
             android:textColor="@color/text_secondary"
-            android:text="Ask anything — math, science, code, history. Milo explains step by step at your level." />
+            android:text="@string/onboard_body_0" />
 
         <!-- Dots + Next/Get started -->
         <LinearLayout
@@ -126,7 +126,7 @@
                 style="@style/Button.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/button_height_md"
-                android:text="Next"
+                android:text="@string/onboard_btn_next"
                 app:icon="@drawable/ic_arrow_right"
                 app:iconGravity="end"
                 app:iconTint="@color/text_on_primary" />

@@ -1,5 +1,7 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivitySignUpBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,107 +11,110 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.studymentor.app.R;
-import com.studymentor.app.util.Session;
+import com.studymentor.app.viewmodel.AuthViewModel;
 
-/**
- * UC1 — Sign Up.
- * - Validates email + password length.
- * - 4-bar strength meter updates as user types.
- * - On success, fakes auth (no backend yet) and goes to Personalize.
- */
+import java.util.Arrays;
+
 public class SignUpActivity extends AppCompatActivity {
-
-    private TextInputLayout tilEmail, tilPassword;
-    private TextInputEditText inputEmail, inputPassword;
-    private MaterialCheckBox checkTerms;
-    private MaterialButton btnCreate;
+    private ActivitySignUpBinding binding;
+    private TextInputLayout emailLayout;
+    private TextInputLayout passwordLayout;
+    private TextInputEditText emailInput;
+    private TextInputEditText passwordInput;
+    private MaterialCheckBox terms;
+    private MaterialButton create;
     private View[] strengthBars;
+    private AuthViewModel viewModel;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        emailLayout = binding.tilEmail;
+        passwordLayout = binding.tilPassword;
+        emailInput = binding.inputEmail;
+        passwordInput = binding.inputPassword;
+        terms = binding.checkTerms;
+        create = binding.btnCreate;
+        strengthBars = new View[]{binding.bar1, binding.bar2,
+                binding.bar3, binding.bar4};
+        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        tilEmail      = findViewById(R.id.til_email);
-        tilPassword   = findViewById(R.id.til_password);
-        inputEmail    = findViewById(R.id.input_email);
-        inputPassword = findViewById(R.id.input_password);
-        checkTerms    = findViewById(R.id.check_terms);
-        btnCreate     = findViewById(R.id.btn_create);
-
-        strengthBars = new View[]{
-                findViewById(R.id.bar_1),
-                findViewById(R.id.bar_2),
-                findViewById(R.id.bar_3),
-                findViewById(R.id.bar_4)
-        };
-
-        findViewById(R.id.btn_close).setOnClickListener(v -> finish());
-        findViewById(R.id.btn_log_in).setOnClickListener(v -> {
+        binding.btnClose.setOnClickListener(v -> finish());
+        binding.btnLogIn.setOnClickListener(v -> {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
-
-        inputPassword.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
-            @Override public void afterTextChanged(Editable s) { updateStrength(s.toString()); }
+        binding.btnSsoGoogle.setOnClickListener(v -> localOnlyNotice());
+        binding.btnSsoApple.setOnClickListener(v -> localOnlyNotice());
+        passwordInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable editable) { updateStrength(editable.toString()); }
         });
-
-        btnCreate.setOnClickListener(v -> attemptSignUp());
+        create.setOnClickListener(v -> attemptSignUp());
+        viewModel.state().observe(this, state -> {
+            create.setEnabled(state.status != AuthViewModel.AuthState.Status.LOADING);
+            if (state.status == AuthViewModel.AuthState.Status.ERROR) {
+                Toast.makeText(this, state.message, Toast.LENGTH_LONG).show();
+                passwordInput.setText("");
+                viewModel.clearTransientState();
+            } else if (state.status == AuthViewModel.AuthState.Status.AUTHENTICATED) {
+                Intent next = new Intent(this, PersonalizeActivity.class);
+                next.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(next);
+            }
+        });
     }
 
-    /** Score 0..4 — length, mixed case, digit, symbol. */
-    private void updateStrength(String pw) {
-        int score = 0;
-        if (pw.length() >= 8) score++;
-        if (pw.matches(".*[A-Z].*") && pw.matches(".*[a-z].*")) score++;
-        if (pw.matches(".*\\d.*")) score++;
-        if (pw.matches(".*[^A-Za-z0-9].*")) score++;
+    private void localOnlyNotice() {
+        Toast.makeText(this, R.string.auth_local_only, Toast.LENGTH_LONG).show();
+    }
 
-        int[] tints = {
-                R.color.error,
-                R.color.warning,
-                R.color.brand_primary,
-                R.color.success
-        };
+    private void updateStrength(String password) {
+        int score = passwordScore(password);
+        int[] tints = {R.color.error, R.color.warning, R.color.brand_primary, R.color.success};
         for (int i = 0; i < strengthBars.length; i++) {
-            int color = i < score ? tints[Math.min(score - 1, 3)] : R.color.border;
-            strengthBars[i].setBackgroundResource(color);
+            strengthBars[i].setBackgroundResource(i < score
+                    ? tints[Math.max(0, score - 1)] : R.color.border);
         }
+    }
+
+    static int passwordScore(String password) {
+        int score = 0;
+        if (password.length() >= 8) score++;
+        if (password.matches(".*[A-Z].*") && password.matches(".*[a-z].*")) score++;
+        if (password.matches(".*\\d.*")) score++;
+        if (password.matches(".*[^A-Za-z0-9].*")) score++;
+        return score;
     }
 
     private void attemptSignUp() {
-        String email = String.valueOf(inputEmail.getText()).trim();
-        String pw    = String.valueOf(inputPassword.getText());
-
+        String email = String.valueOf(emailInput.getText()).trim();
+        String rawPassword = String.valueOf(passwordInput.getText());
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError(getString(R.string.error_email_invalid));
+            emailLayout.setError(getString(R.string.error_email_invalid));
             return;
         }
-        tilEmail.setError(null);
-
-        if (pw.length() < 8) {
-            tilPassword.setError(getString(R.string.error_password_short));
+        emailLayout.setError(null);
+        if (rawPassword.length() < 8 || passwordScore(rawPassword) < 2) {
+            passwordLayout.setError(getString(R.string.auth_password_requirements));
             return;
         }
-        tilPassword.setError(null);
-
-        if (!checkTerms.isChecked()) {
+        passwordLayout.setError(null);
+        if (!terms.isChecked()) {
             Toast.makeText(this, R.string.terms_agree, Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // TODO: replace with a real auth call. Mock for the MVP.
-        Session.saveAuth(this, "mock-token-" + System.currentTimeMillis(), email);
-
-        startActivity(new Intent(this, PersonalizeActivity.class));
-        finish();
+        char[] password = rawPassword.toCharArray();
+        viewModel.signUp(email, password);
+        Arrays.fill(password, '\0');
     }
 }

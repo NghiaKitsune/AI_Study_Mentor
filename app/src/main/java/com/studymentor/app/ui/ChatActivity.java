@@ -1,264 +1,179 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityChatBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.gson.Gson;
 import com.studymentor.app.R;
-import com.studymentor.app.api.ApiClient;
-import com.studymentor.app.util.Session;
-import com.studymentor.app.api.ChatRequest;
-import com.studymentor.app.api.ChatResponse;
-import com.studymentor.app.data.Message;
 import com.studymentor.app.data.Question;
+import com.studymentor.app.repository.ChatRepository;
 import com.studymentor.app.ui.adapter.MessageAdapter;
-import com.studymentor.app.StudyMentorApp;
+import com.studymentor.app.util.Session;
+import com.studymentor.app.viewmodel.ChatViewModel;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-/**
- * UC2-3 — Chat (core feature).
- * Holds an in-memory message list, displays them in a multi-viewtype RecyclerView,
- * and POSTs each user turn to the AI service (mock by default).
- *
- * Extras:
- *   EXTRA_PROMPT  — optional prefill in the composer
- *   EXTRA_QUESTION_ID — if continuing an existing conversation (loads its messages)
- */
 public class ChatActivity extends AppCompatActivity {
-
-    public static final String EXTRA_PROMPT      = "extra_prompt";
+    private ActivityChatBinding binding;
+    public static final String EXTRA_PROMPT = "extra_prompt";
     public static final String EXTRA_QUESTION_ID = "extra_question_id";
 
-    private final List<Message> messages = new ArrayList<>();
+    private ChatViewModel viewModel;
     private MessageAdapter adapter;
-    private RecyclerView rv;
+    private RecyclerView recycler;
     private TextInputEditText input;
     private TextView typing;
-    private View layoutSuggestions;
-    private long questionId = -1L;
-    private String lastStepsJson;
-    private String lastMistakesJson;
+    private View suggestions;
+    private FloatingActionButton send;
+    private String lastStatus = "";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (!Session.isLoggedIn(this)) {
+            routeLogin();
+            return;
+        }
+        binding = ActivityChatBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
+        recycler = binding.rvMessages;
+        input = binding.inputMessage;
+        typing = binding.textTyping;
+        suggestions = binding.layoutSuggestions;
+        send = binding.btnSend;
+        adapter = new MessageAdapter(new ArrayList<>(), this::openDetail);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setAdapter(adapter);
 
-        rv                = findViewById(R.id.rv_messages);
-        input             = findViewById(R.id.input_message);
-        typing            = findViewById(R.id.text_typing);
-        layoutSuggestions = findViewById(R.id.layout_suggestions);
+        viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        long questionId = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
+        viewModel.initialize(questionId, Session.userId(this));
 
-        adapter = new MessageAdapter(messages);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(adapter);
+        bindSuggestions();
+        bindPrefill(getIntent());
+        send.setOnClickListener(v -> sendCurrent());
+        binding.btnCamera.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CameraActivity.class);
+            intent.putExtra(CameraActivity.EXTRA_SOURCE, "chat");
+            startActivity(intent);
+        });
+        binding.btnChatMore.setOnClickListener(v -> {
+            if (viewModel.questionId() > 0) openDetail(viewModel.questionId());
+        });
 
-        questionId = getIntent().getLongExtra(EXTRA_QUESTION_ID, -1L);
-        if (questionId > 0) {
-            final long qid = questionId;
-            StudyMentorApp.query(this,
-                    () -> StudyMentorApp.get().db().messageDao().forQuestion(qid),
-                    loaded -> {
-                        messages.addAll(loaded);
-                        adapter.notifyDataSetChanged();
-                        layoutSuggestions.setVisibility(View.GONE);
-                        scrollToBottom();
-                    });
-        } else {
-            // First-time greeting
-            messages.add(Message.assistant(0L, getString(R.string.chat_first_greeting)));
-            adapter.notifyDataSetChanged();
-        }
-
-        String prefill = getIntent().getStringExtra(EXTRA_PROMPT);
-        if (prefill != null && !prefill.isEmpty()) {
-            input.setText(prefill);
-            layoutSuggestions.setVisibility(View.GONE);
-        }
-
-        bindSuggestionChips();
-
-        FloatingActionButton btnSend = findViewById(R.id.btn_send);
-        btnSend.setOnClickListener(v -> sendCurrent());
-
-        // UC2.5 — camera scan from chat composer
-        View btnCamera = findViewById(R.id.btn_camera);
-        if (btnCamera != null) {
-            btnCamera.setOnClickListener(v -> {
-                Intent i = new Intent(this, CameraActivity.class);
-                i.putExtra(CameraActivity.EXTRA_SOURCE, "chat");
-                startActivity(i);
-            });
-        }
-
-        scrollToBottom();
+        viewModel.messages().observe(this, messages -> {
+            adapter.setItems(messages);
+            suggestions.setVisibility(messages == null || messages.isEmpty()
+                    ? View.VISIBLE : View.GONE);
+            scrollBottom();
+        });
+        viewModel.state().observe(this, state -> {
+            boolean processing = Question.STATUS_PROCESSING.equals(state.status);
+            typing.setVisibility(processing ? View.VISIBLE : View.GONE);
+            send.setEnabled(!processing);
+            if (state.message != null && !state.message.trim().isEmpty()
+                    && !state.status.equals(lastStatus)) {
+                Snackbar bar = Snackbar.make(recycler, state.message, Snackbar.LENGTH_LONG);
+                if (Question.STATUS_FAILED.equals(state.status)
+                        || Question.STATUS_PENDING.equals(state.status)) {
+                    bar.setAction(R.string.action_retry, v -> viewModel.retry());
+                }
+                bar.show();
+            }
+            if (Question.STATUS_COMPLETED.equals(state.status)
+                    && !Question.STATUS_COMPLETED.equals(lastStatus)
+                    && state.questionId > 0) {
+                Snackbar.make(recycler,
+                                state.fromCache
+                                        ? R.string.chat_loaded_from_history
+                                        : R.string.chat_saved_offline,
+                                Snackbar.LENGTH_LONG)
+                        .setAction(R.string.answer_details,
+                                v -> openDetail(state.questionId))
+                        .show();
+            }
+            lastStatus = state.status;
+        });
     }
 
-    private void bindSuggestionChips() {
-        int[] chipIds = {
-            R.id.chip_suggest_1, R.id.chip_suggest_2,
-            R.id.chip_suggest_3, R.id.chip_suggest_4
-        };
-        for (int id : chipIds) {
-            com.google.android.material.chip.Chip chip = findViewById(id);
-            if (chip != null) {
-                chip.setOnClickListener(v -> {
-                    String text = chip.getText().toString();
-                    input.setText(text);
-                    sendCurrent();
-                });
-            }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        bindPrefill(intent);
+    }
+
+    private void bindPrefill(Intent intent) {
+        String prefill = intent.getStringExtra(EXTRA_PROMPT);
+        if (prefill != null && !prefill.trim().isEmpty()) {
+            String clean = prefill.trim();
+            input.setText(clean);
+            input.setSelection(clean.length());
+            suggestions.setVisibility(View.GONE);
+        }
+    }
+
+    private void bindSuggestions() {
+        for (com.google.android.material.chip.Chip chip :
+                new com.google.android.material.chip.Chip[]{binding.chipSuggest1,
+                        binding.chipSuggest2, binding.chipSuggest3, binding.chipSuggest4}) {
+            chip.setOnClickListener(v -> {
+                input.setText(chip.getText());
+                sendCurrent();
+            });
         }
     }
 
     private void sendCurrent() {
-        String text = String.valueOf(input.getText()).trim();
-        if (text.isEmpty()) return;
+        String prompt = String.valueOf(input.getText()).trim();
+        if (prompt.isEmpty()) {
+            input.setError(getString(R.string.chat_error_empty));
+            return;
+        }
+        if (prompt.length() > ChatRepository.MAX_PROMPT_CHARS) {
+            input.setError(getResources().getQuantityString(R.plurals.chat_error_too_long,
+                    ChatRepository.MAX_PROMPT_CHARS, ChatRepository.MAX_PROMPT_CHARS));
+            return;
+        }
         input.setText("");
-        layoutSuggestions.setVisibility(View.GONE);
+        suggestions.setVisibility(View.GONE);
+        viewModel.send(prompt, "");
+    }
 
-        // Optimistic UI: show user bubble immediately before DB write completes
-        Message userMsg = Message.user(questionId, text);
-        messages.add(userMsg);
-        adapter.notifyItemInserted(messages.size() - 1);
-        scrollToBottom();
+    private void openDetail(long questionId) {
+        Intent intent = new Intent(this, AnswerActivity.class);
+        intent.putExtra(AnswerActivity.EXTRA_QUESTION_ID, questionId);
+        startActivity(intent);
+    }
 
-        // Persist question + message in background, then fire AI on UI thread
-        final boolean isNew = (questionId <= 0);
-        final String subject = detectSubject(text);
-        StudyMentorApp.get().executor().execute(() -> {
-            long qid = questionId;
-            if (isNew) {
-                Question q = new Question();
-                q.prompt = text;
-                q.subject = subject;
-                q.createdAt = System.currentTimeMillis();
-                qid = StudyMentorApp.get().db().questionDao().insert(q);
-                userMsg.questionId = qid;
-            }
-            StudyMentorApp.get().db().messageDao().insert(userMsg);
-            final long finalQid = qid;
-            runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed()) return;
-                questionId = finalQid;
-                callAi(text);
-            });
+    private void scrollBottom() {
+        recycler.post(() -> {
+            int count = adapter.getItemCount();
+            if (count > 0) recycler.scrollToPosition(count - 1);
         });
     }
 
-    private void callAi(String prompt) {
-        typing.setVisibility(View.VISIBLE);
-
-        ChatRequest req = new ChatRequest(prompt, questionId);
-        ApiClient.get().chat(req).enqueue(new Callback<ChatResponse>() {
-            @Override public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
-                typing.setVisibility(View.GONE);
-                ChatResponse body = response.body();
-                if (body == null || body.reply == null) {
-                    appendAssistant(getString(R.string.chat_error_unreachable));
-                    return;
-                }
-
-                // Build display text: reply + final_answer on new line if present and not already in reply
-                String finalAns = (body.final_answer != null && !body.final_answer.trim().isEmpty())
-                        ? body.final_answer.trim() : null;
-                String displayText = body.reply;
-                if (finalAns != null && !body.reply.contains(finalAns)) {
-                    displayText = body.reply + "\n\n→ " + finalAns;
-                }
-
-                appendAssistant(displayText);
-                Session.addXp(ChatActivity.this, 50, questionId);
-
-                final long qid = questionId;
-                final String saved = displayText;
-                StudyMentorApp.get().executor().execute(() ->
-                        StudyMentorApp.get().db().questionDao().updateAnswer(qid, saved));
-
-                if (body.steps != null && !body.steps.isEmpty()) {
-                    lastStepsJson    = new Gson().toJson(body.steps);
-                    lastMistakesJson = body.commonMistakes != null
-                            ? new Gson().toJson(body.commonMistakes) : null;
-                    offerViewSteps();
-                }
-            }
-            @Override public void onFailure(Call<ChatResponse> call, Throwable t) {
-                typing.setVisibility(View.GONE);
-                appendAssistant(getString(R.string.chat_error_unreachable));
-            }
-        });
-    }
-
-    private void appendAssistant(String text) {
-        Message m = Message.assistant(questionId, text);
-        StudyMentorApp.get().executor().execute(() ->
-                StudyMentorApp.get().db().messageDao().insert(m));
-        messages.add(m);
-        adapter.notifyItemInserted(messages.size() - 1);
-        scrollToBottom();
-    }
-
-    /** Surfaces a "View steps" Snackbar so the user can open AnswerActivity for the latest reply. */
-    private void offerViewSteps() {
-        if (questionId <= 0) return;
-        final long qid     = questionId;
-        final String steps   = lastStepsJson;
-        final String mistakes = lastMistakesJson;
-        com.google.android.material.snackbar.Snackbar
-                .make(rv, "Step-by-step breakdown ready", com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
-                .setAction("View", v -> {
-                    Intent i = new Intent(this, AnswerActivity.class);
-                    i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, qid);
-                    if (steps   != null) i.putExtra(AnswerActivity.EXTRA_STEPS_JSON,   steps);
-                    if (mistakes != null) i.putExtra(AnswerActivity.EXTRA_MISTAKES_JSON, mistakes);
-                    startActivity(i);
-                })
-                .show();
-    }
-
-    private void scrollToBottom() {
-        rv.post(() -> rv.smoothScrollToPosition(Math.max(0, messages.size() - 1)));
-    }
-
-    private static String detectSubject(String prompt) {
-        String lp = prompt.toLowerCase(Locale.US);
-        String[] mathKw    = {"math", "equation", "algebra", "calculus", "geometry",
-                               "derivative", "integral", "quadratic", "trigonometry",
-                               "fraction", "percentage", "probability", "x^2"};
-        String[] scienceKw = {"physics", "chemistry", "biology", "photosynthesis",
-                               "molecule", "velocity", "acceleration", "newton",
-                               "gravity", "evolution", "dna", "periodic table",
-                               "atom", "reaction", "organism"};
-        String[] codeKw    = {"code", "program", "function", "debug", "javascript",
-                               "python", "algorithm", "array", "variable", "syntax",
-                               "compiler", "database", "sql", "html", "css", "bug",
-                               "loop", "class", "object", "git"};
-        String[] historyKw = {"history", "war", "revolution", "dynasty", "civilization",
-                               "ancient", "medieval", "empire", "colonial", "battle",
-                               "president", "independence", "century", "kingdom"};
-        for (String kw : mathKw)    if (lp.contains(kw)) return "math";
-        for (String kw : scienceKw) if (lp.contains(kw)) return "science";
-        for (String kw : codeKw)    if (lp.contains(kw)) return "code";
-        for (String kw : historyKw) if (lp.contains(kw)) return "history";
-        return "general";
+    private void routeLogin() {
+        Toast.makeText(this, R.string.auth_required_history, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

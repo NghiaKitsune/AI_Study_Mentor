@@ -15,6 +15,7 @@ import com.studymentor.app.R;
 import com.studymentor.app.data.Question;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAdapter.VH> {
@@ -55,7 +56,8 @@ public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAd
 
         h.bar.setBackgroundColor(barColor);
 
-        String label = subject.substring(0, 1).toUpperCase() + subject.substring(1);
+        String label = subject.substring(0, 1).toUpperCase(Locale.getDefault())
+                + subject.substring(1);
         h.chip.setText(label);
         h.chip.setTextColor(barColor);
         GradientDrawable chipBg = new GradientDrawable();

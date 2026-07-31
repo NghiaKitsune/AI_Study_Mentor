@@ -1,319 +1,265 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityQuizBinding;
+
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.ImageViewCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.studymentor.app.R;
-import com.studymentor.app.api.GroqQuizService;
-import com.studymentor.app.data.QuizDataSource;
-import com.studymentor.app.data.QuizQuestion;
+import com.studymentor.app.data.QuizQuestionEntity;
 import com.studymentor.app.util.BottomNavHelper;
 import com.studymentor.app.util.Session;
+import com.studymentor.app.util.SubjectIcons;
+import com.studymentor.app.viewmodel.QuizViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * UC6 — Quiz active screen.
- * Loads 5 questions from GroqQuizService (AI-generated) with fallback to
- * QuizDataSource (assets/quiz_questions.json). Shows a loading state while
- * Groq is generating, then renders the quiz once questions arrive.
- */
+/** Hybrid practice: Gemini-generated MCQ/input questions with the original timer and reveal UI. */
 public class QuizActivity extends AppCompatActivity {
-
+    private ActivityQuizBinding binding;
     public static final String EXTRA_SUBJECT = "extra_subject";
+    private static final String[] LABELS = {"A", "B", "C", "D"};
 
-    private static final int[] OPTION_IDS      = {R.id.option_a, R.id.option_b, R.id.option_c, R.id.option_d};
-    private static final int[] CIRCLE_IDS      = {R.id.circle_a, R.id.circle_b, R.id.circle_c, R.id.circle_d};
-    private static final int[] OPTION_TEXT_IDS = {R.id.text_option_a, R.id.text_option_b, R.id.text_option_c, R.id.text_option_d};
-    private static final String[] CIRCLE_LABELS = {"A", "B", "C", "D"};
+    private QuizViewModel viewModel;
+    private TextInputLayout inputLayout;
+    private TextInputEditText input;
+    private MaterialButton check;
+    private View loading;
+    private View content;
+    private MaterialCardView[] optionCards;
+    private TextView[] optionCircles;
+    private TextView[] optionTexts;
+    private QuizViewModel.State current;
+    private long renderedQuestionId = -1L;
+    private String selected = "";
 
-    private List<QuizQuestion> questions;
-    private int[] userAnswers;
-    private int currentIdx  = 0;
-    private int selectedIdx = -1;
-    private boolean submitted = false;
-    private int score = 0;
-    private CountDownTimer timer;
-
-    private View layoutLoading;
-    private View layoutQuizContent;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz);
-
-        layoutLoading    = findViewById(R.id.layout_loading);
-        layoutQuizContent = findViewById(R.id.layout_quiz_content);
-
-        String subject = getIntent().getStringExtra(EXTRA_SUBJECT);
-
-        // Show loading, then fetch AI questions
-        showLoading(true);
-        int levelNum = Session.levelNumber(this);
-        new GroqQuizService().generate(subject, levelNum, 5,
-                new GroqQuizService.Callback() {
-                    @Override
-                    public void onSuccess(List<QuizQuestion> aiQuestions) {
-                        startQuiz(aiQuestions, subject);
-                    }
-                    @Override
-                    public void onError(String message) {
-                        // Fallback to static JSON
-                        List<QuizQuestion> fallback = QuizDataSource.random(QuizActivity.this, subject, 5);
-                        startQuiz(fallback, subject);
-                    }
-                });
-
-        findViewById(R.id.btn_close).setOnClickListener(v -> finish());
+        if (!Session.isLoggedIn(this)) { finish(); return; }
+        binding = ActivityQuizBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        loading = binding.layoutLoading;
+        content = binding.layoutQuizContent;
+        inputLayout = binding.answerInputLayout;
+        input = binding.inputAnswer;
+        check = binding.btnCheck;
+        optionCards = new MaterialCardView[]{binding.optionA, binding.optionB,
+                binding.optionC, binding.optionD};
+        optionCircles = new TextView[]{binding.circleA, binding.circleB,
+                binding.circleC, binding.circleD};
+        optionTexts = new TextView[]{binding.textOptionA, binding.textOptionB,
+                binding.textOptionC, binding.textOptionD};
+        binding.btnClose.setOnClickListener(v -> finish());
+        for (int i = 0; i < optionCards.length; i++) {
+            final int option = i;
+            optionCards[i].setOnClickListener(v -> selectOption(option));
+        }
+        check.setOnClickListener(v -> primaryAction());
         BottomNavHelper.setup(this, R.id.nav_practice);
+        viewModel = new ViewModelProvider(this).get(QuizViewModel.class);
+        viewModel.state().observe(this, this::render);
+        viewModel.remainingMillis().observe(this, this::renderTimer);
+        viewModel.initialize(Session.userId(this), getIntent().getStringExtra(EXTRA_SUBJECT));
     }
 
-    private void showLoading(boolean loading) {
-        layoutLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
-        layoutQuizContent.setVisibility(loading ? View.GONE : View.VISIBLE);
-    }
-
-    private void startQuiz(List<QuizQuestion> loadedQuestions, String subject) {
-        if (loadedQuestions == null || loadedQuestions.isEmpty()) {
-            // Last resort: show close button, nothing to quiz
+    private void render(QuizViewModel.State state) {
+        current = state;
+        if (state.error != null) {
+            Toast.makeText(this, state.error, Toast.LENGTH_LONG).show();
+            loading.setVisibility(View.GONE);
+            content.setVisibility(View.VISIBLE);
+            binding.textQuestionLabel.setText(R.string.quiz_unavailable_title);
+            binding.textQuestion.setText(state.error);
+            binding.textQuestionHint.setText(R.string.quiz_unavailable_hint);
+            inputLayout.setVisibility(View.GONE);
+            for (MaterialCardView card : optionCards) card.setVisibility(View.GONE);
+            binding.cardExplanation.setVisibility(View.GONE);
+            check.setText(R.string.quiz_back_to_home);
+            check.setEnabled(true);
+            return;
+        }
+        if (state.complete && state.attempt != null) {
+            Intent intent = new Intent(this, QuizResultActivity.class);
+            intent.putExtra(QuizResultActivity.EXTRA_ATTEMPT_ID, state.attempt.id);
+            startActivity(intent);
             finish();
             return;
         }
-        questions = loadedQuestions;
-        userAnswers = new int[questions.size()];
-        java.util.Arrays.fill(userAnswers, -1);
+        loading.setVisibility(state.loading ? View.VISIBLE : View.GONE);
+        content.setVisibility(state.loading ? View.GONE : View.VISIBLE);
+        check.setEnabled(!state.loading);
+        if (state.question == null) return;
 
-        showLoading(false);
-        showQuestion(0);
-        startTimer();
-        setupCta();
+        if (renderedQuestionId != state.question.id) {
+            renderedQuestionId = state.question.id;
+            selected = "";
+            input.setText("");
+            bindQuestion(state);
+        }
+        if (state.answerChecked) reveal(state);
     }
 
-    private void showQuestion(int idx) {
-        QuizQuestion q = questions.get(idx);
+    private void bindQuestion(QuizViewModel.State state) {
+        ProgressBar progress = binding.progressQuiz;
+        progress.setMax(state.total);
+        progress.setProgress(state.index + 1);
+        ((TextView) binding.textQuestionLabel).setText(
+                getString(R.string.quiz_question_progress, state.index + 1, state.total));
+        ((TextView) binding.textSubjectTag).setText(
+                getString(R.string.quiz_subject_type, state.question.subject, state.question.type));
+        ((ImageView) binding.imgSubject).setImageResource(
+                SubjectIcons.forSubject(state.question.subject));
+        ((TextView) binding.textQuestion).setText(state.question.questionText);
 
-        ProgressBar pb = findViewById(R.id.progress_quiz);
-        pb.setMax(questions.size());
-        pb.setProgress(idx + 1);
-
-        ((TextView) findViewById(R.id.text_question_label))
-                .setText("QUESTION " + (idx + 1) + " / " + questions.size());
-
-        String tag = (q.subjectTag != null && !q.subjectTag.isEmpty())
-                ? q.subjectTag
-                : q.subject.toUpperCase(Locale.US) + " · MULTIPLE CHOICE";
-        ((TextView) findViewById(R.id.text_subject_tag)).setText(tag);
-        ((ImageView) findViewById(R.id.img_subject)).setImageResource(subjectIcon(q.subject));
-
-        ((TextView) findViewById(R.id.text_question)).setText(q.question);
-
-        for (int i = 0; i < OPTION_IDS.length; i++) {
-            final int fi = i;
-            ((TextView) findViewById(OPTION_TEXT_IDS[i])).setText(q.options[i]);
-
-            MaterialCardView card = findViewById(OPTION_IDS[i]);
+        boolean multipleChoice = QuizQuestionEntity.TYPE_MULTIPLE_CHOICE.equals(state.question.type);
+        inputLayout.setVisibility(multipleChoice ? View.GONE : View.VISIBLE);
+        ((TextView) binding.textQuestionHint).setText(multipleChoice
+                ? R.string.quiz_hint_choose : R.string.quiz_hint_input);
+        List<String> options = multipleChoice ? viewModel.options(state.question) : new ArrayList<>();
+        for (int i = 0; i < optionCards.length; i++) {
+            boolean visible = i < options.size();
+            MaterialCardView card = optionCards[i];
+            card.setVisibility(visible ? View.VISIBLE : View.GONE);
+            card.setEnabled(true);
+            card.setAlpha(1f);
             card.setCardBackgroundColor(getColor(R.color.surface));
             card.setStrokeColor(getColor(R.color.border));
-            card.setAlpha(1.0f);
-            card.setOnClickListener(v -> { if (!submitted) selectOption(fi); });
-
-            TextView circle = findViewById(CIRCLE_IDS[i]);
-            circle.setBackground(ovalDrawable(getColor(R.color.surface_2)));
-            circle.setText(CIRCLE_LABELS[i]);
+            TextView circle = optionCircles[i];
+            circle.setText(LABELS[i]);
             circle.setTextColor(getColor(R.color.text_secondary));
+            circle.setBackground(ovalDrawable(getColor(R.color.surface_2)));
+            if (visible) optionTexts[i].setText(options.get(i));
         }
-
-        findViewById(R.id.card_explanation).setVisibility(View.GONE);
-
-        MaterialButton btn = findViewById(R.id.btn_check);
-        btn.setText("Check answer");
-        btn.setEnabled(false);
+        input.setEnabled(true);
+        binding.cardExplanation.setVisibility(View.GONE);
+        check.setText(R.string.quiz_check_answer);
+        check.setEnabled(!multipleChoice);
     }
 
-    private void selectOption(int idx) {
-        selectedIdx = idx;
-        userAnswers[currentIdx] = idx;
-        for (int i = 0; i < OPTION_IDS.length; i++) {
-            MaterialCardView card = findViewById(OPTION_IDS[i]);
-            boolean sel = (i == idx);
-            card.setCardBackgroundColor(sel
-                    ? getColor(R.color.brand_primary_tint)
-                    : getColor(R.color.surface));
-            card.setStrokeColor(sel
-                    ? getColor(R.color.brand_primary)
-                    : getColor(R.color.border));
+    private void selectOption(int index) {
+        if (current == null || current.answerChecked) return;
+        selected = optionTexts[index].getText().toString();
+        for (int i = 0; i < optionCards.length; i++) {
+            MaterialCardView card = optionCards[i];
+            boolean chosen = i == index;
+            card.setCardBackgroundColor(getColor(chosen
+                    ? R.color.brand_primary_tint : R.color.surface));
+            card.setStrokeColor(getColor(chosen
+                    ? R.color.brand_primary : R.color.border));
         }
-        ((MaterialButton) findViewById(R.id.btn_check)).setEnabled(true);
+        check.setEnabled(true);
     }
 
-    private void startTimer() {
-        if (timer != null) timer.cancel();
-        setTimerNormal();
-        TextView tvTimer = findViewById(R.id.text_timer);
-        timer = new CountDownTimer(24_000, 1_000) {
-            @Override public void onTick(long ms) {
-                int secs = (int) (ms / 1000);
-                tvTimer.setText(String.format(Locale.US, "0:%02d", secs));
+    private void primaryAction() {
+        if (current == null) return;
+        if (current.error != null) {
+            finish();
+            return;
+        }
+        if (current.question == null) return;
+        if (current.answerChecked) {
+            viewModel.next();
+            return;
+        }
+        String answer = QuizQuestionEntity.TYPE_MULTIPLE_CHOICE.equals(current.question.type)
+                ? selected : String.valueOf(input.getText()).trim();
+        if (answer.isEmpty()) {
+            Toast.makeText(this, R.string.quiz_error_answer_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        check.setEnabled(false);
+        viewModel.submit(answer);
+    }
+
+    private void reveal(QuizViewModel.State state) {
+        boolean multipleChoice = QuizQuestionEntity.TYPE_MULTIPLE_CHOICE.equals(state.question.type);
+        if (multipleChoice) {
+            List<String> options = viewModel.options(state.question);
+            for (int i = 0; i < optionCards.length && i < options.size(); i++) {
+                MaterialCardView card = optionCards[i];
+                TextView circle = optionCircles[i];
+                boolean correct = normalized(options.get(i)).equals(normalized(state.question.correctAnswer));
+                boolean wrongSelection = normalized(options.get(i)).equals(
+                        normalized(state.submittedAnswer)) && !correct;
+                card.setEnabled(false);
+                if (correct) {
+                    card.setCardBackgroundColor(getColor(R.color.color_ok_soft));
+                    card.setStrokeColor(getColor(R.color.color_ok));
+                    circle.setBackground(ovalDrawable(getColor(R.color.color_ok)));
+                    circle.setTextColor(Color.WHITE);
+                    circle.setText(R.string.quiz_correct_symbol);
+                } else if (wrongSelection) {
+                    card.setCardBackgroundColor(getColor(R.color.error_soft));
+                    card.setStrokeColor(getColor(R.color.error));
+                    circle.setBackground(ovalDrawable(getColor(R.color.error)));
+                    circle.setTextColor(Color.WHITE);
+                    circle.setText(R.string.quiz_incorrect_symbol);
+                } else card.setAlpha(0.48f);
             }
-            @Override public void onFinish() {
-                tvTimer.setText("0:00");
-                setTimerError();
-                if (!submitted) revealAnswer();
-            }
-        }.start();
+        }
+        input.setEnabled(false);
+        View explanation = binding.cardExplanation;
+        explanation.setVisibility(View.VISIBLE);
+        TextView label = binding.textResultLabel;
+        label.setText(state.timedOut ? R.string.quiz_time_up
+                : state.correct ? R.string.quiz_correct : R.string.quiz_incorrect);
+        label.setTextColor(getColor(state.timedOut ? R.color.brand_primary_deep
+                : state.correct ? R.color.color_ok : R.color.error));
+        ((TextView) binding.textExplanation).setText(state.feedback);
+        check.setEnabled(true);
+        check.setText(state.index + 1 < state.total
+                ? R.string.quiz_next_question : R.string.quiz_see_results);
     }
 
     private void setTimerNormal() {
-        View pill = findViewById(R.id.timer_pill);
-        pill.setBackgroundResource(R.drawable.bg_timer_normal);
-        TextView tvTimer = findViewById(R.id.text_timer);
-        tvTimer.setTextColor(getColor(R.color.brand_primary_deep));
-        ImageView imgTimer = findViewById(R.id.img_timer);
-        ImageViewCompat.setImageTintList(imgTimer,
+        binding.timerPill.setBackgroundResource(R.drawable.bg_timer_normal);
+        ((TextView) binding.textTimer).setTextColor(getColor(R.color.brand_primary_deep));
+        ImageViewCompat.setImageTintList((ImageView) binding.imgTimer,
                 ColorStateList.valueOf(getColor(R.color.brand_primary_deep)));
     }
 
     private void setTimerError() {
-        View pill = findViewById(R.id.timer_pill);
-        pill.setBackgroundResource(R.drawable.bg_timer_error);
-        TextView tvTimer = findViewById(R.id.text_timer);
-        tvTimer.setTextColor(getColor(R.color.error));
-        ImageView imgTimer = findViewById(R.id.img_timer);
-        ImageViewCompat.setImageTintList(imgTimer,
+        binding.timerPill.setBackgroundResource(R.drawable.bg_timer_error);
+        ((TextView) binding.textTimer).setTextColor(getColor(R.color.error));
+        ImageViewCompat.setImageTintList((ImageView) binding.imgTimer,
                 ColorStateList.valueOf(getColor(R.color.error)));
     }
 
-    private void setupCta() {
-        MaterialButton btn = findViewById(R.id.btn_check);
-        btn.setEnabled(false);
-        btn.setOnClickListener(v -> {
-            if (!submitted) {
-                revealAnswer();
-            } else if (currentIdx < questions.size() - 1) {
-                advanceQuestion();
-            } else {
-                openResult();
-            }
-        });
+    private void renderTimer(Long remainingMillis) {
+        long value = remainingMillis == null ? 0L : Math.max(0L, remainingMillis);
+        ((TextView) binding.textTimer).setText(
+                com.studymentor.app.util.QuizTimerMath.formatRemaining(value));
+        if (value <= 0L) setTimerError();
+        else setTimerNormal();
     }
 
-    private void revealAnswer() {
-        submitted = true;
-        if (timer != null) timer.cancel();
-
-        QuizQuestion q   = questions.get(currentIdx);
-        int correctIdx   = q.correctIndex;
-        if (selectedIdx == correctIdx) score++;
-
-        for (int i = 0; i < OPTION_IDS.length; i++) {
-            MaterialCardView card = findViewById(OPTION_IDS[i]);
-            TextView circle       = findViewById(CIRCLE_IDS[i]);
-            boolean isCorrect     = (i == correctIdx);
-            boolean isWrong       = (i == selectedIdx && i != correctIdx);
-
-            if (isCorrect) {
-                card.setCardBackgroundColor(getColor(R.color.color_ok_soft));
-                card.setStrokeColor(getColor(R.color.color_ok));
-                card.setAlpha(1.0f);
-                circle.setBackground(ovalDrawable(getColor(R.color.color_ok)));
-                circle.setTextColor(Color.WHITE);
-                circle.setText("✓");
-            } else if (isWrong) {
-                card.setCardBackgroundColor(getColor(R.color.error_soft));
-                card.setStrokeColor(getColor(R.color.error));
-                card.setAlpha(1.0f);
-                circle.setBackground(ovalDrawable(getColor(R.color.error)));
-                circle.setTextColor(Color.WHITE);
-                circle.setText("✗");
-            } else {
-                card.setAlpha(0.48f);
-            }
-        }
-
-        View expCard        = findViewById(R.id.card_explanation);
-        expCard.setVisibility(View.VISIBLE);
-        TextView resultLabel = expCard.findViewById(R.id.text_result_label);
-        TextView textExpl    = expCard.findViewById(R.id.text_explanation);
-
-        if (selectedIdx == -1) {
-            resultLabel.setText("TIME'S UP");
-            resultLabel.setTextColor(getColor(R.color.brand_primary_deep));
-        } else if (selectedIdx == correctIdx) {
-            resultLabel.setText("CORRECT");
-            resultLabel.setTextColor(getColor(R.color.color_ok));
-        } else {
-            resultLabel.setText("INCORRECT");
-            resultLabel.setTextColor(getColor(R.color.error));
-        }
-        if (q.explanation != null) textExpl.setText(q.explanation);
-
-        MaterialButton btn = findViewById(R.id.btn_check);
-        btn.setEnabled(true);
-        btn.setText(currentIdx < questions.size() - 1 ? "Next question" : "See results");
-    }
-
-    private void advanceQuestion() {
-        currentIdx++;
-        selectedIdx = -1;
-        submitted   = false;
-        showQuestion(currentIdx);
-        startTimer();
-    }
-
-    private void openResult() {
-        StringBuilder subjects = new StringBuilder();
-        StringBuilder corrects = new StringBuilder();
-        for (int j = 0; j < questions.size(); j++) {
-            if (j > 0) { subjects.append(','); corrects.append(','); }
-            String sub = questions.get(j).subject;
-            subjects.append(sub != null ? sub : "general");
-            corrects.append(userAnswers[j] == questions.get(j).correctIndex ? '1' : '0');
-        }
-        Intent i = new Intent(this, QuizResultActivity.class);
-        i.putExtra(QuizResultActivity.EXTRA_SCORE, score);
-        i.putExtra(QuizResultActivity.EXTRA_TOTAL, questions.size());
-        i.putExtra(QuizResultActivity.EXTRA_SUBJECTS_CSV, subjects.toString());
-        i.putExtra(QuizResultActivity.EXTRA_CORRECT_CSV, corrects.toString());
-        Session.addXp(this, 500, System.currentTimeMillis());
-        startActivity(i);
-        finish();
+    private static String normalized(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
     }
 
     private static GradientDrawable ovalDrawable(int color) {
-        GradientDrawable d = new GradientDrawable();
-        d.setShape(GradientDrawable.OVAL);
-        d.setColor(color);
-        return d;
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.OVAL);
+        drawable.setColor(color);
+        return drawable;
     }
 
-    private static int subjectIcon(String subject) {
-        if (subject == null) return R.drawable.ic_sparkles;
-        switch (subject) {
-            case "science": return R.drawable.ic_target;
-            case "code":    return R.drawable.ic_settings;
-            case "history": return R.drawable.ic_book;
-            default:        return R.drawable.ic_sparkles;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (timer != null) timer.cancel();
-    }
 }

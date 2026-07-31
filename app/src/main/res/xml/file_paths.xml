@@ -5,10 +5,8 @@
     content:// URIs without storage permissions.
 -->
 <paths>
-    <!-- Scan captures land in external cache: /Android/data/<pkg>/cache/ -->
-    <external-cache-path name="scan_cache" path="." />
+    <!-- Expose only the dedicated scan directory, never an entire cache/files root. -->
+    <external-cache-path name="scan_cache" path="scans/" />
     <!-- Fallback when external cache isn't available -->
-    <cache-path name="scan_cache_internal" path="." />
-    <!-- For sharing answer cards as images later -->
-    <external-files-path name="exports" path="." />
+    <cache-path name="scan_cache_internal" path="scans/" />
 </paths>

@@ -90,7 +90,7 @@
                         android:textColor="@color/text_tertiary"
                         android:letterSpacing="0.1"
                         android:layout_marginBottom="5dp"
-                        android:text="QUESTION" />
+                        android:text="@string/answer_question" />
 
                     <TextView
                         android:id="@+id/text_question"
@@ -144,6 +144,7 @@
 
             <!-- Steps section header -->
             <TextView
+                android:id="@+id/text_steps_heading"
                 style="@style/Text.H3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -208,7 +209,7 @@
                                 android:layout_marginTop="@dimen/space_1"
                                 android:textSize="@dimen/text_caption"
                                 android:textColor="@color/text_tertiary"
-                                android:text="I can explain this differently, or quiz you on similar problems." />
+                                android:text="@string/answer_i_can_explain_this_differently_or_quiz" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -253,6 +254,7 @@
 
             <!-- Common mistakes -->
             <TextView
+                android:id="@+id/text_mistakes_heading"
                 style="@style/Text.H3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -294,7 +296,7 @@
                         android:textSize="13sp"
                         android:textColor="@color/text_secondary"
                         android:lineSpacingMultiplier="1.5"
-                        android:text="Watch out for sign errors — write parentheses around negative terms." />
+                        android:text="@string/answer_watch_out_for_sign_errors_write_parentheses" />
                 </LinearLayout>
 
                 <!-- Mistake 2 — tip/warning style -->
@@ -324,7 +326,7 @@
                         android:textSize="13sp"
                         android:textColor="@color/text_secondary"
                         android:lineSpacingMultiplier="1.5"
-                        android:text="Tip: double-check your answer by substituting back into the original equation." />
+                        android:text="@string/answer_tip_double_check_your_answer_by_substituting" />
                 </LinearLayout>
             </LinearLayout>
 

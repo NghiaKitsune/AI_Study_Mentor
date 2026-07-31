@@ -1,5 +1,7 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityOnboardingBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.studymentor.app.util.Session;
  * Shown only once (guarded by Session.hasSeenOnboarding).
  */
 public class OnboardingActivity extends AppCompatActivity {
+    private ActivityOnboardingBinding binding;
 
     private static final int[] TAGS   = { R.string.onboard_tag_0, R.string.onboard_tag_1, R.string.onboard_tag_2 };
     private static final int[] TITLES = { R.string.onboard_title_0, R.string.onboard_title_1, R.string.onboard_title_2 };
@@ -29,15 +32,16 @@ public class OnboardingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_onboarding);
+        binding = ActivityOnboardingBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        tvTag   = findViewById(R.id.text_onboard_tag);
-        tvTitle = findViewById(R.id.text_onboard_title);
-        tvBody  = findViewById(R.id.text_onboard_body);
-        btnNext = findViewById(R.id.btn_next);
-        dot0    = findViewById(R.id.dot_0);
-        dot1    = findViewById(R.id.dot_1);
-        dot2    = findViewById(R.id.dot_2);
+        tvTag   = binding.textOnboardTag;
+        tvTitle = binding.textOnboardTitle;
+        tvBody  = binding.textOnboardBody;
+        btnNext = binding.btnNext;
+        dot0    = binding.dot0;
+        dot1    = binding.dot1;
+        dot2    = binding.dot2;
 
         updateStep();
 
@@ -50,7 +54,7 @@ public class OnboardingActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btn_skip).setOnClickListener(v -> finish());
+        binding.btnSkip.setOnClickListener(v -> finish());
     }
 
     private void updateStep() {

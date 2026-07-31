@@ -1,5 +1,7 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivitySplashBinding;
+
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import com.studymentor.app.util.Session;
  *   - logged + onboarded → Home
  */
 public class SplashActivity extends AppCompatActivity {
+    private ActivitySplashBinding binding;
 
     private static final long SPLASH_MS = 1500L;
 
@@ -27,10 +30,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        binding = ActivitySplashBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         // Scale-up entrance on the app icon container
-        android.view.View mascot = findViewById(R.id.container_app_icon);
+        android.view.View mascot = binding.containerAppIcon;
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(mascot, "scaleX", 0.85f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(mascot, "scaleY", 0.85f, 1f);
         scaleX.setDuration(800);
@@ -44,7 +48,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void route() {
-        Session.updateStreak(this);
         Intent next;
         if (!Session.isLoggedIn(this)) {
             // Show 3-step onboarding carousel on very first launch

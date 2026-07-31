@@ -48,7 +48,7 @@
                     style="@style/Text.H3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Milo" />
+                    android:text="@string/mascot_name" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/space_2"
             android:letterSpacing="0.1"
-            android:text="TRY ASKING" />
+            android:text="@string/chat_try_asking" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chips_suggestions"
@@ -126,28 +126,28 @@
                 style="@style/Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Explain Newton\'s 3 laws simply" />
+                android:text="@string/chat_explain_newton_s_3_laws_simply" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_suggest_2"
                 style="@style/Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Solve: 2x² + 5x − 3 = 0" />
+                android:text="@string/chat_solve_2x2_5x_3_0" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_suggest_3"
                 style="@style/Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="What\'s a Python decorator?" />
+                android:text="@string/chat_what_s_a_python_decorator" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_suggest_4"
                 style="@style/Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Compare DNA and RNA" />
+                android:text="@string/chat_compare_dna_and_rna" />
         </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 
@@ -159,7 +159,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/space_5"
         android:layout_marginBottom="@dimen/space_2"
-        android:text="Milo is thinking…"
+        android:text="@string/chat_milo_is_thinking"
         android:visibility="gone" />
 
     <!-- ==== Composer ==== -->

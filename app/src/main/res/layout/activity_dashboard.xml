@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="@dimen/space_2"
-            android:text="Your progress" />
+            android:text="@string/dashboard_your_progress" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_settings"
@@ -87,7 +87,7 @@
                         android:textStyle="bold"
                         android:letterSpacing="0.1"
                         android:textAllCaps="true"
-                        android:text="Current Streak" />
+                        android:text="@string/dashboard_current_streak" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -104,7 +104,7 @@
                             android:textSize="52sp"
                             android:textStyle="bold"
                             android:letterSpacing="-0.03"
-                            android:text="7" />
+                            android:text="@string/dashboard_value_7" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:text="days 🔥" />
+                            android:text="@string/dashboard_days" />
                     </LinearLayout>
 
                     <TextView
@@ -123,7 +123,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="#CC1A1610"
                         android:textStyle="bold"
-                        android:text="Best: 12 days · Keep going!" />
+                        android:text="@string/dashboard_best_12_days_keep_going" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -151,10 +151,10 @@
                             </LinearLayout>
                             <TextView android:id="@+id/text_stat_questions" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textSize="@dimen/text_stat_value" android:textStyle="bold"
-                                android:textColor="@color/text_primary" android:text="247" />
+                                android:textColor="@color/text_primary" android:text="@string/dashboard_value_247" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                                android:layout_marginTop="4dp" android:text="Questions asked" />
+                                android:layout_marginTop="4dp" android:text="@string/dashboard_questions_asked" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -169,12 +169,13 @@
                                 <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_target" app:tint="#4FA37A" android:contentDescription="@null" />
                             </LinearLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            <TextView android:id="@+id/text_stat_accuracy"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:textSize="@dimen/text_stat_value" android:textStyle="bold" android:textColor="@color/text_primary"
-                                android:text="92%" />
+                                android:text="@string/dashboard_value_92" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                                android:layout_marginTop="4dp" android:text="Quiz accuracy" />
+                                android:layout_marginTop="4dp" android:text="@string/dashboard_quiz_accuracy" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -196,10 +197,10 @@
                             </LinearLayout>
                             <TextView android:id="@+id/text_stat_xp" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textSize="@dimen/text_stat_value" android:textStyle="bold"
-                                android:textColor="@color/text_primary" android:text="1,840" />
+                                android:textColor="@color/text_primary" android:text="@string/dashboard_value_1_840" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                                android:layout_marginTop="4dp" android:text="Total XP" />
+                                android:layout_marginTop="4dp" android:text="@string/stat_label_xp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -214,12 +215,13 @@
                                 <ImageView android:layout_width="20dp" android:layout_height="20dp"
                                     android:src="@drawable/ic_history" app:tint="@color/info" android:contentDescription="@null" />
                             </LinearLayout>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            <TextView android:id="@+id/text_stat_review_time"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:textSize="@dimen/text_stat_value" android:textStyle="bold" android:textColor="@color/text_primary"
-                                android:text="24h" />
+                                android:text="@string/dashboard_value_24h" />
                             <TextView style="@style/Text.Caption" android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" android:textColor="@color/text_tertiary"
-                                android:layout_marginTop="4dp" android:text="Study time" />
+                                android:layout_marginTop="4dp" android:text="@string/dashboard_study_time" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -227,6 +229,7 @@
 
             <!-- Weekly chart section -->
             <TextView
+                android:id="@+id/text_weekly_chart_heading"
                 style="@style/Text.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -235,13 +238,16 @@
                 android:letterSpacing="0.08"
                 android:textAllCaps="true"
                 android:layout_marginBottom="@dimen/space_2"
-                android:text="This week · 74 questions" />
+                android:text="@string/dashboard_this_week_74_questions"
+                android:visibility="gone" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_weekly_chart"
                 style="@style/Card.Default"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/space_5">
+                android:layout_marginBottom="@dimen/space_5"
+                android:visibility="gone">
 
                 <!-- Simple bar chart using LinearLayout bars -->
                 <LinearLayout
@@ -253,51 +259,51 @@
 
                     <!-- M -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_8" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="M" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_m" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- T -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_12" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_t" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- W -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_5" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_w" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- T -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_15" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="T" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_t" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- F -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_10" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="F" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_f" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- S (today - highlighted) -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textSize="10sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_18" android:textSize="10sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar_hi" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_s" android:textSize="11sp" android:textColor="@color/brand_primary_deep" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
 
                     <!-- S -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_value_6" android:textSize="10sp" android:textColor="@color/text_tertiary" android:textStyle="bold" />
                         <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_chart_bar" android:layout_marginHorizontal="3dp" android:layout_marginTop="4dp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="S" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/dashboard_s" android:textSize="11sp" android:textColor="@color/text_tertiary" android:textStyle="bold" android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -312,7 +318,7 @@
                 android:letterSpacing="0.08"
                 android:textAllCaps="true"
                 android:layout_marginBottom="@dimen/space_3"
-                android:text="Top subjects" />
+                android:text="@string/dashboard_top_subjects" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_subjects"
@@ -331,7 +337,7 @@
                 android:letterSpacing="0.08"
                 android:textAllCaps="true"
                 android:layout_marginBottom="@dimen/space_3"
-                android:text="Milo's insight" />
+                android:text="@string/dashboard_milo_s_insight" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -381,14 +387,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:checked="true"
-                                android:text="Try calculus" />
+                                android:text="@string/dashboard_try_calculus" />
 
                             <com.google.android.material.chip.Chip
                                 style="@style/Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/space_2"
-                                android:text="Maybe later" />
+                                android:text="@string/dashboard_maybe_later" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

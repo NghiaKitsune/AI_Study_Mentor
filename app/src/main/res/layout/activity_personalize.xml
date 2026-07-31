@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/space_2"
                 android:textColor="@color/brand_primary_deep"
-                android:text="Skip" />
+                android:text="@string/action_skip" />
         </LinearLayout>
 
         <!-- Title -->

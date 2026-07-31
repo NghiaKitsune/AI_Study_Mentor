@@ -29,7 +29,6 @@
 -keepclassmembers class com.studymentor.app.** {
     @com.google.gson.annotations.SerializedName <fields>;
 }
--keepclassmembers class com.studymentor.app.data.QuizQuestion { *; }
 
 # Gson TypeToken generic resolution
 -keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken

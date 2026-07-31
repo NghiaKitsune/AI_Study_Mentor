@@ -35,5 +35,5 @@
         android:textColor="@color/brand_primary_deep"
         android:textSize="12sp"
         android:textStyle="bold"
-        android:text="Review" />
+        android:text="@string/action_review" />
 </LinearLayout>

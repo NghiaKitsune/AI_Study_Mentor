@@ -62,7 +62,7 @@
             android:textStyle="bold"
             android:paddingHorizontal="6dp"
             android:paddingVertical="2dp"
-            android:text="YOU" />
+            android:text="@string/leaderboard_you_uppercase" />
     </LinearLayout>
 
     <LinearLayout

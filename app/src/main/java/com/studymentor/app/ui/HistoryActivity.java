@@ -1,5 +1,8 @@
 package com.studymentor.app.ui;
 
+import com.studymentor.app.databinding.ActivityHistoryBinding;
+import com.studymentor.app.databinding.ItemStatPillBinding;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -7,210 +10,146 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-
-import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.studymentor.app.R;
-import com.studymentor.app.StudyMentorApp;
 import com.studymentor.app.data.Question;
 import com.studymentor.app.ui.adapter.HistoryAdapter;
 import com.studymentor.app.util.BottomNavHelper;
+import com.studymentor.app.util.Session;
+import com.studymentor.app.viewmodel.HistoryViewModel;
+import com.studymentor.app.viewmodel.ProgressViewModel;
 
-import java.util.List;
+import java.util.ArrayList;
 
-/**
- * UC5 — History list with stats + filter chips + empty state.
- * Filter chip ids:
- *   chip_all                → all questions
- *   chip_bookmarks          → bookmarked only
- *   chip_subj_math/...      → by subject substring match
- */
 public class HistoryActivity extends AppCompatActivity {
-
+    private ActivityHistoryBinding binding;
+    private HistoryViewModel viewModel;
+    private ProgressViewModel progressViewModel;
     private HistoryAdapter adapter;
-    private RecyclerView rv;
+    private RecyclerView recycler;
     private View emptyState;
-    private ChipGroup chips;
-    private String searchQuery = "";
+    private ChipGroup filters;
+    private String search = "";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-
-        rv         = findViewById(R.id.rv_history);
-        emptyState = findViewById(R.id.empty_state);
-        chips      = findViewById(R.id.chips_filter);
-
-        bindStats();
+        if (!Session.isLoggedIn(this)) { routeLogin(); return; }
+        binding = ActivityHistoryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        recycler = binding.rvHistory;
+        emptyState = binding.emptyStateInclude.getRoot();
+        filters = binding.chipsFilter;
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new HistoryAdapter(new ArrayList<>(), this::openAnswer);
+        adapter.setOnLongClick(this::confirmDelete);
+        recycler.setAdapter(adapter);
         bindSearch();
-        bindFilter();
-        bindList();
-        bindEmptyStateCta();
-        bindMiloNoticed();
+        filters.setOnCheckedStateChangeListener((group, ids) -> applyFilter());
+        binding.emptyStateInclude.emptyCta.setOnClickListener(v ->
+                startActivity(new Intent(this, ChatActivity.class)));
+        binding.btnMiloReview.setOnClickListener(v ->
+                startActivity(new Intent(this, QuizActivity.class)));
         BottomNavHelper.setup(this, R.id.nav_history);
+
+        viewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+        progressViewModel = new ViewModelProvider(this).get(ProgressViewModel.class);
+        viewModel.state().observe(this, state -> {
+            if (state.error != null) {
+                Toast.makeText(this, state.error, Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (state.data == null) return;
+            adapter.setItems(state.data.items);
+            setStat(binding.statQuestions, String.valueOf(state.data.total),
+                    getString(R.string.stat_questions));
+            setStat(binding.statBookmarks, String.valueOf(state.data.bookmarks),
+                    getString(R.string.stat_bookmarks));
+            toggleEmpty(state.data.items.isEmpty());
+            View card = binding.cardMiloNoticed;
+            card.setVisibility(state.data.total >= 3 ? View.VISIBLE : View.GONE);
+            if (state.data.total >= 3) {
+                ((TextView) binding.textMiloNoticed).setText(getResources().getQuantityString(
+                        R.plurals.history_review_suggestion, state.data.total, state.data.total));
+            }
+        });
+        progressViewModel.snapshot().observe(this, snapshot ->
+                setStat(binding.statAccuracy,
+                        getString(R.string.percent_value, snapshot.accuracy),
+                        getString(R.string.stat_accuracy)));
+        long userId = Session.userId(this);
+        viewModel.initialize(userId);
+        progressViewModel.initialize(userId);
     }
 
-    private void bindStats() {
-        StudyMentorApp.get().executor().execute(() -> {
-            int count     = StudyMentorApp.get().db().questionDao().count();
-            int bookmarks = StudyMentorApp.get().db().questionDao().bookmarkedCount();
-            runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed()) return;
-                setStat(R.id.stat_questions, String.valueOf(count),     getString(R.string.stat_questions));
-                setStat(R.id.stat_bookmarks, String.valueOf(bookmarks), getString(R.string.stat_bookmarks));
-                setStat(R.id.stat_accuracy,  "—",                       getString(R.string.stat_accuracy));
-            });
-        });
+    @Override protected void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.refresh();
+            progressViewModel.refresh();
+        }
     }
 
     private void bindSearch() {
-        EditText input = findViewById(R.id.input_search);
-
-        // Search bar is always visible; search button clears the query
-        findViewById(R.id.btn_search).setOnClickListener(v -> {
-            searchQuery = "";
-            input.setText("");
-            reload();
-        });
-
+        EditText input = binding.inputSearch;
+        binding.btnSearch.setOnClickListener(v -> input.setText(""));
         input.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
-            @Override public void afterTextChanged(Editable s) {
-                searchQuery = s.toString();
-                reload();
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable editable) {
+                search = editable.toString();
+                applyFilter();
             }
         });
     }
 
-    private void setStat(int id, String value, String label) {
-        View root = findViewById(id);
-        ((TextView) root.findViewById(R.id.text_value)).setText(value);
-        ((TextView) root.findViewById(R.id.text_label)).setText(label);
+    private void applyFilter() {
+        int id = filters.getCheckedChipId();
+        boolean bookmarked = id == R.id.chip_bookmarks;
+        String subject = "";
+        if (id == R.id.chip_subj_math) subject = "math";
+        else if (id == R.id.chip_subj_science) subject = "science";
+        else if (id == R.id.chip_subj_code) subject = "code";
+        viewModel.filter(search, subject, bookmarked);
     }
 
-    private void bindFilter() {
-        chips.setOnCheckedStateChangeListener((group, ids) -> reload());
+    private void openAnswer(Question question) {
+        Intent intent = new Intent(this, AnswerActivity.class);
+        intent.putExtra(AnswerActivity.EXTRA_QUESTION_ID, question.id);
+        startActivity(intent);
     }
 
-    private void bindList() {
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new HistoryAdapter(new ArrayList<>(), q -> {
-            Intent i = new Intent(this, AnswerActivity.class);
-            i.putExtra(AnswerActivity.EXTRA_QUESTION_ID, q.id);
-            startActivity(i);
-        });
-        adapter.setOnLongClick(this::showDeleteDialog);
-        rv.setAdapter(adapter);
-        reload();
-    }
-
-    private void showDeleteDialog(com.studymentor.app.data.Question q) {
+    private void confirmDelete(Question question) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_delete_q_title)
-                .setMessage("“" + q.prompt + "”")
+                .setMessage(question.prompt)
                 .setNegativeButton(R.string.action_cancel, null)
-                .setPositiveButton(R.string.dialog_delete_confirm, (d, w) ->
-                    StudyMentorApp.get().executor().execute(() -> {
-                        StudyMentorApp.get().db().questionDao().delete(q);
-                        runOnUiThread(() -> { reload(); bindStats(); });
-                    }))
+                .setPositiveButton(R.string.dialog_delete_confirm,
+                        (dialog, which) -> viewModel.delete(question.id))
                 .show();
     }
 
-    private void bindEmptyStateCta() {
-        View cta = findViewById(R.id.empty_cta);
-        cta.setVisibility(View.VISIBLE);
-        ((com.google.android.material.button.MaterialButton) cta).setText(R.string.empty_history_cta);
-        cta.setOnClickListener(v -> {
-            startActivity(new Intent(this, ChatActivity.class));
-            finish();
-        });
-    }
-
-    private void reload() {
-        // Capture UI-thread state before dispatching to background
-        final String query  = searchQuery;
-        final int chipId    = chips.getCheckedChipId();
-        final Chip chip     = (chipId != View.NO_ID && chipId != R.id.chip_all
-                                && chipId != R.id.chip_bookmarks)
-                              ? (Chip) findViewById(chipId) : null;
-        final String chipLabel = chip != null ? chip.getText().toString().toLowerCase() : null;
-
-        StudyMentorApp.get().executor().execute(() -> {
-            List<Question> all   = StudyMentorApp.get().db().questionDao().all();
-            List<Question> items = applyFilter(applySearch(all, query), chipId, chipLabel);
-            runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed()) return;
-                adapter.setItems(items);
-                toggleEmpty(items.isEmpty());
-            });
-        });
-    }
-
-    private List<Question> applySearch(List<Question> all, String query) {
-        if (query == null || query.trim().isEmpty()) return all;
-        String lq = query.trim().toLowerCase();
-        List<Question> out = new ArrayList<>();
-        for (Question q : all) {
-            if (q.prompt != null && q.prompt.toLowerCase().contains(lq)) out.add(q);
-        }
-        return out;
-    }
-
-    private List<Question> applyFilter(List<Question> all, int chipId, String chipLabel) {
-        if (chipId == View.NO_ID || chipId == R.id.chip_all) return all;
-
-        if (chipId == R.id.chip_bookmarks) {
-            List<Question> out = new ArrayList<>();
-            for (Question q : all) if (q.bookmarked) out.add(q);
-            return out;
-        }
-        if (chipLabel == null) return all;
-        List<Question> out = new ArrayList<>();
-        for (Question q : all) {
-            if (q.subject != null && q.subject.toLowerCase().contains(chipLabel)) out.add(q);
-        }
-        return out;
-    }
-
-    private void bindMiloNoticed() {
-        View card = findViewById(R.id.card_milo_noticed);
-        if (card == null) return;
-        card.findViewById(R.id.btn_milo_review).setOnClickListener(v ->
-                startActivity(new Intent(this, QuizActivity.class)));
-        StudyMentorApp.query(this,
-                () -> StudyMentorApp.get().db().questionDao().count(),
-                count -> {
-                    if (count >= 5) {
-                        card.setVisibility(View.VISIBLE);
-                        ((TextView) card.findViewById(R.id.text_milo_noticed))
-                                .setText("You've asked " + count + " questions. Want a quick review quiz?");
-                    }
-                });
+    private void setStat(ItemStatPillBinding stat, String value, String label) {
+        stat.textValue.setText(value);
+        stat.textLabel.setText(label);
     }
 
     private void toggleEmpty(boolean empty) {
         emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
-        rv.setVisibility(empty ? View.GONE : View.VISIBLE);
+        recycler.setVisibility(empty ? View.GONE : View.VISIBLE);
+    }
 
-        // Tailor the empty state copy by current filter
-        TextView title = findViewById(R.id.empty_title);
-        TextView body  = findViewById(R.id.empty_body);
-        if (chips.getCheckedChipId() == R.id.chip_bookmarks) {
-            title.setText(R.string.empty_bookmarks_title);
-            body.setText(R.string.empty_bookmarks_body);
-        } else {
-            title.setText(R.string.empty_history_title);
-            body.setText(R.string.empty_history_body);
-        }
+    private void routeLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

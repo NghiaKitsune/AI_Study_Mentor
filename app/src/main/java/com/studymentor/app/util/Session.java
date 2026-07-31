@@ -16,6 +16,8 @@ import androidx.preference.PreferenceManager;
 public final class Session {
 
     private static final String KEY_AUTH_TOKEN  = "auth_token";
+    private static final String KEY_ACTIVE_USER_ID = "active_user_id";
+    private static final String KEY_ACTIVE_USER_ONBOARDED = "active_user_onboarded";
     private static final String KEY_USER_EMAIL  = "user_email";
     private static final String KEY_USER_NAME   = "user_name";
     private static final String KEY_ONBOARDED   = "onboarded";
@@ -42,7 +44,31 @@ public final class Session {
     // ---- Auth ------------------------------------------------------
 
     public static boolean isLoggedIn(Context c) {
-        return p(c).getString(KEY_AUTH_TOKEN, null) != null;
+        return userId(c) > 0;
+    }
+
+    public static long userId(Context c) {
+        return p(c).getLong(KEY_ACTIVE_USER_ID, -1L);
+    }
+
+    public static void start(Context c, long userId, boolean onboarded) {
+        p(c).edit()
+                .putLong(KEY_ACTIVE_USER_ID, userId)
+                .putBoolean(KEY_ACTIVE_USER_ONBOARDED, onboarded)
+                .apply();
+    }
+
+    public static void setOnboarded(Context c, boolean onboarded) {
+        p(c).edit().putBoolean(KEY_ACTIVE_USER_ONBOARDED, onboarded).apply();
+    }
+
+    /** Ends only the active account session; persisted Room data remains intact. */
+    public static void clearAuth(Context c) {
+        p(c).edit()
+                .remove(KEY_ACTIVE_USER_ID)
+                .remove(KEY_ACTIVE_USER_ONBOARDED)
+                .remove(KEY_AUTH_TOKEN)
+                .apply();
     }
 
     public static void saveAuth(Context c, String token, String email) {
@@ -65,12 +91,14 @@ public final class Session {
     // ---- Personalization (UC1) -------------------------------------
 
     public static boolean isOnboarded(Context c) {
-        return p(c).getBoolean(KEY_ONBOARDED, false);
+        return p(c).getBoolean(KEY_ACTIVE_USER_ONBOARDED,
+                p(c).getBoolean(KEY_ONBOARDED, false));
     }
 
     public static void savePersonalization(Context c, String level, String subjectsCsv) {
         p(c).edit()
                 .putBoolean(KEY_ONBOARDED, true)
+                .putBoolean(KEY_ACTIVE_USER_ONBOARDED, true)
                 .putString(KEY_USER_LEVEL, level)
                 .putString(KEY_SUBJECTS, subjectsCsv)
                 .apply();

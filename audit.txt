@@ -1,0 +1,802 @@
+AI STUDY MENTOR
+KẾ HOẠCH AUDIT VÀ TÍCH HỢP SOURCE MAIN + AI-STUDY-MENTOR-FINAL-FIXED
+
+Ngày lập kế hoạch: 29/07/2026
+Trạng thái: BẢN NHÁP ĐỂ REVIEW - CHƯA TRIỂN KHAI CODE
+Nhánh dự kiến thực hiện: refactor/final-refactor
+Baseline main đã audit: bdccae0707f57d96ccd5701ef87a04c6b86a2dc6
+
+======================================================================
+1. MỤC TIÊU CỦA BẢN HỢP NHẤT
+======================================================================
+
+Bản cuối sẽ:
+
+- Giữ nguyên thiết kế, trải nghiệm và các màn hình tốt của main.
+- Giữ cơ chế đếm giờ, lựa chọn đáp án và reveal đúng/sai của Practice
+  trong main.
+- Bổ sung multiple choice, short answer và fill-in-the-blank từ ZIP.
+- Chuyển dữ liệu nghiệp vụ sang kiến trúc:
+
+  Entity -> DAO -> Repository -> ViewModel -> Activity/UI
+
+- Không còn mock/fake data trong production.
+- Lưu lịch sử, answer detail, quiz, attempt, progress, XP và notification
+  trong Room.
+- Cho phép xem lại dữ liệu đã lưu khi offline.
+- Không xóa AnswerTabbed hoặc làm đơn giản hóa UI hiện tại.
+- Có Room Migration giữ dữ liệu cũ.
+- Build, test, lint và release phải được xác minh trước khi hoàn thành.
+
+======================================================================
+2. KIẾN TRÚC ĐÍCH
+======================================================================
+
+Java + XML + Material 3
+        |
+        v
+Multi-Activity + ViewBinding
+        |
+        v
+ViewModel + LiveData
+        |
+        v
+Repository
+        |
+        +-- Room/SQLite
+        +-- AI Service abstraction
+        +-- WorkManager
+        +-- CameraX + ML Kit OCR
+
+Tech stack đề xuất:
+
+- Ngôn ngữ: Java 17.
+- UI: XML + Material 3.
+- Navigation: Multi-Activity, không Fragment, không NavComponent.
+- View access: ViewBinding.
+- Local database: SQLite + Room.
+- Data layer: Entity + DAO + Repository.
+- UI state: ViewModel + LiveData.
+- Background database work: ExecutorService.
+- Offline/background jobs: WorkManager.
+- Camera: CameraX.
+- OCR: ML Kit Text Recognition.
+- Network: OkHttp/Retrofit hoặc AiService abstraction.
+- AI provider: không gắn cứng vào Activity hoặc Repository.
+- JSON: Gson.
+- Preferences: SharedPreferences chỉ giữ session/theme/UI state nhẹ.
+- Testing: JUnit + Android Room instrumentation tests.
+
+======================================================================
+3. MA TRẬN TÍNH NĂNG GIỮ LẠI VÀ THAY THẾ
+======================================================================
+
+3.1. Design system và UI
+
+- Giữ từ main:
+  + Colors, dimens, drawable và Material 3 theme.
+  + Layout và trải nghiệm của Home, Chat, Answer, History, Practice,
+    QuizResult, Dashboard, Profile và Notifications.
+  + AnswerTabbedActivity.
+- Không lấy nguyên từ ZIP:
+  + Dashboard, Leaderboard và TwoFA layout đã bị rút gọn.
+  + Các Activity viết cô đọng và dùng nhiều findViewById.
+- Bản hợp nhất:
+  + Giữ UI main.
+  + Thay data source và state management bằng Repository/ViewModel.
+  + Dùng ViewBinding cho các màn hình được chỉnh sửa.
+
+3.2. Navigation
+
+- Giữ kiến trúc Multi-Activity từ main.
+- Không chuyển sang Fragment hoặc Navigation Component.
+- Không lấy nguyên REORDER_TO_FRONT của ZIP.
+- Chuẩn hóa bottom navigation bằng:
+  + FLAG_ACTIVITY_CLEAR_TOP.
+  + FLAG_ACTIVITY_SINGLE_TOP.
+  + Không tạo Activity trùng.
+  + Không làm tăng back stack liên tục.
+
+3.3. Room và data architecture
+
+- Main hiện có Question và Message.
+- ZIP bổ sung user, preference, answer detail, quiz, progress, XP,
+  achievement, notification và reminder.
+- Bản hợp nhất dùng kiến trúc audit đầy đủ:
+  + Entity.
+  + DAO.
+  + Repository.
+  + ViewModel.
+  + Activity/UI.
+- Activity và Adapter không được gọi DAO trực tiếp.
+- Không dùng allowMainThreadQueries().
+- Không dùng fallbackToDestructiveMigration().
+
+3.4. Auth và onboarding
+
+- Giữ UI SignUp, Login, ForgotPassword và Personalize từ main.
+- Lấy từ ZIP:
+  + User entity.
+  + UserPreference.
+  + PBKDF2 password hashing và salt riêng.
+  + Active user ID trong Session.
+  + User-scoped Room data.
+- Forgot Password, TwoFA và SSO không được giả lập thành công nếu không
+  có backend.
+
+3.5. Chat và Answer
+
+- Giữ từ main:
+  + Message bubbles.
+  + Suggestion chips.
+  + Loading indicator.
+  + Camera entry.
+  + AnswerActivity.
+  + AnswerTabbedActivity.
+- Lấy từ ZIP:
+  + Request status trong Room.
+  + Offline pending queue.
+  + Exact-context cache.
+  + WorkManager retry.
+  + Structured ChatResponse.
+  + AnswerDetail persistence.
+  + Atomic processing claim.
+  + User ownership.
+- Không cộng XP vô hạn cho câu trả lời lấy từ cache.
+
+3.6. Practice và Quiz
+
+- Giữ từ main:
+  + Timer.
+  + Time progress bar.
+  + Option cards.
+  + Cơ chế chọn đáp án.
+  + Reveal đáp án đúng/sai.
+  + Feedback/explanation.
+  + Next question flow.
+  + Quiz Result design.
+- Lấy từ ZIP:
+  + QuizQuestionEntity.
+  + QuizAttempt.
+  + QuizAnswer.
+  + QuizDao.
+  + QuizRepository.
+  + QuizViewModel.
+  + Quiz persistence và resume.
+  + Multiple choice, short answer, fill-in-the-blank.
+  + AI-generated practice từ lịch sử thật.
+
+3.7. Progress và gamification
+
+- Giữ Dashboard/Profile/badge/activity UI từ main.
+- Lấy từ ZIP:
+  + LearningEvent.
+  + XpEvent.
+  + UserAchievement.
+  + ProgressRepository.
+  + ProgressViewModel.
+  + Room aggregate queries.
+- Không dùng percentage, chart, XP hoặc badge giả.
+
+3.8. Notification
+
+- Giữ Notification screen, filter chips và Settings UI từ main.
+- Lấy NotificationEntity, ReminderSchedule, Repository/ViewModel và
+  unique WorkManager scheduling từ ZIP.
+
+3.9. OCR
+
+- Giữ CameraX, shutter, flash, camera flip, gallery và Scan Preview UI
+  từ main.
+- Thay MockOcrService bằng ML Kit Text Recognition từ ZIP.
+- Decode/resize ảnh trên background executor.
+- Cho phép chỉnh text trước khi gửi AI.
+
+======================================================================
+4. NHỮNG PHẦN KHÔNG LẤY NGUYÊN TỪ ZIP
+======================================================================
+
+- Không xóa AnswerTabbedActivity.
+- Không xóa activity_answer_tabbed.xml.
+- Không thu gọn Dashboard, Leaderboard và TwoFA layout.
+- Không thay toàn bộ UI main bằng UI ZIP.
+- Không chép Activity được minify/cô đọng khó bảo trì.
+- Không gắn trực tiếp Repository với Gemini.
+- Không commit API key thật.
+- Không giữ hardcoded string mới trong Java/XML.
+- Không cho cache answer tạo XP vô hạn.
+- Không xóa api-contract nếu vẫn cần backend contract.
+- Không dùng destructive migration.
+- Không sử dụng mock quiz, OCR, auth hoặc statistics trong production.
+
+======================================================================
+5. PHASE 0 - BASELINE VÀ PHẠM VI
+======================================================================
+
+Công việc:
+
+- Xác nhận nhánh refactor/final-refactor.
+- Ghi lại commit main làm baseline.
+- Ghi nhận git status và bảo toàn thay đổi chưa commit.
+- Build main trước khi tích hợp:
+  + assembleDebug.
+  + testDebugUnitTest nếu có.
+  + lintDebug.
+  + assembleRelease.
+- Lập danh sách luồng UI phải giữ nguyên:
+  + Practice timer.
+  + Chọn đáp án.
+  + Reveal đúng/sai.
+  + Quiz Result.
+  + AnswerTabbed.
+  + Chat, History, Profile và Dashboard.
+
+Deliverable:
+
+- Baseline report.
+- Danh sách lỗi có sẵn trước refactor.
+- Screenshot/checklist hành vi cần giữ.
+
+======================================================================
+6. PHASE 1 - ROOM SCHEMA CUỐI CÙNG
+======================================================================
+
+Các bảng đích:
+
+1. users
+2. user_preferences
+3. questions
+4. messages
+5. answer_details
+6. quiz_questions
+7. quiz_attempts
+8. quiz_answers
+9. learning_events
+10. xp_events
+11. user_achievements
+12. notifications
+13. reminder_schedules
+
+Mở rộng quiz_attempts cho timer/resume:
+
+- status.
+- current_question_index.
+- current_question_started_at.
+- current_question_deadline.
+- last_updated_at.
+- score.
+- total.
+- completed_at.
+
+Mở rộng quiz_answers:
+
+- timed_out.
+- answer_type.
+- response_time_ms.
+- user_answer.
+- is_correct.
+- feedback.
+
+Cân nhắc mở rộng quiz_questions:
+
+- acceptable_answers_json.
+- time_limit_seconds.
+- case_sensitive.
+- numeric_tolerance.
+
+Migration:
+
+- Nếu ZIP chưa từng được phát hành:
+  + Tạo migration cuối main v1 -> final v2.
+- Nếu cần hỗ trợ database v2 của ZIP:
+  + MIGRATION_1_2.
+  + MIGRATION_2_3.
+- Không dùng fallbackToDestructiveMigration().
+
+Kiểm tra bắt buộc:
+
+- Question/Message cũ được giữ.
+- Bookmark và answer cũ được giữ.
+- Không có Message mồ côi.
+- Cascade delete hoạt động.
+- User A không thấy dữ liệu User B.
+- Một câu trong một attempt chỉ có một QuizAnswer.
+- Một nguồn XP không được cộng hai lần.
+
+======================================================================
+7. PHASE 2 - REPOSITORY VÀ VIEWMODEL FOUNDATION
+======================================================================
+
+Repository đích:
+
+- AuthRepository.
+- UserRepository.
+- ChatRepository.
+- HistoryRepository.
+- QuizRepository.
+- ProgressRepository.
+- NotificationRepository.
+
+ViewModel đích:
+
+- AuthViewModel.
+- UserViewModel.
+- ChatViewModel.
+- AnswerViewModel.
+- HistoryViewModel.
+- QuizViewModel.
+- QuizResultViewModel.
+- ProgressViewModel.
+- NotificationViewModel.
+
+Quy tắc:
+
+- Activity không gọi DAO.
+- Adapter không gọi Repository hoặc DAO.
+- Repository chỉ giữ application context.
+- Database chạy ngoài main thread.
+- LiveData được cập nhật an toàn trên UI thread.
+- ViewModel không tự tạo dữ liệu mẫu.
+- Callback cũ không được ghi đè state mới.
+- Các request dài phải có state và lifecycle handling rõ ràng.
+
+======================================================================
+8. PHASE 3 - AUTH VÀ PERSONALIZATION
+======================================================================
+
+Giữ từ main:
+
+- SignUp/Login UI.
+- Validation UI.
+- Password strength indicator.
+- Personalize layout.
+- Subject chips.
+- Splash routing.
+
+Lấy từ ZIP:
+
+- User entity.
+- UserPreference.
+- PBKDF2 + salt.
+- Session active user ID.
+- User-scoped database queries.
+
+Bản hợp nhất:
+
+- SignUp tạo tài khoản local thật trong Room.
+- Login xác minh password hash.
+- Personalize lưu education level, subject interests,
+  explanation style và language.
+- Logout xóa session nhưng không xóa dữ liệu học.
+- Forgot Password/TwoFA/SSO hiển thị giới hạn trung thực nếu chưa có
+  trusted backend.
+
+======================================================================
+9. PHASE 4 - AI CHAT HYBRID
+======================================================================
+
+Giữ UI main và nối vào ChatViewModel/ChatRepository.
+
+Trạng thái Chat đích:
+
+- IDLE.
+- SAVING.
+- PENDING.
+- PROCESSING.
+- COMPLETED.
+- FAILED.
+- CANCELLED.
+
+AI service abstraction:
+
+interface AiService {
+    Call<ChatResponse> chat(ChatRequest request);
+    Call<QuizGenerationResponse> generateQuiz(QuizGenerationRequest request);
+}
+
+Nguyên tắc:
+
+- UI không biết Gemini/Groq.
+- Repository không phụ thuộc provider cụ thể.
+- Giữ provider hiện tại đã hoạt động và được test nếu có.
+- Gemini có thể là implementation tùy chọn, không phải kiến trúc bắt buộc.
+- Kết quả AI phải lưu Room.
+- Offline request lưu PENDING và enqueue WorkManager.
+- Không trả câu trả lời AI hard-code khi mất mạng.
+- Exact cache phải theo user và learning context.
+- Cache hit không được cộng XP lặp lại.
+
+======================================================================
+10. PHASE 5 - PRACTICE/QUIZ HYBRID
+======================================================================
+
+Đây là phase trọng tâm.
+
+10.1. State machine
+
+LOADING
+  -> QUESTION_ACTIVE
+  -> SAVING_ANSWER
+  -> ANSWER_REVEALED
+  -> NEXT_QUESTION
+  -> COMPLETED
+
+10.2. Timer
+
+- Giữ giao diện và thời lượng timer từ main.
+- ViewModel quản lý deadline và remaining time.
+- Activity chỉ render timer.
+- Tính remaining bằng thời gian monotonic/deadline, tránh reset khi xoay.
+- Khi người dùng trả lời:
+  + Dừng timer.
+  + Khóa input.
+  + Lưu answer vào Room.
+  + Chỉ reveal sau khi lưu thành công.
+- Khi hết giờ:
+  + Lưu timed_out=true.
+  + Đánh dấu incorrect.
+  + Reveal đáp án đúng.
+  + Không tự nhảy ngay trước khi người dùng đọc feedback.
+
+10.3. Multiple choice
+
+- Hiện option cards từ main.
+- Ẩn text input.
+- Chọn option sẽ khóa lựa chọn.
+- Tô xanh đáp án đúng.
+- Tô đỏ lựa chọn sai.
+- Hiện explanation.
+
+10.4. Short answer
+
+- Ẩn option cards.
+- Hiện TextInputEditText.
+- Có nút Check Answer.
+- Chuẩn hóa trước khi đánh giá.
+- Hỗ trợ acceptable_answers_json.
+
+10.5. Fill in the blank
+
+- Hiện câu có vị trí trống.
+- Hiện input phù hợp.
+- Khi reveal, hiển thị câu hoàn chỉnh và explanation.
+
+10.6. Answer evaluation
+
+Tạo lớp QuizAnswerEvaluator độc lập:
+
+AnswerEvaluation evaluate(
+    QuizQuestionEntity question,
+    String userAnswer
+)
+
+Hỗ trợ:
+
+- Chuẩn hóa khoảng trắng.
+- Hoa/thường theo cấu hình.
+- Nhiều đáp án chấp nhận được.
+- Numeric tolerance.
+- Không để Activity tự tính điểm.
+
+10.7. Nguồn quiz
+
+Ưu tiên:
+
+1. Attempt đang làm dở trong Room.
+2. Quiz đã lưu trong Room.
+3. Online: AI tạo quiz từ lịch sử thật.
+4. Offline và chưa có quiz: hiện empty state trung thực.
+
+quiz_questions.json chỉ được giữ làm test fixture, không dùng production.
+
+10.8. Hoàn thành attempt
+
+- Điểm được tính lại từ quiz_answers trong Room.
+- UI không truyền điểm như nguồn sự thật.
+- Attempt chỉ được complete một lần.
+- XP chỉ được cộng một lần theo attempt ID.
+- QuizResult đọc dữ liệu persisted.
+
+======================================================================
+11. PHASE 6 - ANSWER VÀ HISTORY
+======================================================================
+
+Answer:
+
+- Giữ AnswerActivity.
+- Giữ AnswerTabbedActivity.
+- Giữ step cards, common mistakes, follow-up chips và bốn tab.
+- Lưu AnswerDetail trong Room.
+- Mở detail không gọi AI lại nếu dữ liệu đã tồn tại.
+- Cho phép xem offline.
+
+History:
+
+- Giữ search, subject filter, bookmark, delete và Milo card từ main.
+- Chuyển data flow sang HistoryViewModel/HistoryRepository.
+- Tất cả query phải theo user_id.
+- Gợi ý Milo phải tính từ lịch sử thật.
+
+======================================================================
+12. PHASE 7 - PROGRESS, XP VÀ PROFILE
+======================================================================
+
+Giữ từ main:
+
+- Dashboard layout.
+- Chart.
+- Profile avatar.
+- XP bar.
+- Badge grid.
+- Activity feed.
+
+Lấy từ ZIP:
+
+- LearningEvent.
+- XpEvent.
+- UserAchievement.
+- Room aggregate queries.
+- ProgressRepository/ViewModel.
+
+Quy tắc:
+
+- XP là tổng từ xp_events.
+- Không lưu XP nghiệp vụ trong SharedPreferences.
+- Streak tính từ timestamps thật.
+- Badge unlock dùng điều kiện thật.
+- Unique event chống cộng trùng.
+- Cache answer không tạo XP farm.
+- Dashboard không dùng số liệu cứng.
+
+Leaderboard:
+
+- Không tạo global/friends data giả.
+- Giữ UI nếu cần assignment/design.
+- Hiển thị local progress hoặc trạng thái chưa có backend.
+
+======================================================================
+13. PHASE 8 - NOTIFICATIONS VÀ REMINDERS
+======================================================================
+
+- Giữ Notification UI và filter chips main.
+- Dùng NotificationEntity, NotificationDao và NotificationViewModel.
+- ReminderSchedule lưu Room.
+- Dùng unique WorkManager.
+- Tắt notification phải cancel worker.
+- Không tạo notification trùng.
+- Notification inbox phải theo user.
+- Không đưa thống kê giả vào notification.
+
+======================================================================
+14. PHASE 9 - CAMERA VÀ OCR
+======================================================================
+
+- Giữ CameraX UI và interaction main.
+- Thay MockOcrService bằng ML Kit OCR.
+- Decode và resize ảnh ngoài main thread.
+- Giới hạn kích thước bitmap.
+- Xử lý URI, permission và FileProvider.
+- Cho phép người dùng chỉnh OCR text.
+- Xử lý ảnh xoay, lớn, mờ, tối và OCR rỗng.
+- Không callback vào Activity đã đóng.
+- Không fallback sang OCR giả.
+
+======================================================================
+15. PHASE 10 - NAVIGATION, LOCALIZATION VÀ CODE QUALITY
+======================================================================
+
+Navigation checks:
+
+- Không tạo vòng lặp back stack.
+- Nhấn lại tab hiện tại không reload.
+- Highlight tab chính xác.
+- Không flicker.
+- Không mất Chat input.
+- Không gọi lại AI/Room query không cần thiết.
+
+Localization:
+
+- Chuyển hardcoded Java text sang strings.xml.
+- Chuyển hardcoded XML text sang @string.
+- Dùng placeholder cho số và text động.
+- Kiểm tra encoding English/Vietnamese.
+
+ViewBinding:
+
+- Các Activity được chỉnh sửa phải dùng ViewBinding.
+- Không thực hiện refactor không liên quan chỉ để đổi style code.
+
+======================================================================
+16. PHASE 11 - SECURITY VÀ PRIVACY
+======================================================================
+
+- Không commit API key.
+- Không log password, token hoặc API key.
+- android:allowBackup=false.
+- Backup rules loại database và SharedPreferences nhạy cảm.
+- FileProvider chỉ cho phép thư mục scan cần thiết.
+- Password dùng PBKDF2 + salt.
+- Xóa password char[] sau xử lý.
+- Giới hạn chiều dài prompt.
+- Chống double-click và duplicate request.
+- Không tuyên bố Room được mã hóa.
+- Ghi rõ API key trong APK vẫn có thể bị trích xuất nếu gọi AI trực tiếp.
+
+======================================================================
+17. PHASE 12 - TEST VÀ NGHIỆM THU
+======================================================================
+
+17.1. Unit tests
+
+- Password hashing.
+- Text normalization.
+- Quiz validation.
+- Multiple-choice evaluation.
+- Short-answer evaluation.
+- Fill-blank evaluation.
+- Numeric tolerance.
+- XP duplicate prevention.
+- Progress/streak rules.
+- Timer deadline calculation.
+
+17.2. Room instrumentation tests
+
+- Migration.
+- Cascade delete.
+- User isolation.
+- Resume quiz.
+- Duplicate QuizAnswer.
+- Duplicate XP.
+- Pending AI state.
+- AnswerDetail offline.
+
+17.3. Emulator tests
+
+- SignUp/Login/Logout.
+- Chat online/offline.
+- Rotation khi AI đang chạy.
+- Practice timer.
+- Timeout reveal.
+- Cả ba loại câu hỏi.
+- Rotation giữa câu quiz.
+- Process recreation.
+- QuizResult.
+- OCR.
+- Notification permission.
+- Bottom navigation/back stack.
+
+17.4. Build pipeline
+
+Windows:
+
+.\gradlew.bat clean
+.\gradlew.bat assembleDebug
+.\gradlew.bat testDebugUnitTest
+.\gradlew.bat lintDebug
+.\gradlew.bat assembleRelease
+
+Không đánh dấu hoàn thành nếu task chưa được chạy thực tế.
+
+======================================================================
+18. THỨ TỰ COMMIT ĐỀ XUẤT
+======================================================================
+
+1. refactor(data): add final Room schema and migrations
+2. refactor(architecture): add repository and viewmodel layers
+3. feature(auth): persist local accounts and preferences
+4. feature(chat): add offline queue, cache and answer detail
+5. feature(practice): combine timer/reveal with persisted quiz types
+6. feature(history): use user-scoped repository data
+7. feature(progress): add XP, achievements and real aggregates
+8. feature(notifications): persist inbox and reminders
+9. feature(ocr): replace mock OCR with ML Kit
+10. bugfix(navigation): stabilize bottom-nav back stack
+11. refactor(resources): remove hardcoded production strings
+12. test(regression): add final unit, migration and UI verification
+
+Mỗi commit phải nhỏ, có thể review và rollback độc lập.
+
+======================================================================
+19. CÁC QUYẾT ĐỊNH CẦN REVIEW
+======================================================================
+
+Đề xuất mặc định:
+
+1. AI provider
+   - Giữ AiService độc lập.
+   - Dùng provider hiện tại đã hoạt động/tested làm production.
+   - Gemini là implementation tùy chọn, không gắn cứng vào kiến trúc.
+
+2. Timer khi app ra nền
+   - Đề xuất thời gian tiếp tục chạy theo deadline.
+   - Cần xác nhận nếu muốn pause timer khi app background.
+
+3. Forgot Password/TwoFA/SSO
+   - Giữ màn hình nhưng hiển thị giới hạn local-only.
+   - Không giả lập thành công.
+
+4. Leaderboard
+   - Giữ UI.
+   - Bỏ fake global/friends data.
+   - Hiển thị local progress hoặc unavailable state.
+
+5. Room version
+   - Nếu ZIP chưa phát hành: final migration v1 -> v2.
+   - Nếu cần tương thích ZIP v2: bổ sung v2 -> v3.
+
+6. Quiz asset
+   - Chuyển quiz_questions.json sang test fixture.
+   - Không dùng production.
+
+7. AnswerTabbed
+   - Giữ nguyên và nối với AnswerDetail Room.
+
+8. UI strategy
+   - Giữ UI/design main.
+   - Chỉ thay data flow và state management.
+
+======================================================================
+20. TIÊU CHÍ HOÀN THÀNH PRACTICE HYBRID
+======================================================================
+
+- Timer không reset khi xoay màn hình.
+- Hết giờ vẫn reveal đáp án trước khi chuyển câu.
+- Multiple choice tô đúng/sai như main.
+- Short answer và fill blank có input phù hợp.
+- Một câu chỉ được lưu một đáp án trong một attempt.
+- Điểm được tính từ Room.
+- Quiz dở resume đúng vị trí.
+- Offline vẫn làm được quiz đã lưu.
+- Không có quiz offline thì không sinh câu hỏi giả.
+- Complete attempt không cộng XP hai lần.
+- Double-click không tạo answer trùng.
+- QuizResult hiển thị dữ liệu persisted.
+- AnswerTabbed và design hiện tại không bị mất.
+
+======================================================================
+21. KẾT QUẢ CUỐI MONG ĐỢI
+======================================================================
+
+Bản hoàn chỉnh sẽ có:
+
+- UI và trải nghiệm của main.
+- Architecture Components và offline-first của ZIP.
+- Practice timer/reveal được giữ nguyên.
+- Ba loại câu hỏi.
+- Quiz resume sau rotation/process restart.
+- Room là nguồn dữ liệu nghiệp vụ duy nhất.
+- Không mock data trong production.
+- Không mất AnswerTabbed hoặc design hiện tại.
+- AI provider có thể thay đổi mà không sửa UI.
+- Debug/release build thành công.
+- Unit, migration và emulator tests có bằng chứng.
+
+======================================================================
+22. TRẠNG THÁI KẾ HOẠCH
+======================================================================
+
+Implementation theo kế hoạch đã hoàn tất trên nhánh refactor/final-refactor.
+
+Kết quả xác minh cuối:
+
+- Gemini là provider production duy nhất; không còn Groq/mock trong source ứng dụng.
+- Credential Groq legacy trong local.properties đã được xóa; cấu hình Gemini được giữ nguyên.
+- Practice giữ timer/deadline, chọn đáp án, reveal và explanation của main; đồng thời
+  hỗ trợ MULTIPLE_CHOICE, SHORT_ANSWER và FILL_BLANK từ kiến trúc ZIP.
+- Room v2 migration, user isolation, Repository/ViewModel, WorkManager offline queue,
+  AnswerDetail, quiz persistence, XP/achievement/notification và ML Kit OCR đã tích hợp.
+- 17 unit tests: PASS, 0 lỗi.
+- 2 instrumentation tests trên Medium_Phone: PASS, 0 lỗi.
+- lintDebug: PASS, 0 error; HardcodedText/SetTextI18n/DefaultLocale/PluralsCandidate = 0.
+- assembleRelease: PASS; APK release hiện là bản unsigned.
+- Smoke test xác nhận SignUp, Home/History/Profile/Notifications/Chat và toàn bộ Practice
+  input/reveal/timeout/process-resume/QuizResult hoạt động ổn định.
+
+Các lỗi phát hiện trong smoke test đã sửa:
+
+- Không còn loading vô hạn khi Practice chưa có dữ liệu nguồn.
+- Đáp án chuẩn vẫn hợp lệ khi câu hỏi có thêm alias.
+- Timer trên 60 giây hiển thị đúng m:ss.
+
+Chi tiết log, artifact và lưu ý không chặn release nằm trong IMPLEMENTATION_CHECKPOINT.txt.
+Nhánh main không bị checkout, merge, reset, commit hoặc chỉnh sửa.
