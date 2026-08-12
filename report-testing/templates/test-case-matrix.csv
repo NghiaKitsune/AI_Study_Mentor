@@ -1,0 +1,39 @@
+Test ID,Requirement,Type,Test case / action,Input / condition,Expected result,Actual result,Result (Pass/Fail/Partial),Evidence file,Notes
+AUTO-U-01,UR3,Unit,Chat request blank request ID,"Blank requestId + valid message",A non-empty request ID is generated and legacy alias matches,,,app/build/reports/tests/testDebugUnitTest/index.html,Automated: ChatRequestContractTest
+AUTO-U-02,UR3,Unit,Chat request null message,"requestId=req-001; message=null",Message is normalized to empty string,,,app/build/reports/tests/testDebugUnitTest/index.html,Automated: ChatRequestContractTest
+AUTO-U-03,UR3,Unit,Legacy conversation ID handling,"positive and zero IDs",Only positive legacy conversation ID is retained,,,app/build/reports/tests/testDebugUnitTest/index.html,Automated: ChatRequestContractTest
+AUTO-I-01,UR1,Database/Security,Duplicate account database constraint,Insert same exact email twice,Second insert is rejected,,,app/build/reports/androidTests/connected/debug/,Automated: AuthenticationSecurityTest
+AUTO-I-02,UR2,Security/Session,Local login session logout state,Start session then clear auth,Active user is removed after logout,,,app/build/reports/androidTests/connected/debug/,Automated: AuthenticationSecurityTest
+AUTO-I-03,UR1;UR5;UR8,Database/Security,User deletion cascade,"User owns question notification reminder",Owned records are removed with user,,,app/build/reports/androidTests/connected/debug/,Automated: AuthenticationSecurityTest
+AUTO-I-04,UR5;UR6,Functional/Database,History keyword subject bookmark filters,Seed two owner questions and one foreign-user question,Only matching owner records are returned,,,app/build/reports/androidTests/connected/debug/,Automated: HistoryNotificationDatabaseTest
+AUTO-I-05,UR5;UR6,Database,Delete saved question cascades child content,Question has messages and answer detail,Messages and answer detail are removed,,,app/build/reports/androidTests/connected/debug/,Automated: HistoryNotificationDatabaseTest
+AUTO-I-06,UR8,Security/Database,Notification read-state ownership,Other user attempts mark-read,Foreign user cannot change notification,,,app/build/reports/androidTests/connected/debug/,Automated: HistoryNotificationDatabaseTest
+AUTO-I-07,UR8,Functional/Database,Notification filtering and reminder schedule,Reminder and progress notifications plus schedule,Type filters and owner schedule persist correctly,,,app/build/reports/androidTests/connected/debug/,Automated: HistoryNotificationDatabaseTest
+AUTO-I-08,UR3,Integration/Reliability,Failed AI question retry state,Pending -> processing -> failed -> retry -> completed,Question can be safely retried and completed,,,app/build/reports/androidTests/connected/debug/,Automated: QuestionStateMachineTest
+AUTO-I-09,UR3,Integration/Reliability,Recover stale processing question,Old PROCESSING record,Record returns to PENDING with RECOVERED error code,,,app/build/reports/androidTests/connected/debug/,Automated: QuestionStateMachineTest
+AUTO-I-10,UR3,Security/Reliability,AI answer cache isolation,Same prompt across user/context,Cache is returned only for exact owner and context,,,app/build/reports/androidTests/connected/debug/,Automated: QuestionStateMachineTest
+AUTO-I-11,UR3;UR6,Security/Database,Foreign user cannot mutate question,Other user tries bookmark/status update,DAO update count is zero and owner data is unchanged,,,app/build/reports/androidTests/connected/debug/,Automated: QuestionStateMachineTest
+AUTO-I-12,Security,Security,Android backup disabled,Installed debug build,FLAG_ALLOW_BACKUP is not set,,,app/build/reports/androidTests/connected/debug/,Automated: ManifestSecurityTest
+AUTO-I-13,Security,Security,Internal activities not exported,Installed debug build,Only launcher SplashActivity is exported,,,app/build/reports/androidTests/connected/debug/,Automated: ManifestSecurityTest
+AUTO-I-14,UR4;Security,Security,Camera FileProvider not exported,Installed debug build,FileProvider is private and grants URIs temporarily,,,app/build/reports/androidTests/connected/debug/,Automated: ManifestSecurityTest
+FUNC-01,UR1,Functional,Create local account,Valid demo email and valid password,Account is created and user can continue to personalisation,,,,,Manual on final build
+FUNC-02,UR2,Functional/Security,Login with correct credentials,Existing demo account,Login succeeds and correct user's data is shown,,,,,Manual on final build
+FUNC-03,UR2,Functional/Security,Login with wrong password,Existing email + wrong password,Login is rejected with clear error,,,,,Manual on final build
+FUNC-04,UR3,Functional,Submit text question while online,Valid study question,Structured AI answer is displayed and saved,,,,,Manual on final build
+FUNC-05,UR3,Reliability,Submit text question while offline,Valid study question + network disabled,Question enters pending state without app crash,,,,,Manual on final build
+FUNC-06,UR4,Functional,Camera/gallery OCR flow,Clear printed-text image,Recognised text is editable before sending to AI,,,,,Manual on final build
+FUNC-07,UR5;UR6,Functional,History search/filter/bookmark,Existing saved questions,Search filters bookmark and reopen work correctly,,,,,Manual on final build
+FUNC-08,UR7;SR6,Functional,Generate and complete quiz,Sufficient saved history,Quiz is generated timer works and result persists,,,,,Manual on final build
+FUNC-09,UR7,Functional,Progress update after quiz,Complete quiz,Dashboard reflects score/XP/level/streak according to implementation,,,,,Manual on final build
+FUNC-10,UR8,Functional,Enable study reminder,Notification permission as applicable,Schedule is saved and reminder/inbox evidence is produced,,,,,Manual may require waiting/scheduled worker
+SEC-01,UR1;UR2,Security,Data isolation between two accounts,Account A and B each have saved data,Account B cannot view or change Account A records,,,,,Pair with AUTO-I-11 evidence
+SEC-02,Security,Security,Review client-side Gemini key boundary,Final debug/release configuration,Record as production limitation; do not claim key secrecy in APK,,,,,Expected limitation not a Pass claim
+COMP-01,Compatibility,Compatibility,API 33 phone emulator,Android 13 phone AVD,Core smoke flow completes or issue is recorded,,,,,Record AVD name/resolution
+COMP-02,Compatibility,Compatibility,API 34 phone emulator,Android 14 phone AVD,Core smoke flow completes or issue is recorded,,,,,Record AVD name/resolution
+COMP-03,Compatibility,Compatibility,API 34 tablet emulator,Android 14 tablet AVD,Core smoke flow completes or issue is recorded,,,,,Record AVD name/resolution
+UAT-01,User expectation,UAT,Register/login/personalise,Participant follows task without developer help,Task completion time and usability rating are recorded,,,,,Use participant code only
+UAT-02,User expectation,UAT,Ask AI by text,Participant submits one study question,Completion time answer clarity rating and comments recorded,,,,,Use participant code only
+UAT-03,User expectation,UAT,Camera/OCR,Participant scans a printed-text question,Completion time OCR edits and rating recorded,,,,,Use participant code only
+UAT-04,User expectation,UAT,History/bookmark/search,Participant finds and reopens previous answer,Completion time success and comments recorded,,,,,Use participant code only
+UAT-05,User expectation,UAT,Quiz/result/dashboard,Participant completes generated quiz,Completion time success rating and comments recorded,,,,,Use participant code only
+UAT-06,User expectation,UAT,Offline/error case,Network disabled or controlled AI error,Participant understands pending/error state and recovery,,,,,Use participant code only

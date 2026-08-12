@@ -1,0 +1,7 @@
+Participant code,Role/background,Task ID,Task,Expected result,Actual result,Pass/Fail,Time_seconds,Ease_1_to_5,Satisfaction_1_to_5,Error encountered,Comment
+P01,,UAT-01,Register/login/personalise,User reaches Home with preferences saved,,,,,,,
+P01,,UAT-02,Ask AI by text,Structured answer is displayed and saved,,,,,,,
+P01,,UAT-03,Camera/OCR,Recognised text can be reviewed and edited,,,,,,,
+P01,,UAT-04,History/bookmark/search,Saved answer can be found and reopened,,,,,,,
+P01,,UAT-05,Quiz/result/dashboard,Quiz can be completed and progress is visible,,,,,,,
+P01,,UAT-06,Offline/error case,Pending/error state is understandable and recoverable,,,,,,,

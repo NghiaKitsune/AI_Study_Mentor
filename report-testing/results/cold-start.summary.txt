@@ -1,0 +1,6 @@
+﻿Cold start runs: 10
+Average_ms: 703.7
+Median_ms: 676
+P95_ms: 850
+Min_ms: 646
+Max_ms: 850
