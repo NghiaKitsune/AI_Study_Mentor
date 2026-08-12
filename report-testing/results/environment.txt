@@ -1,0 +1,14 @@
+﻿Development environment evidence
+Generated: 2026-08-12 12:50:33
+CPU: Intel(R) Core(TM) i5-6300U CPU @ 2.40GHz
+RAM_GB: 8
+OS: Microsoft Windows 10 Pro
+OS_VERSION: 10.0.19045
+OS_BUILD: 19045
+Android_Studio_Version: [FILL FROM Help > About]
+ADB_DEVICE_MODEL: CPH2599
+ANDROID_RELEASE: 16
+ANDROID_API: 36
+SCREEN_SIZE: Physical size: 1080x2412
+SCREEN_DENSITY: Physical density: 480
+JAVA: 
